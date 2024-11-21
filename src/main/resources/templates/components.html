@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <th:block th:frament="headComponents">
+        <th:block th:fragment="css">
+            <link th:fragment="lineicons" rel="stylesheet" th:href="@{/css/lineicons.css}"/>
+            <link th:fragment="bootstrap" rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+            <link th:fragment="style" rel="stylesheet" th:href="@{/css/style.css}">
+        </th:block>
+        <link rel="shortcut icon" th:href="@{/favicon.ico}" type="image/x-icon">
+    </th:block>
+    <th:block th:fragment="header">
+        <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+        <link rel="stylesheet" th:href="@{/css/style.css}">
+        <link rel="shortcut icon" th:href="@{/favicon.ico}" type="image/x-icon">
+    </th:block>
+    <title>Components</title>
+</head>
+<body>
+    <th:block class="Dashboard Fragments">
+        <div class="d-flex">
+            <!-- Sidebar Component -->
+            <aside id="sidebar" class="sidebar-toggle border-end" th:fragment="dashboardSidebar(currentPage)">
+                <div class="sidebar-logo my-5">
+                    <a th:href="@{/}">Ace Exam Platform</a>
+                </div>
+                <ul class="sidebar-nav my-auto border-start">
+                    <li class="sidebar-header text-uppercase">
+                        Dashboard
+                    </li>
+                    <li class="sidebar-item">
+                        <a th:href="@{/scheduled}" th:class="${currentPage == 'SCHEDULED'}? 'text-primary'">Scheduled</a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a th:href="@{/ongoing}" th:class="${currentPage == 'ONGOING'}? 'text-primary'">Ongoing</a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a th:href="@{/recorded}" th:class="${currentPage == 'RECORDED'}? 'text-primary'">Recorded</a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a th:href="@{/create}" th:class="${currentPage ==  'CREATE'}? 'text-primary'">Create</a>
+                    </li>
+                </ul>
+            </aside>
+            <!-- Main Component -->
+            <div class="main w-100">
+                <!-- Navbar Component -->
+                <nav class="navbar navbar-expand border-bottom" th:fragment="dashboardNavbar">
+                    <button class="toggler-btn" type="button">
+                        <i class="lni lni-text-align-left"></i>
+                        Sidebar
+                    </button>
+                </nav>
+                <main class="p-3">
+                    <div class="container-fluid">
+                        <!-- Content goes here -->
+                        <table class="table table-striped table-bordered" th:fragment="examTable(examsPage, type)">
+                            <thead>
+                            <tr>
+                                <th scope="col" class="text-uppercase text-center">Title</th>
+                                <th scope="col" class="text-uppercase text-center">Scheduled Date</th>
+                                <th scope="col" class="text-uppercase text-center">Opens</th>
+                                <th scope="col" class="text-uppercase text-center">Management</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="exam : ${examsPage.content}">
+                                    <td class="text-center" th:text="${exam.title}"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </th:block>
+    <th:block th:fragment="examsSearch">
+        <form action="#" th:action="@{/search}" method="post">
+            <div class="input-group">
+                <input type="text" name="search" id="search" placeholder="Search for exam by title">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </form>
+    </th:block>
+    <th:block th:fragment="scripts">
+        <script th:src="@{/js/bootstrap.min.js}"></script>
+        <script th:src="@{/js/script.js}"></script>
+        <script th:src="@{/js/sockjs.min.js}"></script>
+        <script th:src="@{/js/stomp.min.js}"></script>
+    </th:block>
+</body>
+</html>

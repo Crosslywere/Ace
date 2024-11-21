@@ -1,0 +1,143 @@
+package com.exam_platform.ace.entity;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+
+import java.sql.Date;
+import java.sql.Time;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "EXAMS")
+public class Exam {
+
+	@Id
+	@GeneratedValue
+	@Column(name = "EXAM_ID")
+	private Long id;
+
+	@Column(name = "TITLE", nullable = false)
+	private String title = "";
+
+	@Column(name = "DURATION", nullable = false)
+	private int duration;
+
+	@Column(name = "CREATED_AT", nullable = false, updatable = false)
+	private Date createdAt;
+
+	@Builder.Default
+	@Column(name = "SCHEDULED_DATE", nullable = false)
+	private Date scheduledDate = Date.valueOf(LocalDate.now().plusDays(1L));
+
+	@Builder.Default
+	@Column(name = "OPEN_TIME", nullable = false)
+	private Time openTime = Time.valueOf(LocalTime.of(9, 0, 0));
+
+	@Builder.Default
+	@Column(name = "CLOSE_TIME", nullable = false)
+	private Time closeTime = Time.valueOf(LocalTime.of(17, 0, 0));
+
+	@OneToMany(mappedBy = "exam", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Paper> papers;
+
+	@OneToMany(mappedBy = "exam", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Candidate> candidates;
+
+	@Builder.Default
+	@Column(name = "STATE", nullable = false)
+	@Enumerated(EnumType.STRING)
+	private State state = State.SCHEDULED;
+
+	@Column(name = "USERNAME_DESC", nullable = false)
+	private String usernameDesc;
+
+	@Builder.Default
+	@Column(name = "PASSWORD_REQUIRED", nullable = false)
+	private boolean passwordRequired = false;
+
+	@Embedded
+	private CandidateConfig candidateConfig;
+
+	public void addPapers(List<Paper> papers) {
+		if (this.papers == null) {
+			this.papers = new ArrayList<>();
+		}
+		for(var paper : papers) {
+			paper.setExam(this);
+		}
+		this.papers.addAll(papers);
+	}
+
+	public void addCandidates(List<Candidate> candidates) {
+		if (this.candidates == null) {
+			this.candidates = new ArrayList<>();
+		}
+		for (var candidate : candidates) {
+			candidate.setExam(this);
+		}
+		this.candidates.addAll(candidates);
+	}
+
+	@PrePersist
+	public void onCreate() {
+		createdAt = new Date(System.currentTimeMillis());
+	}
+
+	public enum State {
+		SCHEDULED,
+		ONGOING,
+		RECORDED;
+	}
+
+	@Data
+	@SuperBuilder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	@Embeddable
+	@Inheritance
+	public static class CandidateConfig {
+		@Builder.Default
+		@Column(name = "HAS_EMAIL", nullable = false)
+		protected boolean email = false;
+		protected String emailDesc;
+		@Builder.Default
+		@Column(name = "HAS_GENDER", nullable = false)
+		protected boolean gender = false;
+		protected String genderDesc;
+		@Builder.Default
+		@Column(name = "HAS_PHONE_NUMBER", nullable = false)
+		protected boolean phoneNumber = false;
+		protected String phoneNumberDesc;
+		@Builder.Default
+		@Column(name = "HAS_ADDRESS", nullable = false)
+		protected boolean address = false;
+		protected String addressDesc;
+		@Builder.Default
+		@Column(name = "HAS_STATE", nullable = false)
+		protected boolean state = false;
+		protected String stateDesc;
+		@Builder.Default
+		@Column(name = "HAS_FIRSTNAME", nullable = false)
+		protected boolean firstname = false;
+		protected String firstnameDesc;
+		@Builder.Default
+		@Column(name = "HAS_LASTNAME", nullable = false)
+		protected boolean lastname = false;
+		protected String lastnameDesc;
+		@Builder.Default
+		@Column(name = "HAS_OTHER_NAMES", nullable = false)
+		protected boolean otherNames = false;
+		protected String otherNamesDesc;
+	}
+}

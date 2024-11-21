@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <th:block th:replace="~{components :: header}"></th:block>
+    <title th:text="${pageTitle}"></title>
+</head>
+<body>
+<!--    <div class="d-flex">
+        <aside id="sidebar">
+            <div class="sidebar-logo">
+                <a href="#">Ace Exam Platform</a>
+            </div>
+            <ul class="sidebar-nav p-0">
+                <li class="sidebar-header">
+                    Dashboard
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">
+                        <span>Scheduled</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">
+                        <span>Ongoing</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">
+                        <span>Recorded</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">
+                        <span>Create</span>
+                    </a>
+                </li>
+            </ul>
+            <div class="sidebar-footer">
+                <a href="" class="sidebar-link">Settings</a>
+            </div>
+        </aside>
+        <div class="main">
+            <nav class="navbar navbar-expand border-bottom">
+                <button class="toggler-btn" type="button">
+                    SIDEBAR NAV
+                </button>
+            </nav>
+            <main class="p-3">
+                <div class="container-fluid">
+                    <div class="mb-3 text-center">
+                        <h1>Bootstrap Sidebar Creation</h1>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>-->
+    <div class="d-flex">
+        <div th:replace="~{components :: dashboardSidebar(${currentPage})}"></div>
+        <div class="main w-100">
+            <th:block th:replace="~{components :: dashboardNavbar}"></th:block>
+            <main class="p-3">
+                <div class="container-fluid">
+                <!-- Form Here -->
+                </div>
+            </main>
+        </div>
+    </div>
+    <th:block th:replace="~{components :: scripts}"></th:block>
+</body>
+</html>
