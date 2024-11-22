@@ -10,8 +10,12 @@
     <div class="d-flex">
         <div th:replace="~{components :: dashboardSidebar(${currentRoute.name})}"></div>
         <div class="main w-100">
-            <component></component>
+            <th:block th:replace="~{components :: dashboardNavbar}"></th:block>
+            <main class="p-3">
+
+            </main>
         </div>
     </div>
+    <th:block th:replace="~{components :: scripts}"></th:block>
 </body>
 </html>
