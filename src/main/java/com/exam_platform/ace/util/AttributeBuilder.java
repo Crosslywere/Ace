@@ -1,5 +1,6 @@
 package com.exam_platform.ace.util;
 
+import com.exam_platform.ace.entity.Candidate;
 import com.exam_platform.ace.entity.Exam;
 import com.exam_platform.ace.model.PageRoute;
 import org.springframework.stereotype.Component;
@@ -30,6 +31,15 @@ public class AttributeBuilder {
 		var map = build(pageTitle, route);
 		map.put("exams", exams);
 		map.put("maxPages", maxPages);
+		map.put("currentPage", currentPage);
+		return map;
+	}
+
+	public static Map<String, Object> buildForTable(String pageTitle, PageRoute route, Exam exam, List<Candidate> candidates, int maxPages, int currentPage) {
+		var map = build(pageTitle, route);
+		map.put("exam", exam);
+		map.put("maxPages", maxPages);
+		map.put("candidates", candidates);
 		map.put("currentPage", currentPage);
 		return map;
 	}
