@@ -23,36 +23,52 @@
         <div class="d-flex">
             <!-- Sidebar Component -->
             <aside id="sidebar" class="sidebar-toggle border-end" th:fragment="dashboardSidebar(currentPage)">
-                <div class="sidebar-logo my-5">
-                    <a th:href="@{/}">Ace Exam Platform</a>
+                <div class="sticky-top px-4">
+                    <div class="sidebar-logo py-5 fs-4 d-flex justify-content-center">
+                        <a th:href="@{/}"><img th:src="@{/images/aitc-logo.png}" width="40px" alt="logo" class="me-1">Ace Exam Platform</a>
+                    </div>
+                    <ul class="sidebar-nav border-start mx-auto mt-5" style="max-width:200px;">
+                        <li class="sidebar-header text-uppercase fw-bold">
+                            Dashboard
+                        </li>
+                        <li class="sidebar-item py-2">
+                            <a th:href="@{/scheduled}" th:class="|${currentPage == 'SCHEDULED' ? 'text-primary' : 'fw-light'} fs-5 lh-lg|">Scheduled Exams</a>
+                        </li>
+                        <li class="sidebar-item py-2">
+                            <a th:href="@{/ongoing}" th:class="|${currentPage == 'ONGOING' ? 'text-primary' : 'fw-light'} fs-5 lh-lg|">Ongoing Exams</a>
+                        </li>
+                        <li class="sidebar-item py-2">
+                            <a th:href="@{/recorded}" th:class="|${currentPage == 'RECORDED' ? 'text-primary' : 'fw-light'} fs-5 lh-lg|">Recorded Exams</a>
+                        </li>
+                        <li class="sidebar-item py-2">
+                            <a th:href="@{/create}" th:class="|${currentPage ==  'CREATE' ? 'text-primary' : 'fw-light'} fs-5 lh-lg|">Create New Exam</a>
+                        </li>
+                    </ul>
                 </div>
-                <ul class="sidebar-nav my-auto border-start">
-                    <li class="sidebar-header text-uppercase">
-                        Dashboard
-                    </li>
-                    <li class="sidebar-item">
-                        <a th:href="@{/scheduled}" th:class="${currentPage == 'SCHEDULED'}? 'text-primary'">Scheduled</a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a th:href="@{/ongoing}" th:class="${currentPage == 'ONGOING'}? 'text-primary'">Ongoing</a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a th:href="@{/recorded}" th:class="${currentPage == 'RECORDED'}? 'text-primary'">Recorded</a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a th:href="@{/create}" th:class="${currentPage ==  'CREATE'}? 'text-primary'">Create</a>
-                    </li>
-                </ul>
             </aside>
             <!-- Main Component -->
             <div class="main w-100">
                 <!-- Navbar Component -->
-                <nav class="navbar navbar-expand border-bottom" th:fragment="dashboardNavbar">
-                    <button class="toggler-btn" type="button">
-                        <i class="lni lni-text-align-left"></i>
-                        Sidebar
-                    </button>
-                </nav>
+                <div class="sticky-top" style="z-index:100;" th:fragment="dashboardNavbar">
+                    <nav class="navbar navbar-expand border-bottom py-3">
+                        <button class="toggler-btn border-0 rounded-end-pill" type="button">
+                            <img th:src="@{/images/burger-menu-left-svgrepo-com.svg}" width="30px" alt="sidebar">
+                        </button>
+                        <div class="container justify-content-between">
+                            <div class="col-8 col-md-6">
+                                <form action="#" class="d-block" th:action="@{/search}" method="get">
+                                    <div class="input-group">
+                                        <input type="text" name="search" class="form-control" placeholder="Search for exam by title...">
+                                        <button class="btn btn-primary">Search</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-2">
+                                <a th:href="@{/create}" class="d-inline-block fw-medium btn btn-primary">Create Exam</a>
+                            </div>
+                        </div>
+                    </nav>
+                </div>
                 <main class="p-3">
                     <div class="container-fluid">
                         <!-- Content goes here -->
