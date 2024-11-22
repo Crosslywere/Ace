@@ -11,4 +11,6 @@ import java.util.List;
 @Repository
 public interface CandidateRepository extends JpaRepository<Candidate, Candidate.Id> {
 	List<Candidate> findByExam(Exam exam, Pageable pageable);
+
+	List<Candidate> findByExamAndId_UsernameContainingIgnoreCase(Exam exam, String username);
 }
