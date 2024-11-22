@@ -53,6 +53,7 @@ public class Candidate implements Comparable<Candidate> {
 	@Column(name = "OTHER_NAMES")
 	private String otherNames;
 
+	@Builder.Default
 	@Enumerated(EnumType.STRING)
 	@Column(name = "GENDER")
 	private Gender gender = Gender.UNSPECIFIED;
