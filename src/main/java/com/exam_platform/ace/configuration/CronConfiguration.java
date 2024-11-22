@@ -3,7 +3,6 @@ package com.exam_platform.ace.configuration;
 import com.exam_platform.ace.entity.Exam;
 import com.exam_platform.ace.service.ExamService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -13,7 +12,6 @@ import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-@Slf4j
 @Configuration
 @EnableScheduling
 @RequiredArgsConstructor
@@ -31,7 +29,7 @@ public class CronConfiguration {
 				examService.updateExam(exam);
 				continue;
 			}
-			if (exam.getScheduledDate().before(Date.valueOf(LocalDate.now()))) {
+			if (exam.getScheduledDate().compareTo(Date.valueOf(LocalDate.now())) < 0) {
 				exam.setState(Exam.State.RECORDED);
 				examService.updateExam(exam);
 			}
@@ -39,21 +37,19 @@ public class CronConfiguration {
 	}
 
 	// Updates the exam list every 1 minute from 6:00am to 5:59pm
-	@Scheduled(fixedRate = 60_000)
+	@Scheduled(fixedRate = 15_000)
 	public void updateScheduledExams() {
 		var exams = examService.getExamsByState(Exam.State.SCHEDULED);
-		var now = LocalTime.now();
-		System.out.println("TimeStamp: " + now);
+		var today = Date.valueOf(LocalDate.now());
+		var now = Time.valueOf(LocalTime.now());
 		for (var exam : exams) {
-			if (exam.getScheduledDate().toLocalDate().isEqual(LocalDate.now())) { // If exam is for today
-				if ((exam.getOpenTime().toLocalTime().isAfter(now) || exam.getOpenTime().compareTo(Time.valueOf(now)) == 0)
-						&& exam.getCloseTime().toLocalTime().isBefore(now)) { // If exam's running time is now
-					exam.setState(Exam.State.ONGOING);
-					examService.updateExam(exam);
-				} else if (exam.getCloseTime().toLocalTime().isAfter(now)) {
-					exam.setState(Exam.State.RECORDED);
-				}
-			} else if (exam.getScheduledDate().toLocalDate().isAfter(LocalDate.now())) {
+			if (exam.getScheduledDate().compareTo(today) == 0 &&
+					(exam.getOpenTime().compareTo(now) <= 0 && exam.getCloseTime().compareTo(now) < 0)) {
+				exam.setState(Exam.State.ONGOING);
+				examService.updateExam(exam);
+				continue;
+			}
+			if (exam.getScheduledDate().compareTo(today) < 0) {
 				exam.setState(Exam.State.RECORDED);
 				examService.updateExam(exam);
 			}
