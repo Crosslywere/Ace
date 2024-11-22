@@ -1,9 +1,7 @@
 package com.exam_platform.ace.entity;
 
-import jakarta.annotation.PreDestroy;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.Formula;
 import org.springframework.core.io.ClassPathResource;
 
@@ -12,9 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Objects;
 
-@Slf4j
 @Data
 @ToString(exclude = "paper")
 @Builder
