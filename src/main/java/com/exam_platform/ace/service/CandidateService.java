@@ -20,7 +20,7 @@ public class CandidateService {
 	}
 
 
-	public List<Candidate> getCandidatesByUsername() {
-		return List.of();
+	public List<Candidate> getCandidatesByExamAndUsername(Exam exam, String username) {
+		return candidateRepository.findByExamAndId_UsernameContainingIgnoreCase(exam, username);
 	}
 }
