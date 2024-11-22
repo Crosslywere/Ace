@@ -12,46 +12,105 @@
         <div class="main w-100">
             <th:block th:replace="~{components :: dashboardNavbar}"></th:block>
             <main class="p-3">
-                <div class="container-fluid">
-                    <table class="table table-striped table-bordered">
+                <div class="container">
+                    <table class="table table-bordered">
                         <thead>
                         <tr>
                             <th scope="col" class="text-center text-uppercase">Title</th>
-                            <th:block th:switch="${pageRoute}">
-                                <th th:case="${T(com.exam_platform.ace.model.PageRoute.SCHEDULED)}" scope="col" class="text-center text-uppercase">Scheduled Date</th>
-                                <th th:case="${T(com.exam_platform.ace.model.PageRoute.RECORDED)}" scope="col" class="text-center text-uppercase">Date Taken</th>
+                            <th:block th:switch="${currentRoute.name()}">
+                                <th:block th:case="'SCHEDULED'">
+                                    <th scope="col" class="text-center text-uppercase">Scheduled Date</th>
+                                    <th scope="col" class="text-center text-uppercase">Open Time</th>
+                                    <th scope="col" class="text-center text-uppercase">Total Candidates</th>
+                                </th:block>
+                                <th:block th:case="'ONGOING'">
+                                    <th scope="col" class="text-center text-uppercase">Close Time</th>
+                                    <th scope="col" class="text-center text-uppercase">Total Candidates</th>
+                                    <th scope="col" class="text-center text-uppercase">Candidates Concluded</th>
+                                </th:block>
+                                <th:block th:case="'RECORDED'">
+                                    <th scope="col" class="text-center text-uppercase">Date Taken</th>
+                                    <th scope="col" class="text-center text-uppercase">Total Candidates</th>
+                                    <th scope="col" class="text-center text-uppercase">Candidates Concluded</th>
+                                </th:block>
+                                <th:block th:case="'SEARCH'">
+                                    <th scope="col" class="text-center text-uppercase">Date</th>
+                                    <th scope="col" class="text-center text-uppercase">Open Time</th>
+                                    <th scope="col" class="text-center text-uppercase">Close Time</th>
+                                    <th scope="col" class="text-center text-uppercase">Total Candidates</th>
+                                </th:block>
                             </th:block>
-                            <th th:unless="${pageRoute.name() == 'RECORDED'}" scope="col" class="text-center text-uppercase" th:text="${pageRoute.name() == 'SCHEDULED' ? 'Open Time' : 'Close Time'}">Time</th>
-                            <th th:if="${examType == 'ONGOING'}" scope="col" class="text-center text-uppercase">Candidates Concluded</th>
                             <th scope="col" class="text-center text-uppercase">Manage</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr th:each="exam:${exams}">
                             <td class="text-center" th:text="${exam.title}">Title</td>
-                            <td th:unless="${pageRoute.name() == 'ONGOING'}" class="text-center" th:text="${#dates.format(exam.scheduledDate, 'd MMMMM, yyyy')}">Date</td>
-                            <td th:unless="${pageRoute.name() == 'RECORDED'}" class="text-center" th:text="${#dates.format(pageRoute.name() == 'SCHEDULED' ? exam.openTime : exam.closeTime, 'h:mm aa'}">Time</td>
-                            <td></td>
+                            <th:block th:switch="${currentRoute.name()}">
+                                <th:block th:case="'SCHEDULED'">
+                                    <td class="text-center" th:text="${#dates.format(exam.scheduledDate, 'd MMMMM, yyyy')}"></td>
+                                    <td class="text-center" th:text="${#dates.format(exam.openTime, 'h:mm aa')}"></td>
+                                    <td class="text-center" th:text="${exam.candidates.size()}"></td>
+                                    <td>
+                                        <div class="d-flex justify-content-around">
+                                            <a th:href="@{/update/{id}(id=${exam.id})}" class="text-primary fw-bold">Update</a>
+                                            <a th:href="@{/delete/{id}(id=${exam.id})}" class="text-danger fw-bold">Delete</a>
+                                        </div>
+                                    </td>
+                                </th:block>
+                                <th:block th:case="'ONGOING'">
+                                    <td class="text-center" th:text="${#dates.format(exam.closeTime, 'h:mm aa')}"></td>
+                                    <td class="text-center" th:text="${exam.candidates.size()}"></td>
+                                    <td class="text-center" th:text="${exam.countCandidatesCompleted()}"></td>
+                                    <td>
+                                        <div class="d-flex justify-content-around">
+                                            <a th:href="@{/manage/{id}(id=${exam.id})}" class="text-primary fw-bold">Manage</a>
+                                            <a th:href="@{/stop/{id}(id=${exam.id})}" class="text-danger fw-bold">Stop</a>
+                                        </div>
+                                    </td>
+                                </th:block>
+                                <th:block th:case="'RECORDED'">
+                                    <td class="text-center" th:text="${#dates.format(exam.scheduledDate, 'd MMMMM, yyyy')}"></td>
+                                    <td class="text-center" th:text="${exam.candidates.size()}"></td>
+                                    <td class="text-center" th:text="${exam.countCandidatesCompleted()}"></td>
+                                    <td>
+                                        <div class="d-flex justify-content-around">
+                                            <a th:href="@{/export/{id}(id=${exam.id})}" class="text-primary fw-bold">Export</a>
+                                            <a th:href="@{/delete/{id}(id=${exam.id})}" class="text-danger fw-bold">Delete</a>
+                                        </div>
+                                    </td>
+                                </th:block>
+                                <th:block th:case="'SEARCH'">
+                                    <td class="text-center" th:text="${#dates.format(exam.scheduledDate, 'd MMMMM, yyyy')}"></td>
+                                    <td class="text-center" th:text="${#dates.format(exam.openTime, 'h:mm aa')}"></td>
+                                    <td class="text-center" th:text="${#dates.format(exam.closeTime, 'h:mm aa')}"></td>
+                                    <td class="text-center" th:text="${exam.candidates.size()}"></td>
+                                    <td>
+                                        <div class="d-flex justify-content-around">
+                                            <a th:href="@{/{route}/{id}(route=${exam.state.name() == 'SCHEDULED'? 'update' : exam.state.name() == 'ONGOING'? 'manage' : 'export'},id=${exam.id})}" class="text-primary fw-bold" th:text="${exam.state.name() == 'SCHEDULED'? 'Update' : exam.state.name() == 'ONGOING' ? 'Manage' : 'Export'}">Primary</a>
+                                            <a th:href="@{/{route}/{id}(route=${exam.state.name() == 'ONGOING'? 'stop' : 'delete'},id=${exam.id})}" class="text-danger fw-bold" th:text="${exam.state.name() == 'ONGOING'? 'Stop' : 'Delete'}">Danger</a>
+                                        </div>
+                                    </td>
+                                </th:block>
+                            </th:block>
                         </tr>
                         <tr th:if="${#lists.isEmpty(exams)}">
                            <td class="text-center" colspan="10">No exam available</td>
                         </tr>
                         </tbody>
-                        <tfoot th:if="${maxPages > -1}">
+                        <tfoot th:if="${maxPages > 0}">
                         <tr>
                             <td colspan="10">
-                                <div class="d-flex justify-content-end">
-                                    <ul class="pagination">
-                                        <li th:each="pageNumber:${#numbers.sequence(0, maxPages)}" class="page-item">
-                                            <a class="page-link"
-                                               th:href="@{/{page}/{n}(page=${currentRoute.page},n=${pageNumber + 1})}"
-                                               th:text="${pageNumber + 1}"
-                                               th:attrib="${pageNumber == currentPage - 1}?'aria-current=\'true\''">
-                                                100
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
+                                <ul class="pagination justify-content-end m-0">
+                                    <li th:each="pageNumber:${#numbers.sequence(0, maxPages)}" class="page-item">
+                                        <a class="page-link"
+                                           th:href="@{/{page}/{n}(page=${currentRoute.page},n=${pageNumber + 1})}"
+                                           th:text="${pageNumber + 1}"
+                                           th:attrib="${pageNumber == currentPage - 1}?'aria-current=\'true\''">
+                                            1-100
+                                        </a>
+                                    </li>
+                                </ul>
                             </td>
                         </tr>
                         </tfoot>
