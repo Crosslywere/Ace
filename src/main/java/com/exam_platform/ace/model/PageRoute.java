@@ -10,7 +10,7 @@ public enum PageRoute {
 	ONGOING("ongoing"),
 	RECORDED("recorded"),
 	CREATE("create"),
-	MIXTURE(null);
+	SEARCH("search");
 
 	private final String page;
 }
