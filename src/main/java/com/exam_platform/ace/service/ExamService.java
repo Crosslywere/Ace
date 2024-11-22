@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.sql.Time;
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -19,10 +18,6 @@ public class ExamService {
 
 	private final ExamRepository examRepository;
 
-	public List<Exam> getPageOfExamsByState(Exam.State state, Pageable pageable) {
-		return examRepository.findByState(state, pageable);
-	}
-
 	public List<Exam> getExamsByState(Exam.State state, Pageable pageable) {
 		return examRepository.findByState(state, pageable);
 	}
@@ -31,19 +26,12 @@ public class ExamService {
 		return examRepository.findByState(state);
 	}
 
+	public long countExamsByState(Exam.State state) {
+		return examRepository.countByState(state);
+	}
+
 	public Exam createExam(@NotNull Exam exam) {
 		Assert.isNull(exam.getId(), "Attempting to create an exam with an ID this could overwrite another exam! Consider using update instead.");
-		var now = LocalTime.now();
-		if (exam.getScheduledDate().toLocalDate().isEqual(LocalDate.now())) { // If exam is for today
-			if ((exam.getOpenTime().toLocalTime().isAfter(now) || exam.getOpenTime().compareTo(Time.valueOf(now)) == 0)
-					&& exam.getCloseTime().toLocalTime().isBefore(now)) { // If exam's running time is now
-				exam.setState(Exam.State.ONGOING);
-			} else if (exam.getCloseTime().toLocalTime().isAfter(now)) {
-				exam.setState(Exam.State.RECORDED);
-			}
-		} else if (exam.getScheduledDate().toLocalDate().isAfter(LocalDate.now())) {
-			exam.setState(Exam.State.RECORDED);
-		}
 		return examRepository.save(exam);
 	}
 
@@ -57,6 +45,15 @@ public class ExamService {
 	}
 
 	public List<Exam> getExamsByTitle(String title) {
-		return examRepository.findByTitleLike(title);
+		return examRepository.findByTitleContainingIgnoreCase(title);
+	}
+
+	public void stopExamById(Long examId) {
+		var exam = examRepository.findById(examId).orElse(null);
+		if (exam != null && exam.getState() == Exam.State.ONGOING) {
+			exam.setCloseTime(Time.valueOf(LocalTime.now()));
+			exam.setState(Exam.State.RECORDED);
+			examRepository.save(exam);
+		}
 	}
 }
