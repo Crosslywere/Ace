@@ -49,25 +49,28 @@ public class Exam {
 	private Time closeTime = Time.valueOf(LocalTime.of(17, 0, 0));
 
 	@OneToMany(mappedBy = "exam", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Paper> papers;
+	private List<Paper> papers = new ArrayList<>();
 
+	@Builder.Default
 	@OneToMany(mappedBy = "exam", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Candidate> candidates;
+	private List<Candidate> candidates = new ArrayList<>();
 
 	@Builder.Default
 	@Column(name = "STATE", nullable = false)
 	@Enumerated(EnumType.STRING)
 	private State state = State.SCHEDULED;
 
+	@Builder.Default
 	@Column(name = "USERNAME_DESC", nullable = false)
-	private String usernameDesc;
+	private String usernameDesc = "Username";
 
 	@Builder.Default
 	@Column(name = "PASSWORD_REQUIRED", nullable = false)
 	private boolean passwordRequired = false;
 
+	@Builder.Default
 	@Embedded
-	private CandidateConfig candidateConfig;
+	private CandidateConfig candidateConfig = new CandidateConfig();
 
 	public void addPapers(List<Paper> papers) {
 		if (this.papers == null) {
@@ -79,6 +82,14 @@ public class Exam {
 		this.papers.addAll(papers);
 	}
 
+	public void addPaper(Paper paper) {
+		if (this.papers == null) {
+			this.papers = new ArrayList<>();
+		}
+		paper.setExam(this);
+		this.papers.add(paper);
+	}
+
 	public void addCandidates(List<Candidate> candidates) {
 		if (this.candidates == null) {
 			this.candidates = new ArrayList<>();
@@ -87,6 +98,20 @@ public class Exam {
 			candidate.setExam(this);
 		}
 		this.candidates.addAll(candidates);
+	}
+
+	public void addCandidate(Candidate candidate) {
+		if (this.candidates == null) {
+			this.candidates = new ArrayList<>();
+		}
+		if (candidate != null) {
+			candidate.setExam(this);
+			this.candidates.add(candidate);
+		}
+	}
+
+	public int countCandidatesCompleted() {
+		return (int)this.candidates.stream().filter(Candidate::isSubmitted).count();
 	}
 
 	@PrePersist
@@ -105,7 +130,6 @@ public class Exam {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	@Embeddable
-	@Inheritance
 	public static class CandidateConfig {
 		@Builder.Default
 		@Column(name = "HAS_EMAIL", nullable = false)
