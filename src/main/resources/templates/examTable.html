@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -44,7 +44,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="exam:${exams}">
+                        <tr th:each="exam:${exams}" th:class="${currentRoute.name() == 'SEARCH' && exam.state.name() == 'SCHEDULED' ? 'table-success': currentRoute.name() == 'SEARCH' && exam.state.name() == 'ONGOING' ? 'table-warning' :  currentRoute.name() == 'SEARCH' && exam.state.name() == 'RECORDED'? 'table-danger' : ''}">
                             <td class="text-center" th:text="${exam.title}">Title</td>
                             <th:block th:switch="${currentRoute.name()}">
                                 <th:block th:case="'SCHEDULED'">
@@ -64,7 +64,7 @@
                                     <td class="text-center" th:text="${exam.countCandidatesCompleted()}"></td>
                                     <td>
                                         <div class="d-flex justify-content-around">
-                                            <a th:href="@{/manage/{id}(id=${exam.id})}" class="text-primary fw-bold">Manage</a>
+                                            <a th:href="@{/update/{id}(id=${exam.id})}" class="text-primary fw-bold">Manage</a>
                                             <a th:href="@{/stop/{id}(id=${exam.id})}" class="text-danger fw-bold">Stop</a>
                                         </div>
                                     </td>
@@ -106,7 +106,7 @@
                                         <a class="page-link"
                                            th:href="@{/{page}/{n}(page=${currentRoute.page},n=${pageNumber + 1})}"
                                            th:text="${pageNumber + 1}"
-                                           th:attrib="${pageNumber == currentPage - 1}?'aria-current=\'true\''">
+                                           th:aria-current="${pageNumber == currentPage - 1}">
                                             1-100
                                         </a>
                                     </li>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
@@ -13,6 +13,7 @@
     </th:block>
     <th:block th:fragment="header">
         <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+        <link rel="stylesheet" th:href="@{/css/bootstrap-grid.min.css}">
         <link rel="stylesheet" th:href="@{/css/style.css}">
         <link rel="shortcut icon" th:href="@{/favicon.ico}" type="image/x-icon">
     </th:block>
@@ -50,7 +51,7 @@
             <div class="main w-100">
                 <!-- Navbar Component -->
                 <div class="sticky-top" style="z-index:100;" th:fragment="dashboardNavbar">
-                    <nav class="navbar navbar-expand border-bottom py-3">
+                    <nav class="navbar navbar-expand border-bottom py-3 bg-white">
                         <button class="toggler-btn border-0 rounded-end-pill" type="button">
                             <img th:src="@{/images/burger-menu-left-svgrepo-com.svg}" width="30px" alt="sidebar">
                         </button>

@@ -32,6 +32,7 @@ public class Candidate implements Comparable<Candidate> {
 	@Column(name = "EMAIL")
 	private String email;
 
+	@Builder.Default
 	@Column(name = "NOTIFIED")
 	private boolean notified = false;
 
@@ -66,16 +67,21 @@ public class Candidate implements Comparable<Candidate> {
 	@Column(name = "HAS_SUBMITTED", nullable = false)
 	private boolean submitted = false;
 
-	private int score() {
-		int score = 0;
-		for (var answer : answers) {
-			if (answer.isCorrect())
-				score++;
-		}
-		return score;
+	public int score() {
+		return (int)answers.stream().filter(CandidateAnswer::isCorrect).count();
+//		int score = 0;
+//		for (var answer : answers) {
+//			if (answer.isCorrect())
+//				score++;
+//		}
+//		return score;
 	}
 
-	private int getMaxScore() {
+	public int getMaxScore(String paperName) {
+		return (int)answers.stream().filter(ans -> ans.getQuestion().getId().getPaperId().getName().equals(paperName)).count();
+	}
+
+	public int getMaxScore() {
 		return answers.size();
 	}
 

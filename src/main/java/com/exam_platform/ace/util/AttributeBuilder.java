@@ -5,6 +5,8 @@ import com.exam_platform.ace.entity.Exam;
 import com.exam_platform.ace.model.PageRoute;
 import org.springframework.stereotype.Component;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +43,12 @@ public class AttributeBuilder {
 		map.put("maxPages", maxPages);
 		map.put("candidates", candidates);
 		map.put("currentPage", currentPage);
+		return map;
+	}
+
+	public static Map<String, Object> buildForForm(String pageTitle, PageRoute route) {
+		var map = build(pageTitle, route);
+		map.put("minDate", Date.valueOf(LocalDate.now().minusDays(1)));
 		return map;
 	}
 }

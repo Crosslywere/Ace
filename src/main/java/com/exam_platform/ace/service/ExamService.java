@@ -31,7 +31,7 @@ public class ExamService {
 	}
 
 	public Exam createExam(@NotNull Exam exam) {
-		Assert.isNull(exam.getId(), "Attempting to create an exam with an ID this could overwrite another exam! Consider using update instead.");
+		Assert.isNull(exam.getId(), "Attempting to create an exam with an ID (" + exam.getId() + ") this could overwrite another exam! Consider using update instead.");
 		return examRepository.save(exam);
 	}
 

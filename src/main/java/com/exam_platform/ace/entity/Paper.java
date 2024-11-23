@@ -5,7 +5,6 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Data
 @ToString(exclude = "exam")
@@ -47,10 +46,26 @@ public class Paper {
 		if (this.questions == null) {
 			this.questions = new ArrayList<>();
 		}
-		if (this.questions.stream().noneMatch(comp -> Objects.equals(comp.getId().getNumber(), question.getId().getNumber()))) {
-			question.setPaper(this);
+		int index = -1;
+		for (int i = 0; i < this.questions.size(); i++) {
+			if (this.questions.get(i).getId().getNumber().equals(question.getId().getNumber())) {
+				index = i;
+				break;
+			}
+		}
+		question.setPaper(this);
+		if (index == -1) {
+			this.questions.add(question);
+		} else {
+			this.questions.remove(this.questions.get(index));
 			this.questions.add(question);
 		}
+//		if (this.questions.stream().noneMatch(comp -> Objects.equals(comp.getId().getNumber(), question.getId().getNumber()))) {
+//			question.setPaper(this);
+//			this.questions.add(question);
+//		} else {
+//
+//		}
 	}
 
 	@Data

@@ -3,6 +3,7 @@
 
 body {
     font-family: 'Roboto', sans-serif;
+    background-color: #f8f8f8;
 }
 
 li {
@@ -16,7 +17,6 @@ a {
 
 .sidebar-logo {
     font-family: 'Playfair Display';
-
 }
 
 .main {
@@ -28,6 +28,7 @@ a {
 #sidebar {
     max-width: 380px;
     min-width: 380px;
+    background-color: white;
 }
 
 #sidebar.collapsed {
@@ -36,7 +37,6 @@ a {
 
 .sidebar-nav {
     flex: 1 1 auto;
-    justify-content: center;
 }
 
 .sidebar-item a:hover {
@@ -46,15 +46,4 @@ a {
 td {
     white-space: nowrap;
     text-overflow: ellipses;
-}
-
-
-/* Screens less than 768px */
-
-@media (max-width:768px) {
-
-    .sidebar-toggle {
-        margin-left: -100%;
-    }
-
 }

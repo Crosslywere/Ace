@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,7 +13,60 @@
             <th:block th:replace="~{components :: dashboardNavbar}"></th:block>
             <main class="p-3">
                 <div class="container">
-
+                    <form action="#" th:action="@{/{route}-f(route=${currentRoute.name() == 'CREATE' ? 'create' : 'update'})}" method="post" enctype="multipart/form-data" class="border p-5 bg-white col-lg-10 col-12 mx-auto">
+                        <h3 th:text="${currentRoute.name() != 'CREATE' ? 'Modify ' + session.exam.title : 'Create Exam'}"></h3>
+                        <div class="mb-3">
+                            <label for="title" class="form-label text-uppercase">Title</label>
+                            <input type="text" id="title" class="form-control text-center" name="title" th:value="${session.exam.title}">
+                        </div>
+                        <div class="mb-3 d-flex column-gap-2">
+                            <div class="col-12 col-lg-6">
+                                <label for="open-time" class="form-label text-uppercase">Open Time</label>
+                                <input type="time" id="open-time" class="form-control text-center" name="oTime" required th:value="${session.exam.openTime}">
+                            </div>
+                            <div class="col-lg-6 col-12 ms-n1">
+                                <label for="close-time" class="form-label text-uppercase">Close Time</label>
+                                <input type="time" id="close-time" class="form-control text-center" name="cTime" required th:value="${session.exam.closeTime}">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="scheduled-date" class="form-label text-uppercase">Scheduled Date</label>
+                            <input type="date" id="scheduled-date" class="form-control text-center" name="scheduledDate" th:min="${minDate}" required th:value="${session.exam.scheduledDate}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="duration" class="form-label text-uppercase">Duration</label>
+                            <input type="number" id="duration" class="form-control text-center" name="duration" min="1" required th:value="${session.exam.duration}">
+                        </div>
+                        <th:block th:if="${!#lists.isEmpty(session.exam.papers)}">
+                            Papers Go Here <span th:text="${session.exam.papers.size()}"></span>
+                            <br>
+                        </th:block>
+                        <th:block th:if="${#lists.isEmpty(session.exam.papers) || currentRoute.name() != 'CREATE'}">
+                            Papers Document Upload Box
+                            <br>
+                            Show Options Toggle
+                            <br>
+                        </th:block>
+                        <th:block th:if="${!#lists.isEmpty(session.exam.candidates)}">
+                            Candidates Go Here <span th:text="${session.exam.candidates.size()}"></span>
+                            <br>
+                        </th:block>
+                        <th:block th:if="${#lists.isEmpty(session.exam.candidates) || currentRoute.name() != 'CREATE'}">
+                            Candidates Document Upload Box
+                            <br>
+                            Username Descriptor
+                            <br>
+                            Password Required
+                            <br>
+                        </th:block>
+                        <th:block th:if="${#lists.isEmpty(session.exam.papers) || #lists.isEmpty(session.exam.candidates)}">
+                            Upload Button (Needs to be figured out)
+                        </th:block>
+                        <div class="d-flex flex-row-reverse justify-content-between">
+                            <button type="submit" class="fw-medium btn btn-primary text-capitalize" th:text="${currentRoute.name() == 'CREATE' ? 'Create' : 'Update'}"></button>
+                            <button class="fw-medium btn btn-primary">Another Button</button>
+                        </div>
+                    </form>
                 </div>
             </main>
         </div>

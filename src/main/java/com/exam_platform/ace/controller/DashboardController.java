@@ -63,7 +63,7 @@ public class DashboardController {
 				.closeTime(Time.valueOf(LocalTime.now().plusHours(6)))
 				.duration(10);
 		var candidateBuilder = Candidate.builder();
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 3; i++) {
 			Question q = questionBuilder.build();
 			Paper p = paperBuilder.build();
 			p.addQuestion(q);
@@ -234,7 +234,8 @@ public class DashboardController {
 		if (!RequestValidator.isLocalhost(request)) {
 			return "redirect:/exam";
 		}
-		if (session.getAttribute("exam") == null) {
+		Exam exam = (Exam) session.getAttribute("exam");
+		if (exam == null || exam.getState() != null) {
 			session.setAttribute("exam", new Exam());
 		}
 		model.addAllAttributes(AttributeBuilder.build("Create Exam", PageRoute.CREATE));
@@ -242,24 +243,24 @@ public class DashboardController {
 	}
 
 	@PostMapping("/create")
-	public String create(@RequestParam MultipartFile papers, @RequestParam MultipartFile candidates, Model model, HttpSession session, HttpServletRequest request) {
-		Exam exam = (Exam)session.getAttribute("exam");
-		if (exam == null)
-			return create(model, session, request);
-		if (papers != null && !papers.isEmpty()) {
-			examImporter.extractPaperData(exam, papers);
+	public String create(@RequestParam MultipartFile papersDoc, @RequestParam MultipartFile candidatesDoc, @RequestParam String oTime, @RequestParam String cTime, Exam exam, Model model, HttpSession session, HttpServletRequest request) {
+		if (papersDoc != null && !papersDoc.isEmpty()) {
+			examImporter.extractPaperData(exam, papersDoc);
 		}
-		if (candidates != null && !candidates.isEmpty()) {
-			examImporter.extractCandidateData(exam, candidates);
+		if (candidatesDoc != null && !candidatesDoc.isEmpty()) {
+			examImporter.extractCandidateData(exam, candidatesDoc);
 		}
+		setTimesFromString(exam, oTime.trim(), cTime.trim());
 		session.setAttribute("exam", exam);
-		return create(model, session, request);
+		model.addAllAttributes(AttributeBuilder.build("Create Exam", PageRoute.CREATE));
+		return "examForm";
 	}
 
 	@PostMapping("/create-f")
-	public String create(HttpSession session, RedirectAttributes attributes) {
-		Exam exam = (Exam)session.getAttribute("exam");
+	public String create(Exam exam, @RequestParam String oTime, @RequestParam String cTime, HttpSession session, RedirectAttributes attributes) {
+		exam.setId(((Exam)session.getAttribute("exam")).getId());
 		session.removeAttribute("exam");
+		setTimesFromString(exam, oTime.trim(), cTime.trim());
 		exam = examService.createExam(exam);
 		attributes.addFlashAttribute("notification", new Notification("success", exam, 0L, "Created exam successfully"));
 		return "redirect:/scheduled";
@@ -267,15 +268,29 @@ public class DashboardController {
 	//endregion
 	//region TODO Updating an exam
 	@GetMapping("/update/{id}")
-	public String modify(@PathVariable("id") Long examId, HttpSession session, HttpServletRequest request) {
+	public String modify(@PathVariable("id") Long examId, Model model, HttpSession session, HttpServletRequest request) {
 		if (!RequestValidator.isLocalhost(request)) {
 			return "redirect:/exam";
 		}
 		Exam exam = examService.getExamById(examId);
-		if (exam == null || exam.getState() != Exam.State.SCHEDULED) {
+		if (exam == null || exam.getState() == Exam.State.RECORDED) {
 			return "redirect:/recorded";
 		}
-		throw new UnsupportedOperationException("This route has not been built yet");
+		model.addAllAttributes(AttributeBuilder.buildForForm("Modify Exam", PageRoute.valueOf(exam.getState().name())));
+		session.setAttribute("exam", exam);
+		return "examForm";
+	}
+
+	@PostMapping("/update/{id}")
+	public String update(@RequestParam MultipartFile papersDoc, @RequestParam MultipartFile candidatesDoc, @RequestParam String oTime, @RequestParam String cTime, Exam exam, Model model, HttpSession session) {
+		throw new UnsupportedOperationException("Not fully implemented /update/{id}");
+//		return "examForm";
+	}
+
+	@PostMapping("/update-f/{id}")
+	public String update(@PathVariable("id") Long examId, Exam exam, HttpSession session) {
+
+		return "redirect:/";
 	}
 	//endregion
 	//region TODO Exporting an exam
@@ -290,4 +305,15 @@ public class DashboardController {
 
 	//endregion
 //endregion
+
+	private static void setTimesFromString(Exam exam, String openTime, String closeTime) {
+		if (openTime.matches("^\\d+:\\d+$")) {
+			openTime += ":00";
+		}
+		exam.setOpenTime(Time.valueOf(openTime));
+		if (closeTime.matches("^\\d+:\\d+$")) {
+			closeTime += ":00";
+		}
+		exam.setCloseTime(Time.valueOf(closeTime));
+	}
 }

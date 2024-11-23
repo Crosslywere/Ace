@@ -28,10 +28,11 @@ public class Exam {
 	private Long id;
 
 	@Column(name = "TITLE", nullable = false)
-	private String title = "";
+	private String title;
 
+	@Builder.Default
 	@Column(name = "DURATION", nullable = false)
-	private int duration;
+	private int duration = 60;
 
 	@Column(name = "CREATED_AT", nullable = false, updatable = false)
 	private Date createdAt;
@@ -48,6 +49,11 @@ public class Exam {
 	@Column(name = "CLOSE_TIME", nullable = false)
 	private Time closeTime = Time.valueOf(LocalTime.of(17, 0, 0));
 
+	@Builder.Default
+	@Column(name = "PAPERS_PER_CANDIDATE", nullable = false)
+	private int papersPerCandidate = 1;
+
+	@Builder.Default
 	@OneToMany(mappedBy = "exam", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Paper> papers = new ArrayList<>();
 
@@ -86,8 +92,20 @@ public class Exam {
 		if (this.papers == null) {
 			this.papers = new ArrayList<>();
 		}
+		int index = -1;
+		for (int i = 0; i < papers.size(); i++) {
+			if (papers.get(i).getId().getName().equals(paper.getId().getName())) {
+				index = i;
+				break;
+			}
+		}
 		paper.setExam(this);
-		this.papers.add(paper);
+		if (index == -1) {
+			this.papers.add(paper);
+		} else {
+			this.papers.remove(this.papers.get(index));
+			this.papers.add(paper);
+		}
 	}
 
 	public void addCandidates(List<Candidate> candidates) {
@@ -104,7 +122,7 @@ public class Exam {
 		if (this.candidates == null) {
 			this.candidates = new ArrayList<>();
 		}
-		if (candidate != null) {
+		if (this.candidates.stream().noneMatch(c -> c.getId().getUsername().equals(candidate.getId().getUsername()))) {
 			candidate.setExam(this);
 			this.candidates.add(candidate);
 		}
