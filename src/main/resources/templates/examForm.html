@@ -1,5 +1,5 @@
-<!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,64 +13,90 @@
             <th:block th:replace="~{components :: dashboardNavbar}"></th:block>
             <main class="p-3">
                 <div class="container">
-                    <form action="#" th:action="@{/{route}-f(route=${currentRoute.name() == 'CREATE' ? 'create' : 'update'})}" method="post" enctype="multipart/form-data" class="border p-5 bg-white col-lg-10 col-12 mx-auto">
-                        <h3 th:text="${currentRoute.name() != 'CREATE' ? 'Modify ' + session.exam.title : 'Create Exam'}"></h3>
-                        <div class="mb-3">
-                            <label for="title" class="form-label text-uppercase">Title</label>
-                            <input type="text" id="title" class="form-control text-center" name="title" th:value="${session.exam.title}">
+                    <form action="#" th:action="@{/{route}(route=${currentRoute.name() == 'CREATE' ? 'create-f' : 'update-f/__${session.exam.id}__'})}" th:object="${exam}" method="post" enctype="multipart/form-data" class="border p-5 bg-white col-lg-10 col-12 mx-auto">
+                        <h3 th:text="${currentRoute.name() == 'CREATE' ? 'Create Exam' : 'Modify ' + exam.title}"></h3>
+                        <hr/>
+                        <div class="mb-3 input-group">
+                            <label for="title" class="input-group-text text-uppercase fw-medium">Title</label>
+                            <input type="text" class="form-control" id="title" th:field="*{title}" th:value="${session.exam.title}" required>
                         </div>
-                        <div class="mb-3 d-flex column-gap-2">
-                            <div class="col-12 col-lg-6">
-                                <label for="open-time" class="form-label text-uppercase">Open Time</label>
-                                <input type="time" id="open-time" class="form-control text-center" name="oTime" required th:value="${session.exam.openTime}">
-                            </div>
-                            <div class="col-lg-6 col-12 ms-n1">
-                                <label for="close-time" class="form-label text-uppercase">Close Time</label>
-                                <input type="time" id="close-time" class="form-control text-center" name="cTime" required th:value="${session.exam.closeTime}">
-                            </div>
+                        <div class="mb-3 input-group" th:if="*{state.name() == 'SCHEDULED'}">
+                            <label for="date" class="input-group-text text-uppercase fw-medium">Scheduled Date</label>
+                            <input type="date" class="form-control" id="date" th:field="*{scheduledDate}" th:min="${minDate}" th:value="${session.exam.scheduledDate}" required>
                         </div>
-                        <div class="mb-3">
-                            <label for="scheduled-date" class="form-label text-uppercase">Scheduled Date</label>
-                            <input type="date" id="scheduled-date" class="form-control text-center" name="scheduledDate" th:min="${minDate}" required th:value="${session.exam.scheduledDate}">
+                        <div class="mb-3 input-group" th:if="*{state.name() == 'SCHEDULED'}">
+                            <label for="open-time" class="input-group-text text-uppercase fw-medium">Open Time</label>
+                            <input type="time" class="form-control" id="open-time" name="open" th:value="${session.exam.openTime}" required>
                         </div>
-                        <div class="mb-3">
-                            <label for="duration" class="form-label text-uppercase">Duration</label>
-                            <input type="number" id="duration" class="form-control text-center" name="duration" min="1" required th:value="${session.exam.duration}">
+                        <div class="mb-3 input-group">
+                            <label for="close-time" class="input-group-text text-uppercase fw-medium">Close Time</label>
+                            <input type="time" class="form-control" id="close-time" name="close" th:value="${session.exam.closeTime}" required>
                         </div>
-                        <th:block th:if="${!#lists.isEmpty(session.exam.papers)}">
-                            Papers Go Here <span th:text="${session.exam.papers.size()}"></span>
-                            <br>
+                        <div th:if="*{#lists.isEmpty(papers) && __${session.exam.state.name() == 'SCHEDULED'}__}" class="mb-3 input-group">
+                            <label for="papers-document" class="input-group-text text-uppercase fw-medium">Exam Document</label>
+                            <input type="file" name="document" id="papers-document" class="form-control" accept=".doc, .docx, .txt">
+                            <button type="submit" th:formaction="@{/{route}(route=${currentRoute.name() == 'CREATE' ? 'create' : 'update/__${session.exam.id}__'})}" class="btn btn-primary">Upload Document</button>
+                        </div>
+                        <th:block th:if="*{!#lists.isEmpty(papers) && __${session.exam.state.name() == 'SCHEDULED'}__}">
+                            <details class="mb-3" th:each="paper, paperIterator:*{papers}">
+                                <summary class="w-100 text-center mb-3 p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3" th:text="|${paper.id.name} Paper|"></summary>
+                                <div class="mb-3 input-group">
+                                    <label th:for="|papers${paperIterator.index}.id.name|" class="input-group-text text-uppercase fw-medium">Name</label>
+                                    <input type="text" class="form-control" th:field="*{papers[__${paperIterator.index}__].id.name}">
+                                </div>
+                                <div class="mb-3 input-group">
+                                    <label th:for="|papers${paperIterator.index}.questionsPerCandidate|" class="input-group-text text-uppercase fw-medium">Questions Per Candidate</label>
+                                    <input type="number" th:field="*{papers[__${paperIterator.index}__].questionsPerCandidate}" class="form-control" min="1" th:max="${paper.questions.size()}">
+                                </div>
+                                <details class="position-relative">
+                                    <summary class="w-100 text-center mb-3 p-3 text-success-emphasis bg-success-subtle border border-success-subtle rounded-3">Questions</summary>
+                                    <div class="mb-3 input-group position-sticky top-0">
+                                        <input type="number" min="1" th:id="${#strings.replace(paper.id.name, ' ', '_')}" class="form-control">
+                                        <a th:onclick="scrollToQuestion([[${#strings.replace(paper.id.name, ' ', '_')}]])" th:text="|Search ${paper.id.name} Questions|" class="btn btn-success"></a>
+                                    </div>
+                                    <ol>
+                                        <!-- Questions List -->
+                                        <li th:each="question, questionIterator:*{papers[__${paperIterator.index}__].questions}" th:id="${#strings.replace(paper.id.name, ' ', '_') + '-__${question.id.number}__'}" class="mb-3">
+                                            <input type="number" th:field="*{papers[__${paperIterator.index}__].questions[__${questionIterator.index}__].id.number}" class="visually-hidden">
+                                            <textarea th:field="*{papers[__${paperIterator.index}__].questions[__${questionIterator.index}__].query}" class="w-100 mb-3 form-control" rows="4"></textarea>
+                                            <th:block th:if="${currentRoute.name() != 'CREATE'}">
+                                                <div class="d-flex justify-content-center" th:if="${question.hasImage}">
+                                                    <img th:src="@{/db-images/{image}(image=${question.id.createImageSaveName() + question.imageSuffix})}" height="300px" alt="image">
+                                                </div>
+                                                <div th:if="${!question.hasImage}" class="mb-3 input-group">
+                                                    <label for="image" class="input-group-text text-uppercase fw-medium">Add Image</label>
+                                                    <input type="file" name="document" id="image" class="form-control" accept=".jpg, .jpeg, .png, .gif" aria-label="Accepts .jpg, .jpeg, .png, and .gif files">
+                                                    <button type="submit" th:formaction="@{/update/{id}/{paper}/{number}(id=${session.exam.id},paper=${paper.id.name},number=${question.id.number})}" class="btn btn-primary">Upload</button>
+                                                </div>
+                                            </th:block>
+                                            <label th:each="option, optionIterator:${question.options}" class="d-block">
+                                                <input type="radio" th:field="*{papers[__${paperIterator.index}__].questions[__${questionIterator.index}__].answerIndex}" th:value="${optionIterator.index}">
+                                                <span th:text="${option}"></span>
+                                            </label>
+                                        </li>
+                                    </ol>
+                                </details>
+                            </details>
                         </th:block>
-                        <th:block th:if="${#lists.isEmpty(session.exam.papers) || currentRoute.name() != 'CREATE'}">
-                            Papers Document Upload Box
-                            <br>
-                            Show Options Toggle
-                            <br>
-                        </th:block>
-                        <th:block th:if="${!#lists.isEmpty(session.exam.candidates)}">
-                            Candidates Go Here <span th:text="${session.exam.candidates.size()}"></span>
-                            <br>
-                        </th:block>
-                        <th:block th:if="${#lists.isEmpty(session.exam.candidates) || currentRoute.name() != 'CREATE'}">
-                            Candidates Document Upload Box
-                            <br>
-                            Username Descriptor
-                            <br>
-                            Password Required
-                            <br>
-                        </th:block>
-                        <th:block th:if="${#lists.isEmpty(session.exam.papers) || #lists.isEmpty(session.exam.candidates)}">
-                            Upload Button (Needs to be figured out)
-                        </th:block>
+                        <div th:if="*{#lists.isEmpty(candidates) && !#lists.isEmpty(papers)}" class="mb-3 input-group">
+                            <label for="candidates-document" class="input-group-text text-uppercase fw-medium">Candidate Document</label>
+                            <input type="file" name="document" id="candidates-document" class="form-control" accept=".csv">
+                            <button type="submit" th:formaction="@{/{route}(route=${currentRoute.name() == 'CREATE' ? 'create' : 'update/__${session.exam.id}__'})}" class="btn btn-primary">Upload Document</button>
+                        </div>
                         <div class="d-flex flex-row-reverse justify-content-between">
-                            <button type="submit" class="fw-medium btn btn-primary text-capitalize" th:text="${currentRoute.name() == 'CREATE' ? 'Create' : 'Update'}"></button>
-                            <button class="fw-medium btn btn-primary">Another Button</button>
+                            <button type="submit" class="fw-medium btn btn-primary text-capitalize" th:text="|${currentRoute.name() == 'CREATE' ? 'Create' : 'Update'} Exam|"></button>
+                            <a th:href="@{/manage/{id}(id=${session.exam.id})}" class="btn btn-primary" th:if="${session.exam.state.name() == 'ONGOING'}">Manage Candidates</a>
                         </div>
                     </form>
                 </div>
             </main>
         </div>
     </div>
-    <th:block th:replace="~{components :: scripts}"></th:block>
+    <script th:inline="javascript">
+        function scrollToQuestion(prefix) {
+            var qid = prefix + '-' + document.getElementById(prefix).value;
+            document.getElementById(qid).scrollIntoView();
+        }
+    </script>
 </body>
 </html>
