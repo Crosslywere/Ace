@@ -12,7 +12,7 @@
         <div class="main w-100">
             <th:block th:replace="~{components :: dashboardNavbar}"></th:block>
             <main class="p-3">
-                <div class="container">
+                <div class="container overflow-x-auto">
                     <table class="table table-bordered">
                         <thead>
                         <tr>
@@ -21,7 +21,7 @@
                                 <th:block th:case="'SCHEDULED'">
                                     <th scope="col" class="text-center text-uppercase">Scheduled Date</th>
                                     <th scope="col" class="text-center text-uppercase">Open Time</th>
-                                    <th scope="col" class="text-center text-uppercase">Total Candidates</th>
+                                    <th scope="col" class="text-center text-uppercase">Registered Candidates</th>
                                 </th:block>
                                 <th:block th:case="'ONGOING'">
                                     <th scope="col" class="text-center text-uppercase">Close Time</th>
@@ -54,7 +54,7 @@
                                     <td>
                                         <div class="d-flex justify-content-around">
                                             <a th:href="@{/update/{id}(id=${exam.id})}" class="text-primary fw-bold">Update</a>
-                                            <a th:href="@{/delete/{id}(id=${exam.id})}" class="text-danger fw-bold">Delete</a>
+                                            <a th:href="@{/delete/{id}(id=${exam.id})}" class="text-danger fw-bold" onclick="return confirm('Are you sure?')">Delete</a>
                                         </div>
                                     </td>
                                 </th:block>
@@ -64,8 +64,8 @@
                                     <td class="text-center" th:text="${exam.countCandidatesCompleted()}"></td>
                                     <td>
                                         <div class="d-flex justify-content-around">
-                                            <a th:href="@{/update/{id}(id=${exam.id})}" class="text-primary fw-bold">Manage</a>
-                                            <a th:href="@{/stop/{id}(id=${exam.id})}" class="text-danger fw-bold">Stop</a>
+                                            <a th:href="@{/update/{id}(id=${exam.id})}" class="text-primary fw-bold">Update</a>
+                                            <a th:href="@{/stop/{id}(id=${exam.id})}" class="text-danger fw-bold" onclick="return confirm('Are you sure?')">Stop</a>
                                         </div>
                                     </td>
                                 </th:block>
@@ -76,7 +76,7 @@
                                     <td>
                                         <div class="d-flex justify-content-around">
                                             <a th:href="@{/export/{id}(id=${exam.id})}" class="text-primary fw-bold">Export</a>
-                                            <a th:href="@{/delete/{id}(id=${exam.id})}" class="text-danger fw-bold">Delete</a>
+                                            <a th:href="@{/delete/{id}(id=${exam.id})}" class="text-danger fw-bold" onclick="return confirm('Are you sure?')">Delete</a>
                                         </div>
                                     </td>
                                 </th:block>
@@ -87,8 +87,8 @@
                                     <td class="text-center" th:text="${exam.candidates.size()}"></td>
                                     <td>
                                         <div class="d-flex justify-content-around">
-                                            <a th:href="@{/{route}/{id}(route=${exam.state.name() == 'SCHEDULED'? 'update' : exam.state.name() == 'ONGOING'? 'manage' : 'export'},id=${exam.id})}" class="text-primary fw-bold" th:text="${exam.state.name() == 'SCHEDULED'? 'Update' : exam.state.name() == 'ONGOING' ? 'Manage' : 'Export'}">Primary</a>
-                                            <a th:href="@{/{route}/{id}(route=${exam.state.name() == 'ONGOING'? 'stop' : 'delete'},id=${exam.id})}" class="text-danger fw-bold" th:text="${exam.state.name() == 'ONGOING'? 'Stop' : 'Delete'}">Danger</a>
+                                            <a th:href="@{/{route}/{id}(route=${exam.state.name() == 'RECORDED'? 'export' : 'update'},id=${exam.id})}" class="text-primary fw-bold" th:text="${exam.state.name() == 'RECORDED'? 'Export' : 'Update'}">Primary</a>
+                                            <a th:href="@{/{route}/{id}(route=${exam.state.name() == 'ONGOING'? 'stop' : 'delete'},id=${exam.id})}" class="text-danger fw-bold" th:text="${exam.state.name() == 'ONGOING'? 'Stop' : 'Delete'}" onclick="return confirm('Are you sure?')">Danger</a>
                                         </div>
                                     </td>
                                 </th:block>
@@ -102,7 +102,7 @@
                         <tr>
                             <td colspan="10">
                                 <ul class="pagination justify-content-end m-0">
-                                    <li th:each="pageNumber:${#numbers.sequence(0, maxPages)}" class="page-item">
+                                    <li th:each="pageNumber:${#numbers.sequence(0, maxPages)}" th:class="${pageNumber == currentPage - 1 ? 'page-item active':'page-item'}">
                                         <a class="page-link"
                                            th:href="@{/{page}/{n}(page=${currentRoute.page},n=${pageNumber + 1})}"
                                            th:text="${pageNumber + 1}"
