@@ -26,11 +26,13 @@ public class Paper {
 	@Column(name = "QUESTIONS_PER_CANDIDATE", nullable = false)
 	private int questionsPerCandidate;
 
+	@Builder.Default
 	@Column(name = "MANDATORY", nullable = false)
-	private boolean mandatory;
+	private boolean mandatory = false;
 
-	@OneToMany(mappedBy = "paper", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Question> questions;
+	@Builder.Default
+	@OneToMany(mappedBy = "paper", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Question> questions = new ArrayList<>();
 
 	public void addQuestions(List<Question> questions) {
 		if (this.questions == null) {
@@ -60,12 +62,18 @@ public class Paper {
 			this.questions.remove(this.questions.get(index));
 			this.questions.add(question);
 		}
-//		if (this.questions.stream().noneMatch(comp -> Objects.equals(comp.getId().getNumber(), question.getId().getNumber()))) {
-//			question.setPaper(this);
-//			this.questions.add(question);
-//		} else {
-//
-//		}
+	}
+
+	public void prepForSave() {
+		questions.forEach(question -> {
+			question.setPaper(this);
+		});
+	}
+
+	public void prepForUpdate() {
+		questions.forEach(question -> {
+			question.getId().setPaperId(id);
+		});
 	}
 
 	@Data

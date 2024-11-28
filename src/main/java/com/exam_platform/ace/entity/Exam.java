@@ -132,6 +132,26 @@ public class Exam {
 		return (int)this.candidates.stream().filter(Candidate::isSubmitted).count();
 	}
 
+	public void prepForSave() {
+		papers.forEach(paper -> {
+			paper.setExam(this);
+			paper.prepForSave();
+		});
+		candidates.forEach(candidate -> {
+			candidate.setExam(this);
+		});
+	}
+
+	public void prepForUpdate() {
+		papers.forEach(paper -> {
+			paper.getId().setExamId(id);
+			paper.prepForUpdate();
+		});
+		candidates.forEach(candidate -> {
+			candidate.getId().setExamId(id);
+		});
+	}
+
 	@PrePersist
 	public void onCreate() {
 		createdAt = new Date(System.currentTimeMillis());
