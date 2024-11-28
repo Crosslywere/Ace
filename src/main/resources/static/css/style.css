@@ -6,7 +6,7 @@ body {
     background-color: #f8f8f8;
 }
 
-li {
+ul li {
     list-style: none;
 }
 
@@ -28,7 +28,6 @@ a {
 #sidebar {
     max-width: 380px;
     min-width: 380px;
-    background-color: white;
 }
 
 #sidebar.collapsed {
@@ -43,7 +42,7 @@ a {
     text-decoration: underline;
 }
 
-td {
+td, th {
     white-space: nowrap;
     text-overflow: ellipses;
 }
