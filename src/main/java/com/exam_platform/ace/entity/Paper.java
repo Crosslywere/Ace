@@ -34,34 +34,27 @@ public class Paper {
 	@OneToMany(mappedBy = "paper", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Question> questions = new ArrayList<>();
 
-	public void addQuestions(List<Question> questions) {
-		if (this.questions == null) {
-			this.questions = new ArrayList<>();
-		}
-		for (var question : questions) {
-			question.setPaper(this);
-		}
-		this.questions.addAll(questions);
-	}
-
 	public void addQuestion(Question question) {
 		if (this.questions == null) {
 			this.questions = new ArrayList<>();
 		}
-		int index = -1;
-		for (int i = 0; i < this.questions.size(); i++) {
-			if (this.questions.get(i).getId().getNumber().equals(question.getId().getNumber())) {
-				index = i;
-				break;
-			}
-		}
 		question.setPaper(this);
-		if (index == -1) {
-			this.questions.add(question);
-		} else {
-			this.questions.remove(this.questions.get(index));
-			this.questions.add(question);
-		}
+		this.questions.stream().filter(q -> q.getId().getNumber().equals(question.getId().getNumber())).findFirst().ifPresentOrElse(
+				q -> {
+					q.setQuery(question.getQuery());
+					if (question.getOptions() != null && !question.getOptions().isEmpty())
+						q.setOptions(question.getOptions());
+					if (question.getAnswerIndex() != null)
+						q.setAnswerIndex(question.getAnswerIndex());
+					try {
+						q.deleteImage();
+					} catch (Exception e) {
+						//noinspection CallToPrintStackTrace
+						e.printStackTrace();
+					}
+				},
+				() -> this.questions.add(question)
+		);
 	}
 
 	public void prepForSave() {

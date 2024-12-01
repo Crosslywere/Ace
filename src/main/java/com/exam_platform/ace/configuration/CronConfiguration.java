@@ -20,11 +20,11 @@ public class CronConfiguration {
 	private final ExamService examService;
 
 	// Updates the exam list every 5,000 milliseconds (5 seconds)
-	@Scheduled(fixedRate = 30_000)
+	@Scheduled(fixedRate = 15_000)
 	public void updateOngoingExams() {
 		var exams = examService.getExamsByState(Exam.State.ONGOING);
 		for (var exam : exams) {
-			if (exam.getCloseTime().after(Time.valueOf(LocalTime.now()))) {
+			if (exam.getCloseTime().compareTo(Time.valueOf(LocalTime.now())) <= 0) {
 				exam.setState(Exam.State.RECORDED);
 				examService.updateExam(exam);
 				continue;
@@ -43,15 +43,20 @@ public class CronConfiguration {
 		var today = Date.valueOf(LocalDate.now());
 		var now = Time.valueOf(LocalTime.now());
 		for (var exam : exams) {
-			if (exam.getScheduledDate().compareTo(today) == 0 &&
-					(exam.getOpenTime().compareTo(now) <= 0 && exam.getCloseTime().compareTo(now) < 0)) {
-				exam.setState(Exam.State.ONGOING);
-				examService.updateExam(exam);
-				continue;
-			}
-			if (exam.getScheduledDate().compareTo(today) < 0) {
-				exam.setState(Exam.State.RECORDED);
-				examService.updateExam(exam);
+			if (!exam.getPapers().isEmpty() && !exam.getCandidates().isEmpty()) {
+				if (exam.getScheduledDate().compareTo(today) == 0 &&
+						(exam.getOpenTime().compareTo(now) <= 0 && exam.getCloseTime().compareTo(now) > 0)) {
+					exam.setState(Exam.State.ONGOING);
+					examService.updateExam(exam);
+					continue;
+				} else if (exam.getScheduledDate().compareTo(today) == 0 && exam.getCloseTime().compareTo(now) <= 0) {
+					exam.setState(Exam.State.RECORDED);
+					examService.updateExam(exam);
+				}
+				if (exam.getScheduledDate().compareTo(today) < 0) {
+					exam.setState(Exam.State.RECORDED);
+					examService.updateExam(exam);
+				}
 			}
 		}
 	}

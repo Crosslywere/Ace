@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Formula;
 
 import java.sql.Date;
 import java.sql.Time;
@@ -50,10 +51,6 @@ public class Exam {
 	private Time closeTime = Time.valueOf(LocalTime.of(17, 0, 0));
 
 	@Builder.Default
-	@Column(name = "PAPERS_PER_CANDIDATE", nullable = false)
-	private int papersPerCandidate = 1;
-
-	@Builder.Default
 	@OneToMany(mappedBy = "exam", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Paper> papers = new ArrayList<>();
 
@@ -75,57 +72,36 @@ public class Exam {
 	private boolean passwordRequired = false;
 
 	@Builder.Default
+	@Column(name = "PASSWORD_DESC")
+	private String passwordDesc = null;
+
+	@Builder.Default
 	@Embedded
 	private CandidateConfig candidateConfig = new CandidateConfig();
-
-	public void addPapers(List<Paper> papers) {
-		if (this.papers == null) {
-			this.papers = new ArrayList<>();
-		}
-		for(var paper : papers) {
-			paper.setExam(this);
-		}
-		this.papers.addAll(papers);
-	}
 
 	public void addPaper(Paper paper) {
 		if (this.papers == null) {
 			this.papers = new ArrayList<>();
 		}
-		int index = -1;
-		for (int i = 0; i < papers.size(); i++) {
-			if (papers.get(i).getId().getName().equals(paper.getId().getName())) {
-				index = i;
-				break;
-			}
-		}
 		paper.setExam(this);
-		if (index == -1) {
-			this.papers.add(paper);
-		} else {
-			this.papers.remove(this.papers.get(index));
-			this.papers.add(paper);
-		}
-	}
-
-	public void addCandidates(List<Candidate> candidates) {
-		if (this.candidates == null) {
-			this.candidates = new ArrayList<>();
-		}
-		for (var candidate : candidates) {
-			candidate.setExam(this);
-		}
-		this.candidates.addAll(candidates);
+		this.papers.stream().filter(p -> p.getId().getName().equalsIgnoreCase(paper.getId().getName())).findFirst().ifPresentOrElse(
+				p -> paper.getQuestions().forEach(p::addQuestion),
+				() -> this.papers.add(paper)
+		);
 	}
 
 	public void addCandidate(Candidate candidate) {
 		if (this.candidates == null) {
 			this.candidates = new ArrayList<>();
 		}
-		if (this.candidates.stream().noneMatch(c -> c.getId().getUsername().equals(candidate.getId().getUsername()))) {
-			candidate.setExam(this);
-			this.candidates.add(candidate);
-		}
+		candidate.setExam(this);
+		this.candidates.stream().filter(c -> c.getId().getUsername().equals(candidate.getId().getUsername())).findFirst().ifPresentOrElse(
+				c -> {
+					this.candidates.remove(c);
+					this.candidates.add(candidate);
+				},
+				() -> this.candidates.add(candidate)
+		);
 	}
 
 	public int countCandidatesCompleted() {
@@ -147,9 +123,8 @@ public class Exam {
 			paper.getId().setExamId(id);
 			paper.prepForUpdate();
 		});
-		candidates.forEach(candidate -> {
-			candidate.getId().setExamId(id);
-		});
+		candidates.forEach(candidate -> candidate.getId().setExamId(id));
+		prepForSave();
 	}
 
 	@PrePersist
@@ -169,34 +144,37 @@ public class Exam {
 	@AllArgsConstructor
 	@Embeddable
 	public static class CandidateConfig {
+		@Formula("emailDesc != null && !emailDesc.isBlank()")
 		@Builder.Default
 		@Column(name = "HAS_EMAIL", nullable = false)
 		protected boolean email = false;
 		protected String emailDesc;
-		@Builder.Default
-		@Column(name = "HAS_GENDER", nullable = false)
-		protected boolean gender = false;
-		protected String genderDesc;
+		@Formula("phoneNumberDesc != null && !phoneNumberDesc.isBlank()")
 		@Builder.Default
 		@Column(name = "HAS_PHONE_NUMBER", nullable = false)
 		protected boolean phoneNumber = false;
 		protected String phoneNumberDesc;
+		@Formula("addressDesc != null && !addressDesc.isBlank()")
 		@Builder.Default
 		@Column(name = "HAS_ADDRESS", nullable = false)
 		protected boolean address = false;
 		protected String addressDesc;
+		@Formula("stateDesc != null && !stateDesc.isBlank()")
 		@Builder.Default
 		@Column(name = "HAS_STATE", nullable = false)
 		protected boolean state = false;
 		protected String stateDesc;
+		@Formula("firstnameDesc != null")
 		@Builder.Default
 		@Column(name = "HAS_FIRSTNAME", nullable = false)
 		protected boolean firstname = false;
 		protected String firstnameDesc;
+		@Formula("lastnameDesc != null")
 		@Builder.Default
 		@Column(name = "HAS_LASTNAME", nullable = false)
 		protected boolean lastname = false;
 		protected String lastnameDesc;
+		@Formula("otherNamesDesc != null")
 		@Builder.Default
 		@Column(name = "HAS_OTHER_NAMES", nullable = false)
 		protected boolean otherNames = false;

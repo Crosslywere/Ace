@@ -7,8 +7,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Data
 @Component
 public class ExamExporter {
@@ -16,15 +14,14 @@ public class ExamExporter {
 	@Data
 	@EqualsAndHashCode(callSuper = false)
 	@NoArgsConstructor
-	public static class Config extends Exam.CandidateConfig {
+	public static class ExportConfig extends Exam.CandidateConfig {
 		private String usernameDesc;
 		private boolean exportAllCandidates = false;
 		private String totalDesc = "Total";
 		private int cutOffPercentile = 0;
-		public Config(Exam.CandidateConfig base) {
+		public ExportConfig(Exam.CandidateConfig base) {
 			super(
 					base.isEmail(), base.getEmailDesc(),
-					base.isGender(), base.getGenderDesc(),
 					base.isPhoneNumber(), base.getPhoneNumberDesc(),
 					base.isAddress(), base.getAddressDesc(),
 					base.isState(), base.getStateDesc(),
@@ -40,8 +37,6 @@ public class ExamExporter {
 				sb.append(getEmailDesc()).append(",");
 			if (isPhoneNumber())
 				sb.append(getPhoneNumberDesc()).append(",");
-			if (isGender())
-				sb.append(getGenderDesc()).append(",");
 			if (isLastname())
 				sb.append(getLastnameDesc()).append(",");
 			if (isFirstname())
@@ -57,10 +52,10 @@ public class ExamExporter {
 		}
 	}
 
-	private Config config;
+	private ExportConfig config;
 
 	public void setConfig(Exam exam) {
-		config = new Config(exam.getCandidateConfig());
+		config = new ExportConfig(exam.getCandidateConfig());
 		config.setUsernameDesc(exam.getUsernameDesc());
 	}
 
@@ -73,9 +68,5 @@ public class ExamExporter {
 			}
 		}
 		return config.getHeader() + body.toString();
-	}
-
-	private void sortCandidates(List<Candidate> candidateList) {
-		candidateList.sort(Candidate::compareTo);
 	}
 }

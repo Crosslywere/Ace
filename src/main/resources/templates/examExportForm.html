@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <th:block th:replace="~{components :: header}"></th:block>
+    <title th:text="${pageTitle}"></title>
+</head>
+<body>
+    <div class="d-flex">
+        <div th:replace="~{components :: dashboardSidebar(${currentRoute.name})}"></div>
+        <div class="main w-100">
+            <th:block th:replace="~{components :: dashboardNavbar}"></th:block>
+            <main class="p-3">
+                <div class="container">
+
+                </div>
+            </main>
+        </div>
+    </div>
+    <th:block th:replace="~{components :: scripts}"></th:block>
+</body>
+</html>

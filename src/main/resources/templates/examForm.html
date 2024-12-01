@@ -13,7 +13,7 @@
             <th:block th:replace="~{components :: dashboardNavbar}"></th:block>
             <main class="p-3">
                 <div class="container">
-                    <form action="#" th:action="@{/{route}(route=${currentRoute.name() == 'CREATE' ? 'create-f' : 'update-f/__${session.exam.id}__'})}" th:object="${exam}" method="post" enctype="multipart/form-data" class="border p-5 bg-white col-lg-10 col-12 mx-auto">
+                    <form action="#" th:action="@{/{route}(route=${currentRoute.name() == 'CREATE' ? 'create-f' : session.exam.state.name() == 'SCHEDULED' ? 'update-f/scheduled/__${session.exam.id}__' : 'update-f/ongoing/__${session.exam.id}__'})}" th:object="${exam}" method="post" enctype="multipart/form-data" class="border p-5 bg-white col-lg-10 col-12 mx-auto">
                         <h3 th:text="${currentRoute.name() == 'CREATE' ? 'Create Exam' : 'Modify ' + exam.title}"></h3>
                         <hr/>
                         <div class="mb-3 input-group">
@@ -48,6 +48,10 @@
                                     <label th:for="|papers${paperIterator.index}.questionsPerCandidate|" class="input-group-text text-uppercase fw-medium">Questions Per Candidate</label>
                                     <input type="number" th:field="*{papers[__${paperIterator.index}__].questionsPerCandidate}" class="form-control" min="1" th:max="${paper.questions.size()}">
                                 </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input type="checkbox" th:field="*{papers[__${paperIterator.index}__].mandatory}" role="switch" class="form-check-input">
+                                    <label th:for="|papers${paperIterator.index}.mandatory1|" class="form-check-label text-uppercase fw-medium">Mandatory</label>
+                                </div>
                                 <details class="position-relative">
                                     <summary class="w-100 text-center mb-3 p-3 text-success-emphasis bg-success-subtle border border-success-subtle rounded-3">Questions</summary>
                                     <div class="mb-3 input-group position-sticky top-0">
@@ -55,37 +59,83 @@
                                         <a th:onclick="scrollToQuestion([[${#strings.replace(paper.id.name, ' ', '_')}]])" th:text="|Search ${paper.id.name} Questions|" class="btn btn-success"></a>
                                     </div>
                                     <ol>
-                                        <!-- Questions List -->
-                                        <li th:each="question, questionIterator:*{papers[__${paperIterator.index}__].questions}" th:id="${#strings.replace(paper.id.name, ' ', '_') + '-__${question.id.number}__'}" class="mb-3">
+                                        <li th:each="question, questionIterator:*{papers[__${paperIterator.index}__].questions}" th:id="${#strings.replace(paper.id.name, ' ', '_') + '-__${question.id.number}__'}" th:class="|mb-3 ${#strings.replace(paper.id.name, ' ', '_')}-item ${#strings.replace(paper.id.name, ' ', '_')}-pg-${question.id.number / 11}|">
                                             <input type="number" th:field="*{papers[__${paperIterator.index}__].questions[__${questionIterator.index}__].id.number}" class="visually-hidden">
                                             <textarea th:field="*{papers[__${paperIterator.index}__].questions[__${questionIterator.index}__].query}" class="w-100 mb-3 form-control" rows="4"></textarea>
                                             <th:block th:if="${currentRoute.name() != 'CREATE'}">
-                                                <div class="d-flex justify-content-center" th:if="${question.hasImage}">
-                                                    <img th:src="@{/db-images/{image}(image=${question.id.createImageSaveName() + question.imageSuffix})}" height="300px" alt="image">
+                                                <div class="mx-auto position-relative" style="width:fit-content" th:if="${question.hasImage}">
+                                                    <img th:src="@{/db-images/{image}(image=${question.id.createImageSaveName() + question.imageSuffix})}" height="350px" alt="image">
+                                                    <button type="submit" th:formaction="@{/delete/{id}/{paper}/{number}(id=${session.exam.id},paper=${paper.id.name},number=${question.id.number})}" onclick="return confirm('Delete image?')" class="btn btn-danger position-absolute bottom-0 end-0">Delete</button>
                                                 </div>
                                                 <div th:if="${!question.hasImage}" class="mb-3 input-group">
-                                                    <label for="image" class="input-group-text text-uppercase fw-medium">Add Image</label>
-                                                    <input type="file" name="document" id="image" class="form-control" accept=".jpg, .jpeg, .png, .gif" aria-label="Accepts .jpg, .jpeg, .png, and .gif files">
-                                                    <button type="submit" th:formaction="@{/update/{id}/{paper}/{number}(id=${session.exam.id},paper=${paper.id.name},number=${question.id.number})}" class="btn btn-primary">Upload</button>
+                                                    <label th:id="|papers__${paperIterator.index}__.questions__${questionIterator.index}__.imageDocument|" class="input-group-text text-uppercase fw-medium">Add Image</label>
+                                                    <input type="file" th:field="*{papers[__${paperIterator.index}__].questions[__${questionIterator.index}__].imageDocument}" class="form-control" accept=".jpg, .jpeg, .png, .gif" aria-label="Accepts .jpg, .jpeg, .png, and .gif files">
+                                                    <button type="submit" th:formaction="@{/update/{id}/{paper}/{number}(id=${session.exam.id},paper=${paper.id.name},number=${question.id.number})}" class="btn btn-primary">Upload Image</button>
                                                 </div>
                                             </th:block>
-                                            <label th:each="option, optionIterator:${question.options}" class="d-block">
-                                                <input type="radio" th:field="*{papers[__${paperIterator.index}__].questions[__${questionIterator.index}__].answerIndex}" th:value="${optionIterator.index}">
-                                                <span th:text="${option}"></span>
-                                            </label>
+                                            <div class="form-check" th:each="option, optionIterator: ${question.options}">
+                                                <input type="radio" th:field="*{papers[__${paperIterator.index}__].questions[__${questionIterator.index}__].answerIndex}" th:value="${optionIterator.index}" class="form-check-input">
+                                                <label th:for="|papers__${paperIterator.index}__.questions__${questionIterator.index}__.answerIndex__${optionIterator.index + 1}__|" th:text="${option}"></label>
+                                                <input type="text" th:field="*{papers[__${paperIterator.index}__].questions[__${questionIterator.index}__].options[__${optionIterator.index}__]}" class="visually-hidden">
+                                            </div>
                                         </li>
                                     </ol>
                                 </details>
                             </details>
                         </th:block>
-                        <div th:if="*{#lists.isEmpty(candidates) && !#lists.isEmpty(papers)}" class="mb-3 input-group">
+                        <th:block th:if="*{!#lists.isEmpty(candidates) && __${session.exam.state.name() == 'SCHEDULED'}__}">
+                            <div class="mb-3 input-group">
+                                <label th:for="|usernameDesc|" class="fw-medium text-uppercase input-group-text">Username Description</label>
+                                <input type="text" th:field="*{usernameDesc}" class="form-control">
+                            </div>
+                            <th:block th:if="*{passwordRequired}">
+                            <div class="mb-3 input-group">
+                                <label th:for="|passwordDesc|" class="fw-medium text-uppercase input-group-text">Password Description</label>
+                                <input type="text" th:field="*{passwordDesc}" class="form-control">
+                            </div>
+                            <div class="mb-3 form-check form-switch">
+                                <input type="checkbox" th:field="*{passwordRequired}" role="switch" class="form-check-input">
+                                <label th:for="|passwordRequired|" class="form-check-label text-uppercase fw-medium">Password Required</label>
+                            </div>
+                            </th:block>
+                            <div class="overflow-x-auto" th:if="${session.exam.state.name() == 'SCHEDULED'}">
+                                <table class="table table-bordered">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col" class="text-center text-uppercase" th:text="|*{usernameDesc} (Username)|">Username</th>
+                                        <th scope="col" class="text-center text-uppercase" th:if="*{passwordRequired}" th:text="|*{passwordDesc (Password)|">Password</th>
+                                        <th scope="col" class="text-center text-uppercase">Papers</th>
+                                        <th scope="col" class="text-center text-uppercase" th:if="*{candidateConfig.email}" th:text="*{candidateConfig.emailDesc}"></th>
+                                        <th scope="col" class="text-center text-uppercase" th:if="*{candidateConfig.phoneNumber}" th:text="*{candidateConfig.phoneNumberDesc}"></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="candidate, candidateIterator:*{candidates}">
+                                        <td class="text-center"><th:block th:text="${candidate.id.username}"></th:block><input type="text" class="visually-hidden" th:field="*{candidates[__${candidateIterator.index}__].id.username}"></td>
+                                        <td th:if="*{passwordRequired}" class="text-center"><th:block th:text="${candidate.password}"></th:block><input type="text" th:field="*{candidates[__${candidateIterator.index}__].password}" class="visually-hidden"></td>
+                                        <td class="text-center">
+                                            <th:block th:text="|${candidate.papers.size()}|"></th:block>
+                                            <span th:each="cPaper, cPaperIterator:*{candidates[__${candidateIterator.index}__].papers}">
+                                                <th:block th:text="|${cPaper}, |"></th:block>
+<!--                                                <input type="text" th:field="*{candidates[__${candidateIterator.index}__].papers[__${cPaperIterator.index}__]" class="visually-hidden">-->
+                                            </span>
+                                        </td>
+                                        <td th:if="*{candidateConfig.email}" class="text-center"><th:block th:text="${candidate.email}"></th:block><input type="text" class="visually-hidden" th:field="*{candidates[__${candidateIterator.index}__].email}"></td>
+                                        <td th:if="*{candidateConfig.phoneNumber}" class="text-center"><th:block th:text="${candidate.phoneNumber}"></th:block><input type="text" th:field="*{candidates[__${candidateIterator.index}__].phoneNumber}" class="visually-hidden"></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </th:block>
+                        <div th:if="*{#lists.isEmpty(candidates) && !#lists.isEmpty(papers) && __${session.exam.state.name() == 'SCHEDULED'}__}" class="mb-3 input-group">
                             <label for="candidates-document" class="input-group-text text-uppercase fw-medium">Candidate Document</label>
                             <input type="file" name="document" id="candidates-document" class="form-control" accept=".csv">
                             <button type="submit" th:formaction="@{/{route}(route=${currentRoute.name() == 'CREATE' ? 'create' : 'update/__${session.exam.id}__'})}" class="btn btn-primary">Upload Document</button>
                         </div>
                         <div class="d-flex flex-row-reverse justify-content-between">
-                            <button type="submit" class="fw-medium btn btn-primary text-capitalize" th:text="|${currentRoute.name() == 'CREATE' ? 'Create' : 'Update'} Exam|"></button>
-                            <a th:href="@{/manage/{id}(id=${session.exam.id})}" class="btn btn-primary" th:if="${session.exam.state.name() == 'ONGOING'}">Manage Candidates</a>
+                            <button type="submit" class="fw-medium btn btn-primary text-uppercase" th:text="|${currentRoute.name() == 'CREATE' ? 'Create' : 'Update'} Exam|"></button>
+                            <a th:href="@{/manage/{id}(id=${session.exam.id})}" class="fw-medium btn btn-primary text-uppercase" th:if="${session.exam.state.name() == 'ONGOING'}">Manage Candidates</a>
+                            <button th:if="${(session.exam.state.name() == 'SCHEDULED' && currentRoute.name() != 'CREATE') && (!#lists.isEmpty(exam.papers) || !#lists.isEmpty(exam.candidates))}" th:formaction="@{/remove/{id}(id=${session.exam.id})}" th:text="|Delete ${!#lists.isEmpty(session.exam.candidates) ? 'Candidates' : 'Papers'}|" onclick="return confirm('Are you sure?')" class="fw-medium btn btn-danger text-uppercase">Delete</button>
                         </div>
                     </form>
                 </div>
@@ -93,9 +143,28 @@
         </div>
     </div>
     <script th:inline="javascript">
+        function getPageNumber(index, itemsPerPage) {
+            var number = (index - (index % itemsPerPage)) / itemsPerPage;
+            return number;
+        }
         function scrollToQuestion(prefix) {
-            var qid = prefix + '-' + document.getElementById(prefix).value;
+            var qn = document.getElementById(prefix).value;
+            var pageNumber = getPageNumber(qn, 10);
+            document.querySelectorAll('.' + prefix + '-item').forEach(elem => {
+                if (!elem.classList.contains('visually-hidden')) {
+                    elem.classList.add('visually-hidden');
+                }
+            });
+            document.querySelectorAll('.' + prefix + '-pg-' + pageNumber).forEach(elem => {
+                elem.classList.remove('visually-hidden');
+            });
+            var qid = prefix + '-' + qn;
             document.getElementById(qid).scrollIntoView();
+        }
+        function openAll() {
+            document.querySelectorAll('details').forEach(elem => {
+                elem.open = true;
+            });
         }
     </script>
 </body>

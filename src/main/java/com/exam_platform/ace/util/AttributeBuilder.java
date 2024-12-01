@@ -46,9 +46,10 @@ public class AttributeBuilder {
 		return map;
 	}
 
-	public static Map<String, Object> buildForForm(String pageTitle, PageRoute route) {
+	public static Map<String, Object> buildForForm(String pageTitle, PageRoute route, Exam exam) {
 		var map = build(pageTitle, route);
-		map.put("minDate", Date.valueOf(LocalDate.now().minusDays(1)));
+		map.put("exam", exam);
+		map.put("minDate", Date.valueOf(LocalDate.now()));
 		return map;
 	}
 }

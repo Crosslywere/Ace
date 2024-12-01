@@ -51,9 +51,57 @@ public class ExamService {
 	public void stopExamById(Long examId) {
 		var exam = examRepository.findById(examId).orElse(null);
 		if (exam != null && exam.getState() == Exam.State.ONGOING) {
-			exam.setCloseTime(Time.valueOf(LocalTime.now()));
+			if (exam.getCloseTime().toLocalTime().isAfter(LocalTime.now()))
+				exam.setCloseTime(Time.valueOf(LocalTime.now()));
+
 			exam.setState(Exam.State.RECORDED);
 			examRepository.save(exam);
 		}
+	}
+
+	public void deleteById(Long examId) {
+		var exam = examRepository.findById(examId).orElse(null);
+		if (exam == null) {
+			return;
+		}
+		exam.getPapers().forEach(paper -> {
+			paper.getQuestions().forEach(question -> {
+				if (question.isHasImage()) {
+					try {
+						question.deleteImage();
+					} catch (Exception e) {
+						//noinspection CallToPrintStackTrace
+						e.printStackTrace();
+					}
+				}
+			});
+		});
+		examRepository.deleteById(examId);
+	}
+
+	public void deleteAllCandidates(Long examId) {
+		var exam = examRepository.findById(examId).orElse(null);
+		if (exam == null || exam.getState() != Exam.State.SCHEDULED) {
+			return;
+		}
+		exam.getCandidates().clear();
+		examRepository.save(exam);
+	}
+
+	public void deleteAllPapers(Long examId) {
+		var exam = examRepository.findById(examId).orElse(null);
+		if (exam == null || exam.getState() != Exam.State.SCHEDULED) {
+			return;
+		}
+		exam.getPapers().forEach(paper -> paper.getQuestions().forEach(question -> {
+			try {
+				question.deleteImage();
+			} catch (Exception e) {
+				//noinspection CallToPrintStackTrace
+				e.printStackTrace();
+			}
+		}));
+		exam.getPapers().clear();
+		examRepository.save(exam);
 	}
 }

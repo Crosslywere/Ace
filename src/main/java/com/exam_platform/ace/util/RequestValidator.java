@@ -4,8 +4,8 @@ import jakarta.servlet.http.HttpServletRequest;
 
 public class RequestValidator {
 
-	public static boolean isLocalhost(HttpServletRequest request) {
+	public static boolean isNotLocalhost(HttpServletRequest request) {
 		String url = request.getRequestURL().substring(7);
-		return url.startsWith("localhost") || url.startsWith("127.0.0.1");
+		return !url.startsWith("localhost") && !url.startsWith("127.0.0.1");
 	}
 }

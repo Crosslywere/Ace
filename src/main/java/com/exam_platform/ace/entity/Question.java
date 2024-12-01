@@ -4,11 +4,13 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Formula;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 @Data
@@ -38,7 +40,7 @@ public class Question {
 	@Column(name = "HAS_IMAGE")
 	private boolean hasImage;
 
-	@Column(name = "QUESTION")
+	@Column(name = "QUESTION", length = 1024)
 	private String query;
 
 	@Column(name = "OPTIONS")
@@ -47,7 +49,10 @@ public class Question {
 	@Column(name = "ANSWER_INDEX", length = 6)
 	private Byte answerIndex;
 
-	public Question deleteImage() throws Exception {
+	@Transient
+	private MultipartFile imageDocument;
+
+	public void deleteImage() throws Exception {
 		if (hasImage) {
 			File file = new ClassPathResource("static" + File.separator + "db-images").getFile();
 			Path path = Paths.get(file.getCanonicalPath() + File.separator + id.createImageSaveName() + imageSuffix);
@@ -55,10 +60,20 @@ public class Question {
 			if (Files.deleteIfExists(path)) {
 				hasImage = false;
 				imageSuffix = null;
-				System.out.println("Deleted image");
 			}
 		}
-		return this;
+	}
+
+	public void saveImage(MultipartFile image) throws Exception {
+		String filename = image.getOriginalFilename();
+		if (filename == null) {
+			return;
+		}
+		imageSuffix = filename.substring(filename.lastIndexOf('.'));
+		hasImage = true;
+		File file = new ClassPathResource("static" + File.separator + "db-images").getFile();
+		Path path = Paths.get(file.getCanonicalPath() + File.separator + id.createImageSaveName() + imageSuffix);
+		Files.copy(image.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
 	}
 
 	@Data

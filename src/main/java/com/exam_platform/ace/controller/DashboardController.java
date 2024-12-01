@@ -7,6 +7,7 @@ import com.exam_platform.ace.entity.Question;
 import com.exam_platform.ace.model.PageRoute;
 import com.exam_platform.ace.service.CandidateService;
 import com.exam_platform.ace.service.ExamService;
+import com.exam_platform.ace.service.QuestionService;
 import com.exam_platform.ace.util.AttributeBuilder;
 import com.exam_platform.ace.util.ExamImporter;
 import com.exam_platform.ace.util.RequestValidator;
@@ -18,6 +19,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,9 +27,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.management.Notification;
 import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDate;
@@ -39,6 +39,8 @@ import java.util.List;
 public class DashboardController {
 
 	private final ExamService examService;
+
+	private final QuestionService questionService;
 
 	private final CandidateService candidateService;
 
@@ -64,14 +66,18 @@ public class DashboardController {
 				.duration(10);
 		var candidateBuilder = Candidate.builder();
 		for (int i = 0; i < 3; i++) {
-			Question q = questionBuilder.build();
 			Paper p = paperBuilder.build();
-			p.addQuestion(q);
+			for (int k = 0; k < 2; k++) {
+				Question q = questionBuilder.build();
+				q.getId().setNumber(k);
+				p.addQuestion(q);
+			}
 			Exam e = examBuilder
 					.title("Some Other Exam " + (i + 1))
 					.scheduledDate(Date.valueOf(LocalDate.now()))
 					.build();
 			e.addPaper(p);
+			e.setCloseTime(Time.valueOf(LocalTime.now().plusMinutes(5 * (i+1))));
 			for (int j = 0; j < 10; j++) {
 				Candidate c = candidateBuilder
 						.id(Candidate.Id.builder()
@@ -115,8 +121,12 @@ public class DashboardController {
 
 	@GetMapping()
 	public String index(HttpServletRequest request) {
-		if (!RequestValidator.isLocalhost(request)) {
+		if (RequestValidator.isNotLocalhost(request)) {
 			return "redirect:/exam";
+		}
+		var session = request.getSession(false);
+		if (session != null) {
+			session.removeAttribute("exam");
 		}
 		return "redirect:/scheduled";
 	}
@@ -130,8 +140,12 @@ public class DashboardController {
 
 	@GetMapping("/scheduled/{pageNumber}")
 	public String scheduled(@PathVariable int pageNumber, Model model, HttpServletRequest request) {
-		if (!RequestValidator.isLocalhost(request)) {
+		if (RequestValidator.isNotLocalhost(request)) {
 			return "redirect:/exam";
+		}
+		var session = request.getSession(false);
+		if (session != null) {
+			session.removeAttribute("exam");
 		}
 		var sorting = Sort.by("scheduledDate").ascending()
 				.and(Sort.by("openTime").ascending()
@@ -152,8 +166,12 @@ public class DashboardController {
 
 	@GetMapping("/ongoing/{pageNumber}")
 	public String ongoing(@PathVariable int pageNumber, Model model, HttpServletRequest request) {
-		if (!RequestValidator.isLocalhost(request)) {
+		if (RequestValidator.isNotLocalhost(request)) {
 			return "redirect:/exam";
+		}
+		var session = request.getSession(false);
+		if (session != null) {
+			session.removeAttribute("exam");
 		}
 		var sorting = Sort.by("closeTime").ascending();
 		var exams = examService.getExamsByState(Exam.State.ONGOING, PageRequest.of(pageNumber - 1, MAX_SIZE, sorting));
@@ -172,8 +190,12 @@ public class DashboardController {
 
 	@GetMapping("/recorded/{pageNumber}")
 	public String recorded(@PathVariable int pageNumber, Model model, HttpServletRequest request) {
-		if (!RequestValidator.isLocalhost(request)) {
+		if (RequestValidator.isNotLocalhost(request)) {
 			return "redirect:/exam";
+		}
+		var session = request.getSession(false);
+		if (session != null) {
+			session.removeAttribute("exam");
 		}
 		var sorting = Sort.by("closeTime").ascending();
 		var exams = examService.getExamsByState(Exam.State.RECORDED, PageRequest.of(pageNumber - 1, MAX_SIZE, sorting));
@@ -186,8 +208,8 @@ public class DashboardController {
 	//endregion
 	//region Exam Search Table
 	@GetMapping("/search")
-	public String search(@RequestParam String search, Model model) {
-		if (search.isBlank() || search.length() < 4) {
+	public String searchExams(@RequestParam String search, Model model) {
+		if (search.isBlank()) {
 			return "redirect:/scheduled";
 		}
 		var results = examService.getExamsByTitle(search);
@@ -195,10 +217,10 @@ public class DashboardController {
 		return "examTable";
 	}
 	//endregion
-	//region TODO Candidate Management Table
+	//region Candidate Management Table
 	@GetMapping("/manage/{id}")
-	public String candidates(@PathVariable("id") Long examId, Model model, HttpServletRequest request) {
-		if (!RequestValidator.isLocalhost(request)) {
+	public String candidatesManagement(@PathVariable("id") Long examId, Model model, HttpServletRequest request) {
+		if (RequestValidator.isNotLocalhost(request)) {
 			return "redirect:/exam";
 		}
 		Exam exam = examService.getExamById(examId);
@@ -211,8 +233,8 @@ public class DashboardController {
 	}
 	//region Candidates Search Table
 	@GetMapping("/manage/{id}/search")
-	public String candidates(@PathVariable("id") Long examId, @RequestParam String search, Model model, HttpServletRequest request) {
-		if (!RequestValidator.isLocalhost(request)) {
+	public String candidatesManagementSearch(@PathVariable("id") Long examId, @RequestParam String search, Model model, HttpServletRequest request) {
+		if (RequestValidator.isNotLocalhost(request)) {
 			return "redirect:/exam";
 		}
 		Exam exam = examService.getExamById(examId);
@@ -228,92 +250,200 @@ public class DashboardController {
 //endregion
 
 //region Form Views
-	//region Creating an exam
+	//region Create an exam
 	@GetMapping("/create")
 	public String create(Model model, HttpSession session, HttpServletRequest request) {
-		if (!RequestValidator.isLocalhost(request)) {
+		if (RequestValidator.isNotLocalhost(request)) {
 			return "redirect:/exam";
 		}
-		Exam exam = (Exam) session.getAttribute("exam");
-		if (exam == null || exam.getState() != null) {
-			session.setAttribute("exam", new Exam());
+		var exam = (Exam)session.getAttribute("exam");
+		if (exam == null) {
+			exam = new Exam();
+			session.setAttribute("exam", exam);
 		}
-		model.addAllAttributes(AttributeBuilder.build("Create Exam", PageRoute.CREATE));
+		model.addAllAttributes(AttributeBuilder.buildForForm("Create Exam", PageRoute.CREATE, exam));
 		return "examForm";
 	}
-
-	@PostMapping("/create")
-	public String create(@RequestParam MultipartFile papersDoc, @RequestParam MultipartFile candidatesDoc, @RequestParam String oTime, @RequestParam String cTime, Exam exam, Model model, HttpSession session, HttpServletRequest request) {
-		if (papersDoc != null && !papersDoc.isEmpty()) {
-			examImporter.extractPaperData(exam, papersDoc);
+	@GetMapping("/create-r")
+	public String create(HttpSession session, HttpServletRequest request) {
+		if (RequestValidator.isNotLocalhost(request)) {
+			return "redirect:/exam";
 		}
-		if (candidatesDoc != null && !candidatesDoc.isEmpty()) {
-			examImporter.extractCandidateData(exam, candidatesDoc);
-		}
-		setTimesFromString(exam, oTime.trim(), cTime.trim());
-		session.setAttribute("exam", exam);
-		model.addAllAttributes(AttributeBuilder.build("Create Exam", PageRoute.CREATE));
-		return "examForm";
-	}
-
-	@PostMapping("/create-f")
-	public String create(Exam exam, @RequestParam String oTime, @RequestParam String cTime, HttpSession session, RedirectAttributes attributes) {
-		exam.setId(((Exam)session.getAttribute("exam")).getId());
 		session.removeAttribute("exam");
-		setTimesFromString(exam, oTime.trim(), cTime.trim());
-		exam = examService.createExam(exam);
-		attributes.addFlashAttribute("notification", new Notification("success", exam, 0L, "Created exam successfully"));
+		return "redirect:/create";
+	}
+	@PostMapping("/create")
+	public String create(@RequestParam String open, @RequestParam String close, @RequestParam MultipartFile document, Exam exam, Model model, HttpSession session) {
+		setTimesFromString(exam, open.trim(), close.trim());
+		if (exam.getPapers().isEmpty()) {
+			examImporter.extractPaperData(exam, document);
+		} else {
+			examImporter.extractCandidateData(exam, document);
+		}
+		session.setAttribute("exam", exam);
+		model.addAllAttributes(AttributeBuilder.buildForForm("Create Exam", PageRoute.CREATE, exam));
+		return "examForm";
+	}
+	@PostMapping("/create-f")
+	public String create(@RequestParam String open, @RequestParam String close, Exam exam, HttpSession session) {
+		setTimesFromString(exam, open.trim(), close.trim());
+		session.removeAttribute("exam");
+		exam.prepForSave();
+		examService.createExam(exam);
 		return "redirect:/scheduled";
 	}
 	//endregion
 	//region TODO Updating an exam
 	@GetMapping("/update/{id}")
-	public String modify(@PathVariable("id") Long examId, Model model, HttpSession session, HttpServletRequest request) {
-		if (!RequestValidator.isLocalhost(request)) {
+	public String update(@PathVariable("id") Long examId, Model model, HttpSession session, HttpServletRequest request) {
+		if (RequestValidator.isNotLocalhost(request)) {
 			return "redirect:/exam";
 		}
 		Exam exam = examService.getExamById(examId);
 		if (exam == null || exam.getState() == Exam.State.RECORDED) {
 			return "redirect:/recorded";
 		}
-		model.addAllAttributes(AttributeBuilder.buildForForm("Modify Exam", PageRoute.valueOf(exam.getState().name())));
-		session.setAttribute("exam", exam);
+		model.addAllAttributes(AttributeBuilder.buildForForm("Modify Exam", PageRoute.valueOf(exam.getState().name()), exam));
+		if (session.getAttribute("exam") == null)
+			session.setAttribute("exam", exam);
 		return "examForm";
 	}
-
 	@PostMapping("/update/{id}")
-	public String update(@RequestParam MultipartFile papersDoc, @RequestParam MultipartFile candidatesDoc, @RequestParam String oTime, @RequestParam String cTime, Exam exam, Model model, HttpSession session) {
-		throw new UnsupportedOperationException("Not fully implemented /update/{id}");
-//		return "examForm";
+	public String updateWithDocument(@PathVariable("id") Long examId, @RequestParam String open, @RequestParam String close, @RequestParam MultipartFile document, Exam exam, Model model, HttpSession session) {
+		setTimesFromString(exam, open.trim(), close.trim());
+		System.out.println(document.getName());
+		if (exam.getPapers().isEmpty()) {
+			examImporter.extractPaperData(exam, document);
+		} else {
+			examImporter.extractCandidateData(exam, document);
+		}
+		Exam unchanged = (Exam) session.getAttribute("exam");
+		if (unchanged == null) {
+			return "redirect:/scheduled";
+		}
+		exam.setId(examId);
+		exam.setState(unchanged.getState());
+		exam.prepForUpdate();
+		session.setAttribute("exam", exam);
+		model.addAllAttributes(AttributeBuilder.buildForForm("Modify Exam", PageRoute.valueOf(exam.getState().name()), exam));
+		return "examForm";
 	}
-
-	@PostMapping("/update-f/{id}")
-	public String update(@PathVariable("id") Long examId, Exam exam, HttpSession session) {
-
-		return "redirect:/";
+	@PostMapping("/update/{id}/{paper}/{number}")
+	public String updateQuestionImage(@PathVariable("id") Long examId, @PathVariable("paper") String paper, @PathVariable("number") Integer number, @RequestParam String open, @RequestParam String close, Exam exam) {
+		setTimesFromString(exam, open.trim(), close.trim());
+		exam.setId(examId);
+		exam.prepForUpdate();
+		examService.updateExam(exam);
+		Question question = new Question();
+		exam.getPapers().stream().filter(p -> p.getId().getName().equals(paper)).findFirst().flatMap(
+				pPaper -> pPaper.getQuestions().stream().filter(q -> q.getId().getNumber().equals(number)).findFirst()).ifPresent(
+						qQuestion -> question.setImageDocument(qQuestion.getImageDocument()
+				)
+		);
+		MultipartFile document = question.getImageDocument();
+		if (document == null || document.isEmpty()) {
+			return "redirect:/update/" + examId;
+		}
+		questionService.addImageToQuestionById(Question.Id.builder().paperId(Paper.Id.builder().examId(examId).name(paper).build()).number(number).build(), document);
+		return "redirect:/update/" + examId;
+	}
+	@PostMapping("/delete/{id}/{paper}/{number}")
+	public String deleteImageInQuestion(@PathVariable("id") Long examId, @PathVariable("paper") String paper, @PathVariable("number") Integer number) {
+		questionService.deleteImageInQuestionById(Question.Id.builder().paperId(Paper.Id.builder().examId(examId).name(paper).build()).number(number).build());
+		return "redirect:/update/" + examId;
+	}
+	@PostMapping("/remove/{id}")
+	public String deletePart(@RequestParam String open, @RequestParam String close, @PathVariable("id") Long examId, Exam exam) {
+		setTimesFromString(exam, open.trim(), close.trim());
+		exam.setId(examId);
+		exam.prepForUpdate();
+		if (!exam.getCandidates().isEmpty()) {
+			examService.deleteAllCandidates(examId);
+		} else {
+			examService.deleteAllPapers(examId);
+		}
+		return "redirect:/update/" + examId;
+	}
+	@PostMapping("/update-f/scheduled/{id}")
+	public String update(@PathVariable("id") Long examId, @RequestParam String open, @RequestParam String close, Exam exam, HttpSession session) {
+		Exam unchanged = (Exam) session.getAttribute("exam");
+		if (unchanged != null) {
+			session.removeAttribute("exam");
+			setTimesFromString(exam, open.trim(), close.trim());
+			exam.setId(examId);
+			exam.setState(unchanged.getState());
+			exam.prepForUpdate();
+			examService.updateExam(exam);
+		}
+		return "redirect:/scheduled";
+	}
+	@PostMapping("/update-f/ongoing/{id}")
+	public String updateOngoingExam(@RequestParam String close, @PathVariable("id") Long examId, Exam exam, HttpSession session) {
+		Exam unchanged = (Exam) session.getAttribute("exam");
+		if (unchanged != null) {
+			session.removeAttribute("exam");
+			setCloseTimeFromString(exam, close.trim());
+			exam.setId(examId);
+			exam.setPasswordRequired(unchanged.isPasswordRequired());
+			exam.setUsernameDesc(unchanged.getUsernameDesc());
+			exam.setOpenTime(unchanged.getOpenTime());
+			exam.setPasswordDesc(unchanged.getPasswordDesc());
+			exam.setState(Exam.State.ONGOING);
+			exam.setPapers(unchanged.getPapers());
+			exam.setCandidates(candidateService.getCandidatesByExamId(examId));
+			exam.prepForUpdate();
+			examService.updateExam(exam);
+		}
+		return "redirect:/ongoing";
 	}
 	//endregion
-	//region TODO Exporting an exam
+	//region TODO Export Exams
 	//endregion
 //endregion
 
 //region Functionalities
 	//region Delete Exam
-
+	@GetMapping("/delete/{id}")
+	public String deleteExam(@PathVariable("id") Long examId, HttpServletRequest request) {
+		if (RequestValidator.isNotLocalhost(request)) {
+			return "redirect:/exam";
+		}
+		Exam exam = examService.getExamById(examId);
+		if (exam == null) {
+			return "redirect:/scheduled";
+		}
+		examService.deleteById(examId);
+		return switch (exam.getState()) {
+			case SCHEDULED -> "redirect:/scheduled";
+			case ONGOING -> "redirect:/ongoing";
+			case RECORDED -> "redirect:/recorded";
+		};
+	}
 	//endregion
 	//region Stop Exam
-
+	@GetMapping("/stop/{id}")
+	public String stopExam(@PathVariable("id") Long examId, HttpServletRequest request) {
+		if (RequestValidator.isNotLocalhost(request)) {
+			return "redirect:/exam";
+		}
+		examService.stopExamById(examId);
+		return "redirect:/recorded";
+	}
 	//endregion
 //endregion
 
-	private static void setTimesFromString(Exam exam, String openTime, String closeTime) {
-		if (openTime.matches("^\\d+:\\d+$")) {
-			openTime += ":00";
-		}
-		exam.setOpenTime(Time.valueOf(openTime));
+	private static void setCloseTimeFromString(@NonNull Exam exam, @NonNull String closeTime) {
 		if (closeTime.matches("^\\d+:\\d+$")) {
 			closeTime += ":00";
 		}
 		exam.setCloseTime(Time.valueOf(closeTime));
+	}
+
+	private static void setTimesFromString(@NonNull Exam exam, @NonNull String openTime, @NonNull String closeTime) {
+		if (openTime.matches("^\\d+:\\d+$")) {
+			openTime += ":00";
+		}
+		exam.setOpenTime(Time.valueOf(openTime));
+		setCloseTimeFromString(exam, closeTime);
 	}
 }

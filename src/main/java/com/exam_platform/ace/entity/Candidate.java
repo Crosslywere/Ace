@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -55,11 +56,6 @@ public class Candidate implements Comparable<Candidate> {
 	private String otherNames;
 
 	@Builder.Default
-	@Enumerated(EnumType.STRING)
-	@Column(name = "GENDER")
-	private Gender gender = Gender.UNSPECIFIED;
-
-	@Builder.Default
 	@Column(name = "HAS_LOGGED_IN", nullable = false)
 	private boolean loggedIn = false;
 
@@ -67,14 +63,12 @@ public class Candidate implements Comparable<Candidate> {
 	@Column(name = "HAS_SUBMITTED", nullable = false)
 	private boolean submitted = false;
 
+	@Builder.Default
+	@Column(name = "PAPER_NAMES")
+	private List<String> papers = new ArrayList<>();
+
 	public int score() {
 		return (int)answers.stream().filter(CandidateAnswer::isCorrect).count();
-//		int score = 0;
-//		for (var answer : answers) {
-//			if (answer.isCorrect())
-//				score++;
-//		}
-//		return score;
 	}
 
 	public int getMaxScore(String paperName) {
@@ -101,11 +95,5 @@ public class Candidate implements Comparable<Candidate> {
 
 		@Column(name = "USERNAME")
 		private String username;
-	}
-
-	public enum Gender {
-		MALE,
-		FEMALE,
-		UNSPECIFIED
 	}
 }
