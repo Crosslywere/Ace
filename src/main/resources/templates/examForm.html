@@ -32,12 +32,21 @@
                             <label for="close-time" class="input-group-text text-uppercase fw-medium">Close Time</label>
                             <input type="time" class="form-control" id="close-time" name="close" th:value="${session.exam.closeTime}" required>
                         </div>
+                        <div class="mb-3 input-group">
+                            <label for="duration" class="input-group-text text-uppercase fw-medium">Duration</label>
+                            <input type="number" class="form-control" id="duration" th:field="*{duration}" min="1" required>
+                            <span class="input-group-text">Minutes</span>
+                        </div>
                         <div th:if="*{#lists.isEmpty(papers) && __${session.exam.state.name() == 'SCHEDULED'}__}" class="mb-3 input-group">
                             <label for="papers-document" class="input-group-text text-uppercase fw-medium">Exam Document</label>
                             <input type="file" name="document" id="papers-document" class="form-control" accept=".doc, .docx, .txt">
                             <button type="submit" th:formaction="@{/{route}(route=${currentRoute.name() == 'CREATE' ? 'create' : 'update/__${session.exam.id}__'})}" class="btn btn-primary">Upload Document</button>
                         </div>
                         <th:block th:if="*{!#lists.isEmpty(papers) && __${session.exam.state.name() == 'SCHEDULED'}__}">
+                            <div class="mb-3 form-check form-switch">
+                                <input type="checkbox" id="showResults" th:field="*{showResults}" role="switch" class="form-check-input">
+                                <label for="showResults" class="form-check-label text-uppercase fw-medium">Show Results</label>
+                            </div>
                             <details class="mb-3" th:each="paper, paperIterator:*{papers}">
                                 <summary class="w-100 text-center mb-3 p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3" th:text="|${paper.id.name} Paper|"></summary>
                                 <div class="mb-3 input-group">
@@ -89,15 +98,53 @@
                                 <input type="text" th:field="*{usernameDesc}" class="form-control">
                             </div>
                             <th:block th:if="*{passwordRequired}">
-                            <div class="mb-3 input-group">
-                                <label th:for="|passwordDesc|" class="fw-medium text-uppercase input-group-text">Password Description</label>
-                                <input type="text" th:field="*{passwordDesc}" class="form-control">
-                            </div>
-                            <div class="mb-3 form-check form-switch">
-                                <input type="checkbox" th:field="*{passwordRequired}" role="switch" class="form-check-input">
-                                <label th:for="|passwordRequired|" class="form-check-label text-uppercase fw-medium">Password Required</label>
-                            </div>
+                                <div class="mb-3 input-group">
+                                    <label th:for="|passwordDesc|" class="fw-medium text-uppercase input-group-text">Password Description</label>
+                                    <input type="text" th:field="*{passwordDesc}" class="form-control">
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input type="checkbox" id="passwordRequired" th:field="*{passwordRequired}" role="switch" class="form-check-input">
+                                    <label for="passwordRequired" class="form-check-label text-uppercase fw-medium">Password Required</label>
+                                </div>
                             </th:block>
+                            <details class="mb-3">
+                                <summary class="w-100 text-center mb-3 p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3">Candidate Configuration</summary>
+                                <div class="mb-3 input-group" th:if="*{candidateConfig.email}">
+                                    <label class="fw-medium text-uppercase input-group-text" for="emailDesc">Email Descriptor</label>
+                                    <input type="text" id="emailDesc" th:field="*{candidateConfig.emailDesc}" class="form-control">
+                                    <input type="checkbox" th:field="*{candidateConfig.email}" class="visually-hidden">
+                                </div>
+                                <div class="mb-3 input-group" th:if="*{candidateConfig.phoneNumber}">
+                                    <label for="phoneNumberDesc" class="fw-medium text-uppercase input-group-text">Phone Number Descriptor</label>
+                                    <input type="text" id="phoneNumberDesc" th:field="*{candidateConfig.phoneNumberDesc}" class="form-control">
+                                    <input type="checkbox" th:field="*{candidateConfig.phoneNumber}" class="visually-hidden">
+                                </div>
+                                <div class="mb-3 input-group" th:if="*{candidateConfig.address}">
+                                    <label for="addressDesc" class="fw-medium text-uppercase input-group-text">Address Descriptor</label>
+                                    <input type="text" id="addressDesc" th:field="*{candidateConfig.addressDesc}" class="form-control">
+                                    <input type="checkbox" th:field="*{candidateConfig.address}" class="visually-hidden">
+                                </div>
+                                <div class="mb-3 input-group" th:if="*{candidateConfig.state}">
+                                    <label for="stateDesc" class="fw-medium text-uppercase input-group-text">State Descriptor</label>
+                                    <input type="text" id="stateDesc" th:field="*{candidateConfig.stateDesc}" class="form-control">
+                                    <input type="checkbox" th:field="*{candidateConfig.state}" class="visually-hidden">
+                                </div>
+                                <div class="mb-3 input-group" th:if="*{candidateConfig.firstname}">
+                                    <label for="firstnameDesc" class="fw-medium text-uppercase input-group-text">Firstname Descriptor</label>
+                                    <input type="text" id="firstnameDesc" th:field="*{candidateConfig.firstnameDesc}" class="form-control">
+                                    <input type="checkbox" th:field="*{candidateConfig.firstname}" class="visually-hidden">
+                                </div>
+                                <div class="mb-3 input-group" th:if="*{candidateConfig.lastname}">
+                                    <label for="lastnameDesc" class="fw-medium text-uppercase input-group-text">Lastname Descriptor</label>
+                                    <input type="text" id="lastnameDesc" th:field="*{candidateConfig.lastnameDesc}" class="form-control">
+                                    <input type="checkbox" th:field="*{candidateConfig.lastname}" class="visually-hidden">
+                                </div>
+                                <div class="mb-3 input-group" th:if="*{candidateConfig.otherNames}">
+                                    <label for="otherNameDesc" class="fw-medium text-uppercase input-group-text">Other Names Descriptor</label>
+                                    <input type="text" id="otherNameDesc" th:field="*{candidateConfig.otherNamesDesc}" class="form-control">
+                                    <input type="checkbox" th:field="*{candidateConfig.otherNames}" class="visually-hidden">
+                                </div>
+                            </details>
                             <div class="overflow-x-auto" th:if="${session.exam.state.name() == 'SCHEDULED'}">
                                 <table class="table table-bordered">
                                     <thead>
@@ -107,6 +154,11 @@
                                         <th scope="col" class="text-center text-uppercase">Papers</th>
                                         <th scope="col" class="text-center text-uppercase" th:if="*{candidateConfig.email}" th:text="*{candidateConfig.emailDesc}"></th>
                                         <th scope="col" class="text-center text-uppercase" th:if="*{candidateConfig.phoneNumber}" th:text="*{candidateConfig.phoneNumberDesc}"></th>
+                                        <th scope="col" class="text-center text-uppercase" th:if="*{candidateConfig.address}" th:text="*{candidateConfig.addressDesc}"></th>
+                                        <th scope="col" class="text-center text-uppercase" th:if="*{candidateConfig.state}" th:text="*{candidateConfig.stateDesc}"></th>
+                                        <th scope="col" class="text-center text-uppercase" th:if="*{candidateConfig.firstname}" th:text="*{candidateConfig.firstnameDesc}"></th>
+                                        <th scope="col" class="text-center text-uppercase" th:if="*{candidateConfig.lastname}" th:text="*{candidateConfig.lastnameDesc}"></th>
+                                        <th scope="col" class="text-center text-uppercase" th:if="*{candidateConfig.otherNames}" th:text="*{candidateConfig.otherNamesDesc}"></th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -117,11 +169,16 @@
                                             <th:block th:text="|${candidate.papers.size()}|"></th:block>
                                             <span th:each="cPaper, cPaperIterator:*{candidates[__${candidateIterator.index}__].papers}">
                                                 <th:block th:text="|${cPaper}, |"></th:block>
-<!--                                                <input type="text" th:field="*{candidates[__${candidateIterator.index}__].papers[__${cPaperIterator.index}__]" class="visually-hidden">-->
+                                                <input type="text" th:field="*{candidates[__${candidateIterator.index}__].papers[__${cPaperIterator.index}__]}" class="visually-hidden">
                                             </span>
                                         </td>
                                         <td th:if="*{candidateConfig.email}" class="text-center"><th:block th:text="${candidate.email}"></th:block><input type="text" class="visually-hidden" th:field="*{candidates[__${candidateIterator.index}__].email}"></td>
                                         <td th:if="*{candidateConfig.phoneNumber}" class="text-center"><th:block th:text="${candidate.phoneNumber}"></th:block><input type="text" th:field="*{candidates[__${candidateIterator.index}__].phoneNumber}" class="visually-hidden"></td>
+                                        <td th:if="*{candidateConfig.address}" class="text-center"><th:block th:text="${candidate.address}"></th:block><input type="text" th:field="*{candidates[__${candidateIterator.index}__].address}" class="visually-hidden"></td>
+                                        <td th:if="*{candidateConfig.state}" class="text-center"><th:block th:text="${candidate.state}"></th:block><input type="text" th:field="*{candidates[__${candidateIterator.index}__].state}" class="visually-hidden"></td>
+                                        <td th:if="*{candidateConfig.firstname}" class="text-center"><th:block th:text="${candidate.firstname}"></th:block><input type="text" th:field="*{candidates[__${candidateIterator.index}__].firstname}" class="visually-hidden"></td>
+                                        <td th:if="*{candidateConfig.lastname}" class="text-center"><th:block th:text="${candidate.lastname}"></th:block><input type="text" th:field="*{candidates[__${candidateIterator.index}__].lastname}" class="visually-hidden"></td>
+                                        <td th:if="*{candidateConfig.otherNames}" class="text-center"><th:block th:text="${candidate.otherNames}"></th:block><input type="text" th:field="*{candidates[__${candidateIterator.index}__].otherNames}" class="visually-hidden"></td>
                                     </tr>
                                     </tbody>
                                 </table>

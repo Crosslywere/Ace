@@ -50,73 +50,73 @@ public class DashboardController {
 
 	@EventListener(ApplicationStartedEvent.class)
 	public void testRepository() {
-		var questionBuilder = Question.builder()
-				.id(Question.Id.builder()
-						.number(1)
-						.build())
-				.query("\"What are you doing in my swap?\" What famous character said this line?")
-				.options(List.of("The Avatar", "Shrek", "Rick", "Ben 10", "Naruto"))
-				.answerIndex((byte)1);
-		var paperBuilder = Paper.builder().id(Paper.Id.builder()
-						.name("Trivia")
-						.build());
-		var examBuilder = Exam.builder()
-				.openTime(Time.valueOf(LocalTime.now()))
-				.closeTime(Time.valueOf(LocalTime.now().plusHours(6)))
-				.duration(10);
-		var candidateBuilder = Candidate.builder();
-		for (int i = 0; i < 3; i++) {
-			Paper p = paperBuilder.build();
-			for (int k = 0; k < 2; k++) {
-				Question q = questionBuilder.build();
-				q.getId().setNumber(k);
-				p.addQuestion(q);
-			}
-			Exam e = examBuilder
-					.title("Some Other Exam " + (i + 1))
-					.scheduledDate(Date.valueOf(LocalDate.now()))
-					.build();
-			e.addPaper(p);
-			e.setCloseTime(Time.valueOf(LocalTime.now().plusMinutes(5 * (i+1))));
-			for (int j = 0; j < 10; j++) {
-				Candidate c = candidateBuilder
-						.id(Candidate.Id.builder()
-								.username(String.valueOf(j))
-								.build())
-						.build();
-				e.addCandidate(c);
-			}
-			examService.createExam(e);
-		}
-		Question question1 = questionBuilder.build();
-		Paper paper1 = paperBuilder.build();
-		paper1.addQuestion(question1);
-		Exam exam1 = examBuilder
-				.title("Trivia 1(now)")
+		var exam = Exam.builder()
+				.duration(10)
+				.title("Test Exam")
+				.showResults(true)
 				.scheduledDate(Date.valueOf(LocalDate.now()))
+				.openTime(Time.valueOf(LocalTime.now()))
+				.closeTime(Time.valueOf(LocalTime.now().plusMinutes(30)))
+				.usernameDesc("Registration Number")
+				.passwordRequired(false)
 				.build();
-		exam1.addPaper(paper1);
-		examService.createExam(exam1);
-
-		Question question2 = questionBuilder.build();
-		Paper paper2 = paperBuilder.build();
-		paper2.addQuestion(question2);
-		Exam exam2 = examBuilder
-				.title("Trivia 2(past)")
-				.scheduledDate(Date.valueOf(LocalDate.now().minusDays(1)))
+		var paper = Paper.builder()
+				.id(Paper.Id.builder()
+						.name("Test Paper")
+						.build())
+				.mandatory(true)
+				.questionsPerCandidate(5)
 				.build();
-		exam2.addPaper(paper2);
-		examService.createExam(exam2);
-
-		Question question3 = questionBuilder.build();
-		Paper paper3 = paperBuilder.build();
-		paper3.addQuestion(question3);
-		Exam exam3 = examBuilder
-				.title("Trivia 3(tomorrow)")
-				.scheduledDate(Date.valueOf(LocalDate.now().plusDays(1)))
-				.build();
-		exam3.addPaper(paper3);
-		examService.createExam(exam3);
+		var questionBuilder = Question.builder()
+				.options(List.of("30", "90", "1", "100", "39"));
+		paper.setQuestions(List.of(
+				questionBuilder
+						.id(Question.Id.builder()
+								.number(1)
+								.build())
+						.query("9 * 10 = ?")
+						.answerIndex((byte) 1)
+						.build(),
+				questionBuilder
+						.id(Question.Id.builder()
+								.number(2)
+								.build())
+						.query("? + ? = 60")
+						.answerIndex((byte) 0)
+						.build(),
+				questionBuilder
+						.id(Question.Id.builder()
+								.number(3)
+								.build())
+						.query("2 / ? = 2")
+						.answerIndex((byte) 2)
+						.build(),
+				questionBuilder
+						.id(Question.Id.builder()
+								.number(4)
+								.build())
+						.query("60 + ? = 99")
+						.answerIndex((byte) 4)
+						.build(),
+				questionBuilder
+						.id(Question.Id.builder()
+								.number(5)
+								.build())
+						.query("78 / 2 = ?")
+						.answerIndex((byte) 4)
+						.build()
+		));
+		exam.setPapers(List.of(paper));
+		exam.setCandidates(List.of(
+			Candidate.builder()
+					.id(Candidate.Id.builder()
+							.username("12345678")
+							.build())
+					.papers(List.of("Test Paper"))
+					.build()
+		));
+		exam.prepForSave();
+		examService.createExam(exam);
 	}
 
 	@GetMapping()
@@ -293,7 +293,7 @@ public class DashboardController {
 		return "redirect:/scheduled";
 	}
 	//endregion
-	//region TODO Updating an exam
+	//region Updating an exam
 	@GetMapping("/update/{id}")
 	public String update(@PathVariable("id") Long examId, Model model, HttpSession session, HttpServletRequest request) {
 		if (RequestValidator.isNotLocalhost(request)) {

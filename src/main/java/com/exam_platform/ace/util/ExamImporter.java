@@ -284,7 +284,6 @@ public class ExamImporter {
 					candidate.setOtherNames(otherNames);
 				}
 				exam.addCandidate(candidate);
-				System.out.println(candidate);
 			}
 			row ++;
 		}
@@ -354,13 +353,10 @@ public class ExamImporter {
 
 	public void extractCandidateData(Exam exam, MultipartFile candidatesDoc) {
 		if (candidatesDoc.isEmpty()) {
-			System.out.println("Candidate's Document is empty!");
 			return;
 		}
 		try {
-			String text = extractText(candidatesDoc.getInputStream());
-			System.out.println("Text Extracted\n" + text);
-			extractCandidates(exam, text);
+			extractCandidates(exam, extractText(candidatesDoc.getInputStream()));
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

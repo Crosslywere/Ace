@@ -51,6 +51,10 @@ public class Exam {
 	private Time closeTime = Time.valueOf(LocalTime.of(17, 0, 0));
 
 	@Builder.Default
+	@Column(name = "SHOW_RESULTS", nullable = false)
+	private boolean showResults = false;
+
+	@Builder.Default
 	@OneToMany(mappedBy = "exam", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Paper> papers = new ArrayList<>();
 
@@ -62,7 +66,7 @@ public class Exam {
 	@Column(name = "STATE", nullable = false)
 	@Enumerated(EnumType.STRING)
 	private State state = State.SCHEDULED;
-
+//region How candidates login
 	@Builder.Default
 	@Column(name = "USERNAME_DESC", nullable = false)
 	private String usernameDesc = "Username";
@@ -74,7 +78,7 @@ public class Exam {
 	@Builder.Default
 	@Column(name = "PASSWORD_DESC")
 	private String passwordDesc = null;
-
+//endregion
 	@Builder.Default
 	@Embedded
 	private CandidateConfig candidateConfig = new CandidateConfig();
@@ -164,17 +168,17 @@ public class Exam {
 		@Column(name = "HAS_STATE", nullable = false)
 		protected boolean state = false;
 		protected String stateDesc;
-		@Formula("firstnameDesc != null")
+		@Formula("firstnameDesc != null && !firstnameDesc.isBlank()")
 		@Builder.Default
 		@Column(name = "HAS_FIRSTNAME", nullable = false)
 		protected boolean firstname = false;
 		protected String firstnameDesc;
-		@Formula("lastnameDesc != null")
+		@Formula("lastnameDesc != null && !lastnameDesc.isBlank()")
 		@Builder.Default
 		@Column(name = "HAS_LASTNAME", nullable = false)
 		protected boolean lastname = false;
 		protected String lastnameDesc;
-		@Formula("otherNamesDesc != null")
+		@Formula("otherNamesDesc != null && !otherNamesDesc.isBlank()")
 		@Builder.Default
 		@Column(name = "HAS_OTHER_NAMES", nullable = false)
 		protected boolean otherNames = false;
