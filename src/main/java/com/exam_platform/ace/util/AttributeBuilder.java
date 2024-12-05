@@ -11,14 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Attributes to consider<p/>
- * <ol>
- *     <li class="text-center">pageTitle - sets the title of the page</li>
- *     <li>currentRoute - an enum with an attribute {@code page} used for pagination.</li>
- *     <li></li>
- * </ol>
- */
 @Component
 public class AttributeBuilder {
 
