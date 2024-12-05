@@ -167,12 +167,12 @@ public class ExamImporter {
 				// Indexing the columns in the header
 				for (int i = 0; i < columns.size(); i++) {
 					String column = columns.get(i);
-					if (column.toUpperCase().trim().startsWith("#UN ") && indexer.getUsernameIndex() == -1) {
+					if (column.trim().toUpperCase().startsWith("#UN ")) {
 						indexer.setUsernameIndex(i);
 						column = column.substring(4).trim();
 						exam.setUsernameDesc(column);
 					}
-					if (column.toUpperCase().trim().startsWith("#PW ") && indexer.getPasswordIndex() == -1 && (!exam.getCandidates().isEmpty() && exam.getCandidates().getFirst().getPassword() != null)) {
+					if (column.trim().toUpperCase().startsWith("#PW ")) {
 						indexer.setPasswordIndex(i);
 						column = column.substring(4).trim();
 						exam.setPasswordDesc(column);
@@ -237,13 +237,18 @@ public class ExamImporter {
 				if (columns.size() > indexer.getPapersIndex()) {
 					String papersLine = columns.get(indexer.getPapersIndex());
 					List<String> papers = parseCSVLine(papersLine);
-					for (var paper : papers) {
-						if (candidate.getPapers().stream().noneMatch(paper::equalsIgnoreCase) && !paper.isBlank()) {
-							Paper p = exam.getPapers().stream().filter(ePaper -> ePaper.getId().getName().equalsIgnoreCase(paper.trim())).findFirst().orElse(null);
-							if (p == null) {
+					for (var paperNames : papers) {
+						if (candidate.getPapers().stream().noneMatch(paperNames::equalsIgnoreCase) && !paperNames.isBlank()) {
+							Paper paper = exam.getPapers().stream().filter(ePaper -> ePaper.getId().getName().equalsIgnoreCase(paperNames.trim())).findFirst().orElse(null);
+							if (paper == null) {
 								continue;
 							}
-							candidate.getPapers().add(paper);
+							candidate.getPapers().add(paper.getId().getName());
+						}
+					}
+					for (var paperName : exam.getPapers().stream().filter(Paper::isMandatory).map(paper -> paper.getId().getName()).toList()) {
+						if (candidate.getPapers().stream().noneMatch(paper -> paper.equalsIgnoreCase(paperName))) {
+							candidate.getPapers().add(paperName);
 						}
 					}
 				}
