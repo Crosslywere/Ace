@@ -1,0 +1,36 @@
+Physics:
+1. In a resonance tube experiment, a tube of fixed length in closed at one end and several turning forks of increasing frequency used to obtain resonance at the open end. If the turning fork with the lowest frequency which gave resonance had a frequency ƒ1 and the next turning fork to give resonance had a frequency ƒ2, find the ratio ƒ2/ ƒ1.
+a. 12
+b. 2
+c. 6
+d. 22
+e. 80
+Ans: b
+2. In a resonance tube experiment, a tube of fixed length in closed at one end and several turning forks of increasing frequency used to obtain resonance at the open end. If the turning fork with the lowest frequency which gave resonance had a frequency ƒ1 and the next turning fork to give resonance had a frequency ƒ2, find the ratio ƒ2/ ƒ1.
+a. 12
+b. 2
+c. 6
+d. 22
+e. 80
+Ans: b
+3. In a resonance tube experiment, a tube of fixed length in closed at one end and several turning forks of increasing frequency used to obtain resonance at the open end. If the turning fork with the lowest frequency which gave resonance had a frequency ƒ1 and the next turning fork to give resonance had a frequency ƒ2, find the ratio ƒ2/ ƒ1.
+a. 12
+b. 2
+c. 6
+d. 22
+e. 80
+Ans: b
+4. In a resonance tube experiment, a tube of fixed length in closed at one end and several turning forks of increasing frequency used to obtain resonance at the open end. If the turning fork with the lowest frequency which gave resonance had a frequency ƒ1 and the next turning fork to give resonance had a frequency ƒ2, find the ratio ƒ2/ ƒ1.
+a. 12
+b. 2
+c. 6
+d. 22
+e. 80
+Ans: b
+5. In a resonance tube experiment, a tube of fixed length in closed at one end and several turning forks of increasing frequency used to obtain resonance at the open end. If the turning fork with the lowest frequency which gave resonance had a frequency ƒ1 and the next turning fork to give resonance had a frequency ƒ2, find the ratio ƒ2/ ƒ1.
+a. 12
+b. 2
+c. 6
+d. 22
+e. 80
+Ans: b
