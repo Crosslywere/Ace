@@ -32,7 +32,7 @@
                             <label for="close-time" class="input-group-text text-uppercase fw-medium">Close Time</label>
                             <input type="time" class="form-control" id="close-time" name="close" th:value="${session.exam.closeTime}" required>
                         </div>
-                        <div class="mb-3 input-group">
+                        <div class="mb-3 input-group" th:if="*{state.name() == 'SCHEDULED'}">
                             <label for="duration" class="input-group-text text-uppercase fw-medium">Duration</label>
                             <input type="number" class="form-control" id="duration" th:field="*{duration}" min="1" required>
                             <span class="input-group-text">Minutes</span>
@@ -62,7 +62,7 @@
                                     <label th:for="|papers${paperIterator.index}.mandatory1|" class="form-check-label text-uppercase fw-medium">Mandatory</label>
                                 </div>
                                 <details class="position-relative">
-                                    <summary class="w-100 text-center mb-3 p-3 text-success-emphasis bg-success-subtle border border-success-subtle rounded-3">Questions</summary>
+                                    <summary class="w-100 text-center mb-3 p-3 text-success-emphasis bg-success-subtle border border-success-subtle rounded-3" th:text="|Questions (${paper.questions.size()})|">Questions</summary>
                                     <div class="mb-3 input-group position-sticky top-0">
                                         <input type="number" min="1" th:id="${#strings.replace(paper.id.name, ' ', '_')}" class="form-control">
                                         <a th:onclick="scrollToQuestion([[${#strings.replace(paper.id.name, ' ', '_')}]])" th:text="|Search ${paper.id.name} Questions|" class="btn btn-success"></a>
@@ -73,6 +73,8 @@
                                             <textarea th:field="*{papers[__${paperIterator.index}__].questions[__${questionIterator.index}__].query}" class="w-100 mb-3 form-control" rows="4"></textarea>
                                             <th:block th:if="${currentRoute.name() != 'CREATE'}">
                                                 <div class="mx-auto position-relative" style="width:fit-content" th:if="${question.hasImage}">
+                                                    <input type="checkbox" th:field="*{papers[__${paperIterator.index}__].questions[__${questionIterator.index}__].hasImage}" class="visually-hidden">
+                                                    <input type="text" th:field="*{papers[__${paperIterator.index}__].questions[__${questionIterator.index}__].imageSuffix}" class="visually-hidden">
                                                     <img th:src="@{/db-images/{image}(image=${question.id.createImageSaveName() + question.imageSuffix})}" height="350px" alt="image">
                                                     <button type="submit" th:formaction="@{/delete/{id}/{paper}/{number}(id=${session.exam.id},paper=${paper.id.name},number=${question.id.number})}" onclick="return confirm('Delete image?')" class="btn btn-danger position-absolute bottom-0 end-0">Delete</button>
                                                 </div>
@@ -95,12 +97,12 @@
                         <th:block th:if="*{!#lists.isEmpty(candidates) && __${session.exam.state.name() == 'SCHEDULED'}__}">
                             <div class="mb-3 input-group">
                                 <label th:for="|usernameDesc|" class="fw-medium text-uppercase input-group-text">Username Description</label>
-                                <input type="text" th:field="*{usernameDesc}" class="form-control">
+                                <input type="text" th:field="*{usernameDesc}" class="form-control" required>
                             </div>
                             <th:block th:if="*{passwordRequired}">
                                 <div class="mb-3 input-group">
                                     <label th:for="|passwordDesc|" class="fw-medium text-uppercase input-group-text">Password Description</label>
-                                    <input type="text" th:field="*{passwordDesc}" class="form-control">
+                                    <input type="text" th:field="*{passwordDesc}" class="form-control" required>
                                 </div>
                                 <div class="mb-3 form-check form-switch">
                                     <input type="checkbox" id="passwordRequired" th:field="*{passwordRequired}" role="switch" class="form-check-input">
@@ -145,12 +147,14 @@
                                     <input type="checkbox" th:field="*{candidateConfig.otherNames}" class="visually-hidden">
                                 </div>
                             </details>
-                            <div class="overflow-x-auto" th:if="${session.exam.state.name() == 'SCHEDULED'}">
-                                <table class="table table-bordered">
+                            <details class="mb-3">
+                                <summary class="w-100 text-center mb-3 p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3" th:text="|Candidates (*{candidates.size()})|"></summary>
+                                <div class="overflow-auto" style="max-height:451px" th:if="${session.exam.state.name() == 'SCHEDULED'}">
+                                <table class="table table-bordered mb-0">
                                     <thead>
                                     <tr>
                                         <th scope="col" class="text-center text-uppercase" th:text="|*{usernameDesc} (Username)|">Username</th>
-                                        <th scope="col" class="text-center text-uppercase" th:if="*{passwordRequired}" th:text="|*{passwordDesc (Password)|">Password</th>
+                                        <th scope="col" class="text-center text-uppercase" th:if="*{passwordRequired}" th:text="|*{passwordDesc} (Password)|">Password</th>
                                         <th scope="col" class="text-center text-uppercase">Papers</th>
                                         <th scope="col" class="text-center text-uppercase" th:if="*{candidateConfig.email}" th:text="*{candidateConfig.emailDesc}"></th>
                                         <th scope="col" class="text-center text-uppercase" th:if="*{candidateConfig.phoneNumber}" th:text="*{candidateConfig.phoneNumberDesc}"></th>
@@ -166,7 +170,7 @@
                                         <td class="text-center"><th:block th:text="${candidate.id.username}"></th:block><input type="text" class="visually-hidden" th:field="*{candidates[__${candidateIterator.index}__].id.username}"></td>
                                         <td th:if="*{passwordRequired}" class="text-center"><th:block th:text="${candidate.password}"></th:block><input type="text" th:field="*{candidates[__${candidateIterator.index}__].password}" class="visually-hidden"></td>
                                         <td class="text-center">
-                                            <th:block th:text="|${candidate.papers.size()}|"></th:block>
+                                            <b><th:block th:text="|${candidate.papers.size()}|"></th:block></b>
                                             <span th:each="cPaper, cPaperIterator:*{candidates[__${candidateIterator.index}__].papers}">
                                                 <th:block th:text="|${cPaper}, |"></th:block>
                                                 <input type="text" th:field="*{candidates[__${candidateIterator.index}__].papers[__${cPaperIterator.index}__]}" class="visually-hidden">
@@ -183,6 +187,7 @@
                                     </tbody>
                                 </table>
                             </div>
+                            </details>
                         </th:block>
                         <div th:if="*{#lists.isEmpty(candidates) && !#lists.isEmpty(papers) && __${session.exam.state.name() == 'SCHEDULED'}__}" class="mb-3 input-group">
                             <label for="candidates-document" class="input-group-text text-uppercase fw-medium">Candidate Document</label>
@@ -206,17 +211,23 @@
         }
         function scrollToQuestion(prefix) {
             var qn = document.getElementById(prefix).value;
-            var pageNumber = getPageNumber(qn, 10);
-            document.querySelectorAll('.' + prefix + '-item').forEach(elem => {
-                if (!elem.classList.contains('visually-hidden')) {
-                    elem.classList.add('visually-hidden');
-                }
-            });
-            document.querySelectorAll('.' + prefix + '-pg-' + pageNumber).forEach(elem => {
-                elem.classList.remove('visually-hidden');
-            });
-            var qid = prefix + '-' + qn;
-            document.getElementById(qid).scrollIntoView();
+            if (qn !== '') {
+                var pageNumber = getPageNumber(qn, 10);
+                document.querySelectorAll('.' + prefix + '-item').forEach(elem => {
+                    if (!elem.classList.contains('visually-hidden')) {
+                        elem.classList.add('visually-hidden');
+                    }
+                });
+                document.querySelectorAll('.' + prefix + '-pg-' + pageNumber).forEach(elem => {
+                    elem.classList.remove('visually-hidden');
+                });
+                var qid = prefix + '-' + qn;
+                document.getElementById(qid).scrollIntoView();
+            } else {
+                document.querySelectorAll('.' + prefix + '-item').forEach(elem => {
+                    elem.classList.remove('visually-hidden');
+                });
+            }
         }
         function openAll() {
             document.querySelectorAll('details').forEach(elem => {
