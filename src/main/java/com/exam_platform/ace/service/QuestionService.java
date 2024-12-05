@@ -37,5 +37,6 @@ public class QuestionService {
 			//noinspection CallToPrintStackTrace
 			e.printStackTrace();
 		}
+		questionRepository.save(question);
 	}
 }
