@@ -215,6 +215,11 @@ public class ExamImporter {
 					} else
 					if (column.toLowerCase().contains("paper")) {
 						indexer.setPapersIndex(i);
+					} else
+					if (column.toLowerCase().contains("reg")) {
+						indexer.setRegistrationNumberIndex(i);
+						indexer.setRegistrationNumber(true);
+						indexer.setRegistrationNumberDesc(column);
 					}
 				}
 			}
@@ -342,6 +347,8 @@ public class ExamImporter {
 		private int otherNamesIndex = -1;
 		@Builder.Default
 		private int papersIndex = -1;
+		@Builder.Default
+		private int registrationNumberIndex = -1;
 
 		public ConfigIndexer(Exam exam) {
 			super(
@@ -351,7 +358,8 @@ public class ExamImporter {
 					exam.getCandidateConfig().isState(), exam.getCandidateConfig().getStateDesc(),
 					exam.getCandidateConfig().isFirstname(), exam.getCandidateConfig().getFirstnameDesc(),
 					exam.getCandidateConfig().isLastname(), exam.getCandidateConfig().getLastnameDesc(),
-					exam.getCandidateConfig().isOtherNames(), exam.getCandidateConfig().getOtherNamesDesc()
+					exam.getCandidateConfig().isOtherNames(), exam.getCandidateConfig().getOtherNamesDesc(),
+					exam.getCandidateConfig().isRegistrationNumber(), exam.getCandidateConfig().getRegistrationNumberDesc()
 			);
 		}
 	}

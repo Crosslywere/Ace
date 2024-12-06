@@ -12,7 +12,63 @@
         <div class="main w-100">
             <th:block th:replace="~{components :: dashboardNavbar}"></th:block>
             <main class="p-3">
-
+                <div class="container overflow-x-auto mb-3">
+                    <form action="#" th:action="@{/manage/{id}/search(id=${exam.id})}" method="get">
+                        <div class="mb-3 input-group">
+                            <label for="search" class="fw-medium text-uppercase input-group-text">Candidate Search</label>
+                            <input type="text" name="search" id="search" class="form-control" placeholder="Search by username">
+                            <button type="submit" class="btn btn-primary">Search Candidates</button>
+                        </div>
+                    </form>
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th scope="col" class="text-center text-uppercase">Username</th>
+                            <th scope="col" th:if="${exam.passwordRequired}" class="text-center text-uppercase">Password</th>
+                            <th scope="col" class="text-center text-uppercase">Time In</th>
+                            <th scope="col" class="text-center text-uppercase">Time Used</th>
+                            <th scope="col" class="text-center text-uppercase">Last Updated</th>
+                            <th scope="col" class="text-center text-uppercase">Status</th>
+                            <th scope="col" class="text-center text-uppercase">Management</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="candidate:${candidates}">
+                            <td class="text-center" th:text="${candidate.id.username}">Username</td>
+                            <td th:if="${exam.passwordRequired}" class="text-center" th:text="${candidate.password}">Password</td>
+                            <td class="text-center" th:text="${candidate.timeIn == null ? 'N/A' : #dates.format(candidate.timeIn, 'h:mm:ss aa')}">Time In</td>
+                            <td class="text-center" th:text="${#numbers.formatInteger(candidate.timeUsed, 0)}">Time Used</td>
+                            <td class="text-center" th:text="${candidate.lastUpdated == null ? 'N/A' : #dates.format(candidate.lastUpdated, 'h:mm:ss aa')}">Last Updated</td>
+                            <td class="text-center" th:text="${candidate.submitted ? 'Submitted' : candidate.loggedIn ? 'Logged In' : 'Not Logged In'}">Status</td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-around">
+                                    <a th:href="@{/allow-reentry/{exam}(exam=${candidate.id.examId},username=${candidate.id.username})}" class="text-primary fw-bold">Logout</a>
+                                    <a th:href="@{/reset}" class="text-danger fw-bold" >Reset</a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(candidates)}">
+                            <td colspan="10" class="text-center">No candidates available in this exam!</td>
+                        </tr>
+                        </tbody>
+                        <tfoot th:if="${maxPages > 0}">
+                        <tr>
+                            <td colspan="10">
+                                <ul class="pagination justify-content-end m-0">
+                                    <li th:each="pageNumber:${#numbers.sequence(0, maxPages)}" th:class="${pageNumber == currentPage - 1 ? 'page-item active':'page-item'}">
+                                        <a class="page-link"
+                                           th:href="@{/{page}/{n}(page=${currentRoute.page},n=${pageNumber + 1})}"
+                                           th:text="${pageNumber + 1}"
+                                           th:aria-current="${pageNumber == currentPage - 1}">
+                                            1-100
+                                        </a>
+                                    </li>
+                                </ul>
+                            </td>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </main>
         </div>
     </div>

@@ -79,10 +79,11 @@ public class Exam {
 	@Column(name = "PASSWORD_DESC")
 	private String passwordDesc = null;
 //endregion
+//region How candidates are exported
 	@Builder.Default
 	@Embedded
 	private CandidateConfig candidateConfig = new CandidateConfig();
-
+//endregion
 	public void addPaper(Paper paper) {
 		if (this.papers == null) {
 			this.papers = new ArrayList<>();
@@ -141,7 +142,7 @@ public class Exam {
 		ONGOING,
 		RECORDED;
 	}
-
+//region How candidates are exported
 	@Data
 	@SuperBuilder
 	@NoArgsConstructor
@@ -183,5 +184,11 @@ public class Exam {
 		@Column(name = "HAS_OTHER_NAMES", nullable = false)
 		protected boolean otherNames = false;
 		protected String otherNamesDesc;
+		@Formula("registrationNumberDesc != null && !registrationNumberDesc.isBlank()")
+		@Builder.Default
+		@Column(name = "HAS_REGISTRATION_NUMBER", nullable = false)
+		protected boolean registrationNumber = false;
+		protected String registrationNumberDesc;
 	}
+//endregion
 }

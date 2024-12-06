@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www,thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <th:block th:replace="~{components :: header}"></th:block>
+    <title th:text="| |"></title>
+</head>
+<body>
+    <div class="main">
+        <th:block th:replace="~{components :: examNavbar}"></th:block>
+        <main class="p-3 pt-0">
+            <div class="mb-3 container">
+                <div class="d-flex justify-content-center" th:if="${session.candidate.papers.size() > 1}">
+                    <button form="questionForm" class="btn btn-outline-primary mx-3" th:each="paper:${session.candidate.papers}" th:formaction="@{/exam/{paperName}/1(paperName=${paper})}" th:text="${paper}"></button>
+                </div>
+            </div>
+            <div class="container">
+                <form action="" id="questionForm" th:object="${candidateAnswer}" method="post" class="col-12 m-auto border bg-white p-4" th:with="question=${candidateAnswer.question}">
+                    <h2 class="text-center mb-3" th:text="${session.currentAnswerId.paperName}"></h2>
+                    <p th:text="|*{id.number}. *{question.query}|"></p>
+                    <div class="d-flex justify-content-center" th:if="*{question.hasImage}">
+                        <img th:src="@{/db-images/{image}(image=*{question.id.createImageSaveName() + question.imageSuffix})}" height="200px" alt="image">
+                    </div>
+                    <div class="form-check" th:each="option,optionIterator:*{question.options}">
+                        <input type="radio" th:field="*{answer}" th:value="${optionIterator.index}" th:id="|option${optionIterator.index}|" class="form-check-input">
+                        <label th:for="|option${optionIterator.index}|" class="form-check-label" th:text="${option}"></label>
+                    </div>
+                    <div class="d-flex justify-content-between mt-3">
+                        <button type="submit" id="prevQuestion" formaction="" class="btn btn-outline-primary">Previous</button>
+                        <div class="col d-flex justify-content-center px-2">
+<!--                            <span>Question Navigation</span>-->
+                            <button type="submit" class="btn btn-danger">Question</button>
+                        </div>
+                        <button type="submit" id="nextQuestion" formaction="" class="btn btn-outline-primary">Next</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+    <script th:inline="javascript" type="text/javascript">
+    const nextQuestion = document.getElementById('nextQuestion');
+    const prevQuestion = document.getElementById('prevQuestion');
+    function selectOption(index) {
+        options.forEach(option => {
+            option.removeAttribute("checked");
+        });
+        if (options.length > index) {
+            options[index].setAttribute("checked", true);
+        }
+    }
+    document.onkeydown = (ev) => {
+        switch (ev.key) {
+            case '1':
+            case 'A':
+            case 'a':
+                selectOption(0);
+                break;
+            case '2':
+            case 'B':
+            case 'b':
+                selectOption(1);
+                break;
+            case '3':
+            case 'C':
+            case 'c':
+                selectOption(2);
+                break;
+            case '4':
+            case 'D':
+            case 'd':
+                selectOption(3);
+                break;
+            case '5':
+            case 'E':
+            case 'e':
+                selectOption(4);
+                break;
+            case 'ArrowLeft':
+                if (prevQuestion !== null) {
+                    prevQuestion.click();
+                }
+                break;
+            case 'ArrowRight':
+                if (nextQuestion !== null) {
+                    nextQuestion.click();
+                }
+                break;
+        }
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <th:block th:replace="~{components :: header}"></th:block>
+    <title>Error</title>
+</head>
+<body>
+    <div class="main">
+        <th:block th:replace="~{components :: errorNavbar}"></th:block>
+        <main class="p-3">
+            <div class="container">
+                <div class="col-lg-6 p-4 m-auto border bg-white">
+                    <h2 class="text-center text-capitalize">An Error Occurred!</h2>
+                    <h3 class="text-center" th:text="|Error Code: ${status}|"></h3>
+                    <th:block th:switch="${status}">
+                        <p th:case="500" class="text-center">Internal server error occurred on '<th:block th:text="${path}"></th:block>'</p>
+                        <p th:case="405" class="text-center">Unsupported method error occurred on '<th:block th:text="${path}"></th:block>'</p>
+                        <p th:case="404" class="text-center">Resource does not exist on path: '<th:block th:text="${path}"></th:block>'</p>
+                        <p th:case="*" class="text-center">
+                            <th:block th:text="|Error on '${path}'|"></th:block>
+                            <br>
+                            <th:block th:text="${message}"></th:block>
+                        </p>
+                    </th:block>
+
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

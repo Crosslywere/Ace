@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Controller;
@@ -32,6 +31,7 @@ import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
 
 @Controller
@@ -110,7 +110,7 @@ public class DashboardController {
 		exam.setCandidates(List.of(
 			Candidate.builder()
 					.id(Candidate.Id.builder()
-							.username("12345678")
+							.username("1234567890")
 							.build())
 					.papers(List.of("Test Paper"))
 					.build()
@@ -137,7 +137,6 @@ public class DashboardController {
 	public String scheduled(Model model, HttpServletRequest request) {
 		return scheduled(1, model, request);
 	}
-
 	@GetMapping("/scheduled/{pageNumber}")
 	public String scheduled(@PathVariable int pageNumber, Model model, HttpServletRequest request) {
 		if (RequestValidator.isNotLocalhost(request)) {
@@ -220,13 +219,18 @@ public class DashboardController {
 	//region Candidate Management Table
 	@GetMapping("/manage/{id}")
 	public String candidatesManagement(@PathVariable("id") Long examId, Model model, HttpServletRequest request) {
+		return candidatesManagement(examId, 1, model, request);
+	}
+	@GetMapping("/manage/{id}/{pageNumber}")
+	public String candidatesManagement(@PathVariable("id") Long examId, @PathVariable("pageNumber") int pageNumber, Model model, HttpServletRequest request) {
 		if (RequestValidator.isNotLocalhost(request)) {
 			return "redirect:/exam";
 		}
 		Exam exam = examService.getExamById(examId);
 		if (exam != null && exam.getState() == Exam.State.ONGOING) {
-			List<Candidate> candidates = candidateService.getCandidatesByExam(exam, Pageable.unpaged());
-			model.addAllAttributes(AttributeBuilder.buildForTable("Manage " + exam.getTitle(), PageRoute.ONGOING, exam, candidates, 0, 0));
+			var candidates = candidateService.getCandidatesByExam(exam, PageRequest.of(pageNumber - 1, MAX_SIZE));
+			int maxPages = candidates.size() / MAX_SIZE;
+			model.addAllAttributes(AttributeBuilder.buildForTable("Manage " + exam.getTitle(), PageRoute.ONGOING, exam, candidates, maxPages, pageNumber));
 			return "candidateTable";
 		}
 		return "redirect:/ongoing";
@@ -242,6 +246,8 @@ public class DashboardController {
 			List<Candidate> candidates = candidateService.getCandidatesByExamAndUsername(exam, search);
 			model.addAllAttributes(AttributeBuilder.buildForTable("Search Results", PageRoute.SEARCH, exam, candidates, 0, 0));
 			return "candidateTable";
+		} else if (search.isBlank()) {
+			return "redirect:/manage/" + examId;
 		}
 		return "redirect:/ongoing";
 	}
@@ -280,6 +286,7 @@ public class DashboardController {
 		} else {
 			examImporter.extractCandidateData(exam, document);
 		}
+		exam.getPapers().forEach(paper -> Collections.sort(paper.getQuestions()));
 		session.setAttribute("exam", exam);
 		model.addAllAttributes(AttributeBuilder.buildForForm("Create Exam", PageRoute.CREATE, exam));
 		return "examForm";
@@ -303,6 +310,7 @@ public class DashboardController {
 		if (exam == null || exam.getState() == Exam.State.RECORDED) {
 			return "redirect:/recorded";
 		}
+		exam.getPapers().forEach(paper -> Collections.sort(paper.getQuestions()));
 		model.addAllAttributes(AttributeBuilder.buildForForm("Modify Exam", PageRoute.valueOf(exam.getState().name()), exam));
 		if (session.getAttribute("exam") == null)
 			session.setAttribute("exam", exam);
@@ -311,7 +319,6 @@ public class DashboardController {
 	@PostMapping("/update/{id}")
 	public String updateWithDocument(@PathVariable("id") Long examId, @RequestParam String open, @RequestParam String close, @RequestParam MultipartFile document, Exam exam, Model model, HttpSession session) {
 		setTimesFromString(exam, open.trim(), close.trim());
-		System.out.println(document.getName());
 		if (exam.getPapers().isEmpty()) {
 			examImporter.extractPaperData(exam, document);
 		} else {
@@ -329,18 +336,17 @@ public class DashboardController {
 		return "examForm";
 	}
 	@PostMapping("/update/{id}/{paper}/{number}")
-	public String updateQuestionImage(@PathVariable("id") Long examId, @PathVariable("paper") String paper, @PathVariable("number") Integer number, @RequestParam String open, @RequestParam String close, Exam exam) {
+	public String updateQuestionImage(@PathVariable("id") Long examId, @PathVariable("paper") String paper, @PathVariable("number") Integer number, @RequestParam String open, @RequestParam String close, Exam exam, HttpSession session) {
 		setTimesFromString(exam, open.trim(), close.trim());
 		exam.setId(examId);
 		exam.prepForUpdate();
 		examService.updateExam(exam);
-		Question question = new Question();
+		Question capture = new Question();
 		exam.getPapers().stream().filter(p -> p.getId().getName().equals(paper)).findFirst().flatMap(
 				pPaper -> pPaper.getQuestions().stream().filter(q -> q.getId().getNumber().equals(number)).findFirst()).ifPresent(
-						qQuestion -> question.setImageDocument(qQuestion.getImageDocument()
-				)
+						qQuestion -> capture.setImageDocument(qQuestion.getImageDocument())
 		);
-		MultipartFile document = question.getImageDocument();
+		MultipartFile document = capture.getImageDocument();
 		if (document == null || document.isEmpty()) {
 			return "redirect:/update/" + examId;
 		}
@@ -398,6 +404,17 @@ public class DashboardController {
 	}
 	//endregion
 	//region TODO Export Exams
+	@GetMapping("/export/{id}")
+	public String exportExam(@PathVariable("id") Long examId, Model model, HttpServletRequest request) {
+		if (RequestValidator.isNotLocalhost(request)) {
+			return "redirect:/exam";
+		}
+		var exam = examService.getExamById(examId);
+		if (exam == null || exam.getState() != Exam.State.RECORDED) {
+			return "redirect:/scheduled";
+		}
+		throw new UnsupportedOperationException("Not implemented '/export/{id}' yet");
+	}
 	//endregion
 //endregion
 
@@ -428,6 +445,33 @@ public class DashboardController {
 		}
 		examService.stopExamById(examId);
 		return "redirect:/recorded";
+	}
+	//endregion
+	//region TODO Candidate Management (ie allow re-entry, reset, etc)
+	@GetMapping("/allow-reentry/{id}")
+	public String allowReentryOfCandidate(@PathVariable("id") Long examId, @RequestParam String username, HttpServletRequest request) {
+		if (RequestValidator.isNotLocalhost(request)) {
+			return "redirect:/examId";
+		}
+		var candidateId = Candidate.Id.builder().examId(examId).username(username).build();
+		candidateService.logoutCandidateById(candidateId);
+		return "redirect:/manage/" + examId;
+	}
+	@GetMapping("/allow-reentry/{id}/all")
+	public String allowReentryOfAllCandidates(@PathVariable("id") Long examId, HttpServletRequest request) {
+		if (RequestValidator.isNotLocalhost(request)) {
+			return "redirect:/examId";
+		}
+		return "redirect:/manage/" + examId;
+	}
+	@GetMapping("/reset/{id}")
+	public String resetCandidate(@PathVariable("id") Long examId, @RequestParam String username, HttpServletRequest request) {
+		if (RequestValidator.isNotLocalhost(request)) {
+			return "redirect:/examId";
+		}
+		var candidateId = Candidate.Id.builder().examId(examId).username(username).build();
+		candidateService.resetCandidateById(candidateId);
+		return "redirect:/manage/" + examId;
 	}
 	//endregion
 //endregion

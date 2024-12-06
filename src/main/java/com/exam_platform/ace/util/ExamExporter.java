@@ -27,7 +27,8 @@ public class ExamExporter {
 					base.isState(), base.getStateDesc(),
 					base.isFirstname(), base.getFirstnameDesc(),
 					base.isLastname(), base.getLastnameDesc(),
-					base.isOtherNames(), base.getOtherNamesDesc()
+					base.isOtherNames(), base.getOtherNamesDesc(),
+					base.isRegistrationNumber(), base.getRegistrationNumberDesc()
 			);
 		}
 		public String getHeader() {

@@ -79,7 +79,7 @@
                                                     <button type="submit" th:formaction="@{/delete/{id}/{paper}/{number}(id=${session.exam.id},paper=${paper.id.name},number=${question.id.number})}" onclick="return confirm('Delete image?')" class="btn btn-danger position-absolute bottom-0 end-0">Delete</button>
                                                 </div>
                                                 <div th:if="${!question.hasImage}" class="mb-3 input-group">
-                                                    <label th:id="|papers__${paperIterator.index}__.questions__${questionIterator.index}__.imageDocument|" class="input-group-text text-uppercase fw-medium">Add Image</label>
+                                                    <label th:for="|papers__${paperIterator.index}__.questions__${questionIterator.index}__.imageDocument|" class="input-group-text text-uppercase fw-medium">Add Image</label>
                                                     <input type="file" th:field="*{papers[__${paperIterator.index}__].questions[__${questionIterator.index}__].imageDocument}" class="form-control" accept=".jpg, .jpeg, .png, .gif" aria-label="Accepts .jpg, .jpeg, .png, and .gif files">
                                                     <button type="submit" th:formaction="@{/update/{id}/{paper}/{number}(id=${session.exam.id},paper=${paper.id.name},number=${question.id.number})}" class="btn btn-primary">Upload Image</button>
                                                 </div>
@@ -111,6 +111,11 @@
                             </th:block>
                             <details class="mb-3">
                                 <summary class="w-100 text-center mb-3 p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3">Candidate Configuration</summary>
+                                <div class="mb-3 input-group" th:if="*{candidateConfig.registrationNumber}">
+                                    <label for="registrationNumberDesc" class="fw-medium text-uppercase input-group-text">Registration Number Descriptor</label>
+                                    <input type="text" id="registrationNumberDesc" th:field="*{candidateConfig.registrationNumberDesc}" class="form-control">
+                                    <input type="checkbox" th:field="*{candidateConfig.registrationNumber}" class="visually-hidden">
+                                </div>
                                 <div class="mb-3 input-group" th:if="*{candidateConfig.email}">
                                     <label class="fw-medium text-uppercase input-group-text" for="emailDesc">Email Descriptor</label>
                                     <input type="text" id="emailDesc" th:field="*{candidateConfig.emailDesc}" class="form-control">
@@ -156,6 +161,7 @@
                                         <th scope="col" class="text-center text-uppercase" th:text="|*{usernameDesc} (Username)|">Username</th>
                                         <th scope="col" class="text-center text-uppercase" th:if="*{passwordRequired}" th:text="|*{passwordDesc} (Password)|">Password</th>
                                         <th scope="col" class="text-center text-uppercase">Papers</th>
+                                        <th scope="col" class="text-center text-uppercase" th:if="*{candidateConfig.registrationNumber}" th:text="*{candidateConfig.registrationNumberDesc}"></th>
                                         <th scope="col" class="text-center text-uppercase" th:if="*{candidateConfig.email}" th:text="*{candidateConfig.emailDesc}"></th>
                                         <th scope="col" class="text-center text-uppercase" th:if="*{candidateConfig.phoneNumber}" th:text="*{candidateConfig.phoneNumberDesc}"></th>
                                         <th scope="col" class="text-center text-uppercase" th:if="*{candidateConfig.address}" th:text="*{candidateConfig.addressDesc}"></th>
@@ -176,6 +182,7 @@
                                                 <input type="text" th:field="*{candidates[__${candidateIterator.index}__].papers[__${cPaperIterator.index}__]}" class="visually-hidden">
                                             </span>
                                         </td>
+                                        <td th:if="*{candidateConfig.registrationNumber}" class="text-center"><th:block th:text="${candidate.registrationNumber}"></th:block><input type="text" class="visually-hidden" th:field="*{candidates[__${candidateIterator.index}__].registrationNumber}"></td>
                                         <td th:if="*{candidateConfig.email}" class="text-center"><th:block th:text="${candidate.email}"></th:block><input type="text" class="visually-hidden" th:field="*{candidates[__${candidateIterator.index}__].email}"></td>
                                         <td th:if="*{candidateConfig.phoneNumber}" class="text-center"><th:block th:text="${candidate.phoneNumber}"></th:block><input type="text" th:field="*{candidates[__${candidateIterator.index}__].phoneNumber}" class="visually-hidden"></td>
                                         <td th:if="*{candidateConfig.address}" class="text-center"><th:block th:text="${candidate.address}"></th:block><input type="text" th:field="*{candidates[__${candidateIterator.index}__].address}" class="visually-hidden"></td>
@@ -204,6 +211,7 @@
             </main>
         </div>
     </div>
+    <th:block th:replace="~{components :: scripts}"></th:block>
     <script th:inline="javascript">
         function getPageNumber(index, itemsPerPage) {
             var number = (index - (index % itemsPerPage)) / itemsPerPage;

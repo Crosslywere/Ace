@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <th:block th:replace="~{components :: header}"></th:block>
+    <title>Instruction</title>
+</head>
+<body>
+    <div class="main">
+        <th:block th:replace="~{components :: examNavbar}"></th:block>
+        <main class="p-3">
+            <div class="container">
+                <div class="col-lg-8 m-auto border bg-white p-5">
+                    <h2 class="text-center mb-5" th:text="|${session.exam.title} - Instructions|">Instructions</h2>
+                    <div class="mb-5">
+                        <p class="lh-lg mb-3">Please read the following carefully.</p>
+                        <p class="lh-lg mb-3">This is an official exam. Therefore, no cross talking, passing of stationary, or activity that may be seen as malpractice would be tolerated.</p>
+                        <p class="lh-lg mb-3">You may start with any paper you wish, if you are taking multiple papers.</p>
+                        <p class="lh-lg mb-3">Use <b>A</b>-<b>E</b> to select options.<br>The <b>Left Arrow</b> to go to the previous question, and <b>Right Arrow</b> to go to the next question.</p>
+                        <p class="lh-lg mb-3">The exam is timed. The timer is shown at the top right side of the screen as soon as you click <b class="text-uppercase">Begin</b>.</p>
+                        <p class="lh-lg mb-3"><b>DO NOT REFRESH ANY PAGE!</b><br>Attempting to refresh a page could potentially log you out of the system.</p>
+                    </div>
+                    <form method="post" class="d-flex justify-content-center">
+                        <button th:formaction="@{/exam/{paper}/1(paper=${session.candidate.papers[0]})}" class="fw-medium btn btn-primary text-uppercase">Begin</button>
+                        <input type="number" name="answer" class="visually-hidden">
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

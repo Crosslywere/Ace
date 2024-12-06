@@ -1,13 +1,22 @@
 package com.exam_platform.ace.controller;
 
+import com.exam_platform.ace.entity.Candidate;
+import com.exam_platform.ace.entity.CandidateAnswer;
 import com.exam_platform.ace.entity.Exam;
+import com.exam_platform.ace.service.CandidateAnswerService;
+import com.exam_platform.ace.service.CandidateService;
 import com.exam_platform.ace.service.ExamService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequiredArgsConstructor
@@ -15,23 +24,104 @@ public class CandidateController {
 
 	private final ExamService examService;
 
+	private final CandidateService candidateService;
+
+	private final CandidateAnswerService answerService;
+
 	@GetMapping("/exam")
 	public String index() {
 		return "redirect:/exam/select";
 	}
 
 	@GetMapping("/exam/select")
-	public String examSelect(Model model) {
+	public String examSelect(Model model, HttpSession session) {
+		session.removeAttribute("exam");
+		session.removeAttribute("exams");
+		session.removeAttribute("pastTime");
+		session.removeAttribute("candidate");
+		session.removeAttribute("candidateId");
+		session.removeAttribute("candidateAnswer");
 		model.addAttribute("exams", examService.getExamsByState(Exam.State.ONGOING));
 		return "examSelect";
 	}
 
-	@PostMapping("/exam/login")
-	public String examLogin(@RequestParam Long id, Model model) {
+	@PostMapping("/login")
+	public String examLogin(@RequestParam Long id, HttpSession session) {
 		Exam exam = examService.getExamById(id);
 		if (exam == null || exam.getState() != Exam.State.ONGOING) {
 			return "redirect:/exam/select";
 		}
-		throw new UnsupportedOperationException("Not yet created the \"examLogin\" page");
+		session.setAttribute("exam", exam);
+		return "examLogin";
+	}
+
+	@PostMapping("/exam")
+	public String login(@RequestParam String username, @RequestParam String password, RedirectAttributes attributes, @NonNull HttpSession session) {
+		Exam exam = (Exam) session.getAttribute("exam");
+		if (exam == null) {
+			return "redirect:/exam/select";
+		}
+		Candidate candidate = candidateService.loginCandidate(Candidate.Id.builder().username(username).examId(exam.getId()).build(), password);
+		if (candidate == null) {
+			attributes.addFlashAttribute("error", "Invalid credentials/Already logged in.");
+			return "redirect:/exam/select";
+		}
+		session.removeAttribute("exams");
+		session.setAttribute("candidateId", candidate.getId());
+		session.setAttribute("candidate", candidate);
+		return "examInstructions";
+	}
+
+	@PostMapping("/exam/{paper}/{number}")
+	public String examQuestion(@PathVariable("paper") String paperName, @PathVariable("number") Integer questionNumber, @Nullable @RequestParam Byte answer, Model model, HttpSession session) {
+		var candidateAnswerId = (CandidateAnswer.Id) session.getAttribute("candidateAnswerId");
+		if (candidateAnswerId != null) {
+			// do time calculation and set time for candidate
+			Object pastTime = session.getAttribute("pastTime");
+			if (pastTime != null) {
+				long prevTime = Long.parseLong(pastTime.toString());
+				long nowTime = System.currentTimeMillis();
+				long timeDiff = nowTime - prevTime;
+				float inSeconds = timeDiff / 1_000.0f;
+				Candidate candidate = candidateService.getCandidateById(candidateAnswerId.getCandidateId());
+				if (candidate == null || candidate.isSubmitted()) {
+					return "redirect:/exam";
+				}
+				float timeUsed = candidate.getTimeUsed() + inSeconds;
+				candidate.setTimeUsed(timeUsed);
+				candidateService.updateCandidate(candidate);
+				// set answer
+				answerService.setAnswer(candidateAnswerId, answer);
+			}
+		}
+		Candidate.Id candidateId = (Candidate.Id) session.getAttribute("candidateId");
+		if (candidateId == null) {
+			return "redirect:/exam";
+		}
+		Candidate candidate = candidateService.getCandidateById(candidateId);
+		if (candidate == null) {
+			return "redirect:/exam";
+		}
+		CandidateAnswer.Id answerId = CandidateAnswer.Id.builder().candidateId(candidateId).paperName(paperName).number(questionNumber).build();
+		session.setAttribute("pastTime", System.currentTimeMillis());
+		session.setAttribute("currentAnswerId", answerId);
+		session.setAttribute("candidate", candidate);
+
+		model.addAttribute("candidateAnswer", answerService.getCandidateAnswerById(answerId));
+		return "examQuestion";
+	}
+
+	@GetMapping("/submit")
+	public String submit(@RequestParam Byte answer, @NonNull HttpSession session) {
+		// Get the candidate (Check if the exam is meant to show results)
+		Candidate.Id candidateId = (Candidate.Id) session.getAttribute("candidateId");
+		Candidate candidate = candidateService.getCandidateById(candidateId);
+		if (candidate == null) {
+			return "redirect:/exam/select";
+		}
+		// Set page attributes
+
+		// Return page template
+		return "";
 	}
 }

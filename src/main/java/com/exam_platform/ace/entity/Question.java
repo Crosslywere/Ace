@@ -3,6 +3,7 @@ package com.exam_platform.ace.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Formula;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,7 +21,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "QUESTIONS")
-public class Question {
+public class Question implements Comparable<Question> {
 
 	@EmbeddedId
 	private Id id;
@@ -74,6 +75,11 @@ public class Question {
 		File file = new ClassPathResource("static" + File.separator + "db-images").getFile();
 		Path path = Paths.get(file.getCanonicalPath() + File.separator + id.createImageSaveName() + imageSuffix);
 		Files.copy(image.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+	}
+
+	@Override
+	public int compareTo(@NotNull Question o) {
+		return Integer.compare(this.id.number, o.id.number);
 	}
 
 	@Data

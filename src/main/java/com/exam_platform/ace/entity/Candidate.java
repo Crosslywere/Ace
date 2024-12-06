@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,15 +28,26 @@ public class Candidate implements Comparable<Candidate> {
 	@Column(name = "PASSWORD")
 	private String password;
 
+	@Builder.Default
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<CandidateAnswer> answers;
+	private List<CandidateAnswer> answers = new ArrayList<>();
 
-	@Column(name = "EMAIL")
-	private String email;
+	@Column(name = "TIME_IN")
+	private Time timeIn;
+
+	@Column(name = "LAST_UPDATED")
+	private Time lastUpdated;
+
+	@Builder.Default
+	@Column(name = "TIME_USED")
+	private float timeUsed = 0.0f;
 
 	@Builder.Default
 	@Column(name = "NOTIFIED")
 	private boolean notified = false;
+
+	@Column(name = "EMAIL")
+	private String email;
 
 	@Column(name = "PHONE_NUMBER")
 	private String phoneNumber;
@@ -55,6 +67,9 @@ public class Candidate implements Comparable<Candidate> {
 	@Column(name = "OTHER_NAMES")
 	private String otherNames;
 
+	@Column(name = "REGISTRATION_NUMBER")
+	private String registrationNumber;
+
 	@Builder.Default
 	@Column(name = "HAS_LOGGED_IN", nullable = false)
 	private boolean loggedIn = false;
@@ -67,12 +82,20 @@ public class Candidate implements Comparable<Candidate> {
 	@Column(name = "PAPER_NAMES")
 	private List<String> papers = new ArrayList<>();
 
+	public List<CandidateAnswer> getPaperAnswers(String paperName) {
+		return answers.stream().filter(answer -> answer.getId().getPaperName().equals(paperName)).toList();
+	}
+
+	public int score(String paperName) {
+		return (int) answers.stream().filter(answer -> answer.getId().getPaperName().equals(paperName) && answer.isCorrect()).count();
+	}
+
 	public int score() {
-		return (int)answers.stream().filter(CandidateAnswer::isCorrect).count();
+		return (int) answers.stream().filter(CandidateAnswer::isCorrect).count();
 	}
 
 	public int getMaxScore(String paperName) {
-		return (int)answers.stream().filter(ans -> ans.getQuestion().getId().getPaperId().getName().equals(paperName)).count();
+		return (int)answers.stream().filter(ans -> ans.getId().getPaperName().equals(paperName)).count();
 	}
 
 	public int getMaxScore() {
@@ -81,7 +104,7 @@ public class Candidate implements Comparable<Candidate> {
 
 	@Override
 	public int compareTo(@NotNull Candidate o) {
-		return 0;
+		return Integer.compare(score(), o.score());
 	}
 
 	@Data
