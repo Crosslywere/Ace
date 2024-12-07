@@ -1,93 +1,120 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www,thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <th:block th:replace="~{components :: header}"></th:block>
-    <title th:text="| |"></title>
+    <title th:text="${session.candidate.exam.title}"></title>
 </head>
 <body>
     <div class="main">
         <th:block th:replace="~{components :: examNavbar}"></th:block>
         <main class="p-3 pt-0">
             <div class="mb-3 container">
-                <div class="d-flex justify-content-center" th:if="${session.candidate.papers.size() > 1}">
-                    <button form="questionForm" class="btn btn-outline-primary mx-3" th:each="paper:${session.candidate.papers}" th:formaction="@{/exam/{paperName}/1(paperName=${paper})}" th:text="${paper}"></button>
+                <div class="d-flex justify-content-center">
+                    <button form="questionForm" type="submit" class="btn btn-outline-primary mx-3 mb-1" th:each="paper:${session.candidate.papers}" th:formaction="@{/exam/{paperName}/1(paperName=${paper})}" th:text="${paper}"></button>
+                    <button form="questionForm" type="submit" onclick="return confirm('Are you sure you are through? You can cross check your work for any mistakes...')" class="btn btn-outline-danger mx-3 mb-1" th:formaction="@{/submit}">Submit</button>
+                </div>
+                <div class="position-sticky">
+                    <div class="position-absolute fw-medium fs-5" style="top:1em;right:1em;" id="time">10</div>
+                    <button type="submit" th:formaction="@{/submit}" id="timeUp" class="visually-hidden" form="questionForm"></button>
                 </div>
             </div>
-            <div class="container">
-                <form action="" id="questionForm" th:object="${candidateAnswer}" method="post" class="col-12 m-auto border bg-white p-4" th:with="question=${candidateAnswer.question}">
-                    <h2 class="text-center mb-3" th:text="${session.currentAnswerId.paperName}"></h2>
+            <div class="container" style="height:100vh">
+                <form action="" id="questionForm" th:object="${candidateAnswer}" method="post" class="col-lg-10 m-auto border bg-white p-4" th:with="question=${candidateAnswer.question}">
+                    <h3 class="text-center mb-3" th:text="*{id.paperName}"></h3>
                     <p th:text="|*{id.number}. *{question.query}|"></p>
                     <div class="d-flex justify-content-center" th:if="*{question.hasImage}">
-                        <img th:src="@{/db-images/{image}(image=*{question.id.createImageSaveName() + question.imageSuffix})}" height="200px" alt="image">
+                        <img th:src="@{/db-images/{image}(image=*{question.id.createImageSaveName() + question.imageSuffix})}" height="250px" alt="image">
                     </div>
+                    <!-- The Options -->
                     <div class="form-check" th:each="option,optionIterator:*{question.options}">
                         <input type="radio" th:field="*{answer}" th:value="${optionIterator.index}" th:id="|option${optionIterator.index}|" class="form-check-input">
                         <label th:for="|option${optionIterator.index}|" class="form-check-label" th:text="${option}"></label>
                     </div>
-                    <div class="d-flex justify-content-between mt-3">
-                        <button type="submit" id="prevQuestion" formaction="" class="btn btn-outline-primary">Previous</button>
+                    <!-- Page Navigation -->
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <button type="submit" id="prevQuestion" th:formaction="@{/}" class="btn btn-outline-primary">Previous</button>
                         <div class="col d-flex justify-content-center px-2">
-<!--                            <span>Question Navigation</span>-->
-                            <button type="submit" class="btn btn-danger">Question</button>
+                            <button type="submit" style="margin:1px" th:each="question:${session.candidate.getPaperAnswers('__*{id.paperName}__')}" th:formaction="@{/exam/{paper}/{number}(paper=${question.id.paperName},number=${question.id.number})}" th:class="|btn btn-*{id.number == __${question.id.number}__ ? 'primary' : __${question.answer == null}__ ? 'danger' : 'success'}|" th:text="|Q${question.id.number}|">Q1</button>
                         </div>
-                        <button type="submit" id="nextQuestion" formaction="" class="btn btn-outline-primary">Next</button>
+                        <button type="submit" id="nextQuestion" th:formaction="@{/}" class="btn btn-outline-primary">Next</button>
                     </div>
                 </form>
             </div>
         </main>
     </div>
+    <th:block th:replace="~{components :: candidateScripts}"></th:block>
     <script th:inline="javascript" type="text/javascript">
-    const nextQuestion = document.getElementById('nextQuestion');
-    const prevQuestion = document.getElementById('prevQuestion');
-    function selectOption(index) {
-        options.forEach(option => {
-            option.removeAttribute("checked");
-        });
-        if (options.length > index) {
-            options[index].setAttribute("checked", true);
-        }
-    }
-    document.onkeydown = (ev) => {
-        switch (ev.key) {
-            case '1':
-            case 'A':
-            case 'a':
-                selectOption(0);
-                break;
-            case '2':
-            case 'B':
-            case 'b':
-                selectOption(1);
-                break;
-            case '3':
-            case 'C':
-            case 'c':
-                selectOption(2);
-                break;
-            case '4':
-            case 'D':
-            case 'd':
-                selectOption(3);
-                break;
-            case '5':
-            case 'E':
-            case 'e':
-                selectOption(4);
-                break;
-            case 'ArrowLeft':
-                if (prevQuestion !== null) {
-                    prevQuestion.click();
+        // Timer
+        const timeSlot = document.getElementById('time');
+        function timer() {
+            const candidateExamDuration = [[${session.candidate.exam.duration * 60}]];
+            var candidateTimeUsed = [[${session.candidate.timeUsed}]];
+            timeSlot.innerHTML = timeWriter(candidateExamDuration - candidateTimeUsed);
+            var interval = setInterval(() => {
+                candidateTimeUsed += 0.1;
+                timeSlot.innerHTML  = timeWriter(candidateExamDuration - candidateTimeUsed);
+                if (candidateExamDuration - candidateTimeUsed <= 300) {
+                    timeSlot.classList.add('text-danger');
                 }
-                break;
-            case 'ArrowRight':
-                if (nextQuestion !== null) {
-                    nextQuestion.click();
+                if (candidateExamDuration - candidateTimeUsed <= 0) {
+                    document.getElementById("timeUp").click();
                 }
-                break;
+            }, 100);
         }
-    }
+        timer();
+        // Keyboard Controls
+        const nextQuestion = document.getElementById('nextQuestion');
+        const prevQuestion = document.getElementById('prevQuestion');
+        const options = document.querySelectorAll(".form-check > input");
+        function selectOption(index) {
+            options.forEach(option => {
+                option.removeAttribute("checked");
+            });
+            if (options.length > index) {
+                options[index].setAttribute("checked", "");
+            }
+        }
+        document.onkeydown = (ev) => {
+            switch (ev.key) {
+                case '1':
+                case 'A':
+                case 'a':
+                    selectOption(0);
+                    break;
+                case '2':
+                case 'B':
+                case 'b':
+                    selectOption(1);
+                    break;
+                case '3':
+                case 'C':
+                case 'c':
+                    selectOption(2);
+                    break;
+                case '4':
+                case 'D':
+                case 'd':
+                    selectOption(3);
+                    break;
+                case '5':
+                case 'E':
+                case 'e':
+                    selectOption(4);
+                    break;
+                case 'ArrowLeft':
+                    if (prevQuestion !== null) {
+                        prevQuestion.click();
+                    }
+                    break;
+                case 'ArrowRight':
+                    if (nextQuestion !== null) {
+                        nextQuestion.click();
+                    }
+                    break;
+            }
+        }
     </script>
 </body>
 </html>

@@ -34,13 +34,13 @@ public class CandidateController {
 	}
 
 	@GetMapping("/exam/select")
-	public String examSelect(Model model, HttpSession session) {
+	public String examSelect(@NonNull Model model, @NonNull HttpSession session) {
 		session.removeAttribute("exam");
 		session.removeAttribute("exams");
 		session.removeAttribute("pastTime");
 		session.removeAttribute("candidate");
 		session.removeAttribute("candidateId");
-		session.removeAttribute("candidateAnswer");
+		session.removeAttribute("candidateAnswerId");
 		model.addAttribute("exams", examService.getExamsByState(Exam.State.ONGOING));
 		return "examSelect";
 	}
@@ -67,13 +67,15 @@ public class CandidateController {
 			return "redirect:/exam/select";
 		}
 		session.removeAttribute("exams");
+		// Sets the candidate as the current logged in candidate for this session until reset
 		session.setAttribute("candidateId", candidate.getId());
 		session.setAttribute("candidate", candidate);
+		session.setAttribute("candidateAnswerId", CandidateAnswer.Id.builder().candidateId(candidate.getId()).paperName(candidate.getPapers().getFirst()).number(1).build());
 		return "examInstructions";
 	}
 
 	@PostMapping("/exam/{paper}/{number}")
-	public String examQuestion(@PathVariable("paper") String paperName, @PathVariable("number") Integer questionNumber, @Nullable @RequestParam Byte answer, Model model, HttpSession session) {
+	public String examQuestion(@PathVariable("paper") String paperName, @PathVariable("number") Integer questionNumber, @Nullable @RequestParam Byte answer, Model model, @NonNull HttpSession session) {
 		var candidateAnswerId = (CandidateAnswer.Id) session.getAttribute("candidateAnswerId");
 		if (candidateAnswerId != null) {
 			// do time calculation and set time for candidate
@@ -89,8 +91,8 @@ public class CandidateController {
 				}
 				float timeUsed = candidate.getTimeUsed() + inSeconds;
 				candidate.setTimeUsed(timeUsed);
+				candidate.setLoggedIn(true);
 				candidateService.updateCandidate(candidate);
-				// set answer
 				answerService.setAnswer(candidateAnswerId, answer);
 			}
 		}
@@ -103,25 +105,54 @@ public class CandidateController {
 			return "redirect:/exam";
 		}
 		CandidateAnswer.Id answerId = CandidateAnswer.Id.builder().candidateId(candidateId).paperName(paperName).number(questionNumber).build();
+		var ans = answerService.getCandidateAnswerById(answerId);
+		if (ans == null) {
+			return "redirect:/exam";
+		}
+		// For calculating time without being tied to the front end
 		session.setAttribute("pastTime", System.currentTimeMillis());
-		session.setAttribute("currentAnswerId", answerId);
+		// For storing the answer when submitted from the frontend
+		session.setAttribute("candidateAnswerId", answerId);
+		// For candidate.getPaperAnswers(String);
 		session.setAttribute("candidate", candidate);
 
-		model.addAttribute("candidateAnswer", answerService.getCandidateAnswerById(answerId));
+		model.addAttribute("candidateAnswer", ans);
 		return "examQuestion";
 	}
 
-	@GetMapping("/submit")
-	public String submit(@RequestParam Byte answer, @NonNull HttpSession session) {
+	@PostMapping("/submit")
+	public String submit(@Nullable @RequestParam Byte answer, @NonNull HttpSession session) {
 		// Get the candidate (Check if the exam is meant to show results)
+		CandidateAnswer.Id candidateAnswerId = (CandidateAnswer.Id) session.getAttribute("candidateAnswerId");
+		if (candidateAnswerId != null) {
+			Object pastTime = session.getAttribute("pastTime");
+			if (pastTime != null) {
+				long prevTime = Long.parseLong(pastTime.toString());
+				long nowTime = System.currentTimeMillis();
+				long timeDiff = nowTime - prevTime;
+				float inSeconds = timeDiff / 1_000.0f;
+				Candidate candidate = candidateService.getCandidateById(candidateAnswerId.getCandidateId());
+				if (candidate == null || candidate.isSubmitted()) {
+					return "redirect:/exam";
+				}
+				float timeUsed = candidate.getTimeUsed() + inSeconds;
+				candidate.setTimeUsed(timeUsed);
+				candidate.setLoggedIn(true);
+				candidate.setSubmitted(true);
+				candidateService.updateCandidate(candidate);
+				answerService.setAnswer(candidateAnswerId, answer);
+			}
+		}
 		Candidate.Id candidateId = (Candidate.Id) session.getAttribute("candidateId");
 		Candidate candidate = candidateService.getCandidateById(candidateId);
 		if (candidate == null) {
 			return "redirect:/exam/select";
 		}
 		// Set page attributes
-
+		session.removeAttribute("pastTime");
+		session.removeAttribute("candidateAnswerId");
+		session.removeAttribute("candidateId");
 		// Return page template
-		return "";
+		return "examSubmit";
 	}
 }
