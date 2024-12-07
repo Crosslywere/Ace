@@ -4,3 +4,10 @@ if (toggler != null) {
         document.querySelector("#sidebar").classList.toggle("collapsed")
     });
 }
+
+function timeWriter(t) {
+    var h = Math.floor(t % (60 * 60 * 24) / (60 * 60));
+    var m = Math.floor(t % (60 * 60) / 60);
+    var s = Math.floor(t % 60);
+    return (h > 0 ? h + ':' : '') + (m >= 10 ? m : '0' + m) + ':' + (s >= 10 ? s : '0' + s);
+}
