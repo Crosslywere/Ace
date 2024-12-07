@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Data
@@ -83,7 +84,7 @@ public class Candidate implements Comparable<Candidate> {
 	private List<String> papers = new ArrayList<>();
 
 	public List<CandidateAnswer> getPaperAnswers(String paperName) {
-		return answers.stream().filter(answer -> answer.getId().getPaperName().equals(paperName)).toList();
+		return answers.stream().filter(answer -> answer.getId().getPaperName().equals(paperName)).sorted(Comparator.comparingInt(answer -> answer.getId().getNumber())).toList();
 	}
 
 	public int score(String paperName) {
@@ -95,7 +96,7 @@ public class Candidate implements Comparable<Candidate> {
 	}
 
 	public int getMaxScore(String paperName) {
-		return (int)answers.stream().filter(ans -> ans.getId().getPaperName().equals(paperName)).count();
+		return (int) answers.stream().filter(ans -> ans.getId().getPaperName().equals(paperName)).count();
 	}
 
 	public int getMaxScore() {
