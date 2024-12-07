@@ -53,7 +53,7 @@ public class CandidateService {
 		if (candidate == null ||
 				candidate.getExam().getState() != Exam.State.ONGOING ||
 				(candidate.getExam().isPasswordRequired() && !candidate.getPassword().equals(password)) ||
-				candidate.isLoggedIn()) {
+				candidate.isLoggedIn() || candidate.isSubmitted()) {
 			return null;
 		}
 		candidate.setLoggedIn(true);
