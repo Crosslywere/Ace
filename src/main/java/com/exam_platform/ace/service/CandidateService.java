@@ -71,6 +71,14 @@ public class CandidateService {
 		candidateRepository.save(candidate);
 	}
 
+	public void logoutCandidatesByExamId(Long examId) {
+		var candidates = candidateRepository.findById_ExamId(examId);
+		candidates.stream().filter(candidate -> !candidate.isSubmitted()).forEach(candidate -> {
+			candidate.setLoggedIn(false);
+			candidateRepository.save(candidate);
+		});
+	}
+
 	public List<Candidate> getCandidatesByExamId(Long examId) {
 		return candidateRepository.findById_ExamId(examId);
 	}
