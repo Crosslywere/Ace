@@ -15,30 +15,26 @@
                     <button form="questionForm" type="submit" class="btn btn-outline-primary mx-3 mb-1" th:each="paper:${session.candidate.papers}" th:formaction="@{/exam/{paperName}/1(paperName=${paper})}" th:text="${paper}"></button>
                     <button form="questionForm" type="submit" onclick="return confirm('Are you sure you are through? You can cross check your work for any mistakes...')" class="btn btn-outline-danger mx-3 mb-1" th:formaction="@{/submit}">Submit</button>
                 </div>
-                <div class="position-sticky">
-                    <div class="position-absolute fw-medium fs-5" style="top:1em;right:1em;" id="time">10</div>
-                    <button type="submit" th:formaction="@{/submit}" id="timeUp" class="visually-hidden" form="questionForm"></button>
-                </div>
+                <button type="submit" th:formaction="@{/submit}" id="timeUp" class="visually-hidden" form="questionForm"></button>
             </div>
             <div class="container" style="height:100vh">
-                <form action="" id="questionForm" th:object="${candidateAnswer}" method="post" class="col-lg-10 m-auto border bg-white p-4" th:with="question=${candidateAnswer.question}">
+                <form action="" id="questionForm" th:object="${candidateAnswer}" method="post" class="col-lg-10 m-auto border bg-white p-4 position-relative" th:with="question=${candidateAnswer.question}">
+                    <div class="position-absolute fw-medium fs-5" style="top:1em;right:1em;" id="time">10</div>
                     <h3 class="text-center mb-3" th:text="*{id.paperName}"></h3>
                     <p th:text="|*{id.number}. *{question.query}|"></p>
                     <div class="d-flex justify-content-center" th:if="*{question.hasImage}">
                         <img th:src="@{/db-images/{image}(image=*{question.id.createImageSaveName() + question.imageSuffix})}" height="250px" alt="image">
                     </div>
-                    <!-- The Options -->
                     <div class="form-check" th:each="option,optionIterator:*{question.options}">
                         <input type="radio" th:field="*{answer}" th:value="${optionIterator.index}" th:id="|option${optionIterator.index}|" class="form-check-input">
                         <label th:for="|option${optionIterator.index}|" class="form-check-label" th:text="${option}"></label>
                     </div>
-                    <!-- Page Navigation -->
-                    <div class="d-flex justify-content-between align-items-center mt-3">
-                        <button type="submit" id="prevQuestion" th:formaction="@{/}" class="btn btn-outline-primary">Previous</button>
+                    <div class="d-flex justify-content-between align-items-center mt-3" th:with="questions=${session.candidate.getPaperAnswers('__*{id.paperName}__')}">
+                        <button type="submit" th:if="${prevQuestionRoute != null}" id="prevQuestion" th:formaction="@{/exam/{route}(route=${prevQuestionRoute})}" th:class="|btn btn-outline-primary text-uppercase ${questions.size() >= 40 ? 'visually-hidden' : ''}|">Previous</button>
                         <div class="col d-flex justify-content-center px-2">
-                            <button type="submit" style="margin:1px" th:each="question:${session.candidate.getPaperAnswers('__*{id.paperName}__')}" th:formaction="@{/exam/{paper}/{number}(paper=${question.id.paperName},number=${question.id.number})}" th:class="|btn btn-*{id.number == __${question.id.number}__ ? 'primary' : __${question.answer == null}__ ? 'danger' : 'success'}|" th:text="|Q${question.id.number}|">Q1</button>
+                            <button type="submit" style="margin:1px" th:each="question:${questions}" th:formaction="@{/exam/{paper}/{number}(paper=${question.id.paperName},number=${question.id.number})}" th:class="|btn btn-*{id.number == __${question.id.number}__ ? 'primary' : __${question.answer == null}__ ? 'danger' : 'success'}|" th:text="|Q${question.id.number}|">Q1</button>
                         </div>
-                        <button type="submit" id="nextQuestion" th:formaction="@{/}" class="btn btn-outline-primary">Next</button>
+                        <button type="submit" th:if="${nextQuestionRoute != null}" id="nextQuestion" th:formaction="@{/exam/{route}(route=${nextQuestionRoute})}" th:class="|btn btn-outline-primary text-uppercase ${questions.size() >= 40 ? 'visually-hidden' : ''}|">Next</button>
                     </div>
                 </form>
             </div>

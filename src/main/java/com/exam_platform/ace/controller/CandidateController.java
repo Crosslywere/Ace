@@ -3,9 +3,11 @@ package com.exam_platform.ace.controller;
 import com.exam_platform.ace.entity.Candidate;
 import com.exam_platform.ace.entity.CandidateAnswer;
 import com.exam_platform.ace.entity.Exam;
+import com.exam_platform.ace.entity.Paper;
 import com.exam_platform.ace.service.CandidateAnswerService;
 import com.exam_platform.ace.service.CandidateService;
 import com.exam_platform.ace.service.ExamService;
+import com.exam_platform.ace.service.PaperService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
@@ -23,6 +25,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class CandidateController {
 
 	private final ExamService examService;
+
+	private final PaperService paperService;
 
 	private final CandidateService candidateService;
 
@@ -113,9 +117,23 @@ public class CandidateController {
 		session.setAttribute("pastTime", System.currentTimeMillis());
 		// For storing the answer when submitted from the frontend
 		session.setAttribute("candidateAnswerId", answerId);
-		// For candidate.getPaperAnswers(String);
+		// For candidate.getPaperAnswers(String) for pagination of questions
 		session.setAttribute("candidate", candidate);
-
+		// Calculating the next and previous question route
+		int i = 0;
+		if (questionNumber > 1) {
+			model.addAttribute("prevQuestionRoute", paperName + "/" + (questionNumber - 1));
+		} else if ((i = candidate.getPapers().indexOf(paperName)) > 0) {
+			Paper paper = paperService.getPaperById(Paper.Id.builder().examId(candidateId.getExamId()).name(candidate.getPapers().get(i - 1)).build());
+			if (paper != null) {
+				model.addAttribute("prevQuestionRoute", paper.getId().getName() + "/" + paper.getQuestionsPerCandidate());
+			}
+		}
+		if (ans.getQuestion().getPaper().getQuestionsPerCandidate() > questionNumber) {
+			model.addAttribute("nextQuestionRoute", paperName + "/" + (questionNumber + 1));
+		} else if ((i = candidate.getPapers().indexOf(paperName)) < candidate.getPapers().size() - 1) {
+			model.addAttribute("nextQuestionRoute", candidate.getPapers().get(i + 1) + "/" + 1);
+		}
 		model.addAttribute("candidateAnswer", ans);
 		return "examQuestion";
 	}
@@ -142,6 +160,8 @@ public class CandidateController {
 				candidateService.updateCandidate(candidate);
 				answerService.setAnswer(candidateAnswerId, answer);
 			}
+		} else {
+			return "redirect:/exam";
 		}
 		Candidate.Id candidateId = (Candidate.Id) session.getAttribute("candidateId");
 		Candidate candidate = candidateService.getCandidateById(candidateId);
@@ -152,6 +172,7 @@ public class CandidateController {
 		session.removeAttribute("pastTime");
 		session.removeAttribute("candidateAnswerId");
 		session.removeAttribute("candidateId");
+		session.setAttribute("candidate", candidate);
 		// Return page template
 		return "examSubmit";
 	}
