@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="refresh" content="60">
     <th:block th:replace="~{components :: header}"></th:block>
     <title th:text="${pageTitle}"></title>
 </head>
@@ -18,6 +19,7 @@
                             <label for="search" class="fw-medium text-uppercase input-group-text">Candidate Search</label>
                             <input type="text" name="search" id="search" class="form-control" placeholder="Search by username">
                             <button type="submit" class="btn btn-primary">Search Candidates</button>
+                            <a th:href="@{/allow-reentry/{id}/all(id=${exam.id})}" onclick="return confirm('Are you sure?')" class="btn btn-danger">Logout All</a>
                         </div>
                     </form>
                     <table class="table table-bordered">
@@ -26,8 +28,8 @@
                             <th scope="col" class="text-center text-uppercase">Username</th>
                             <th scope="col" th:if="${exam.passwordRequired}" class="text-center text-uppercase">Password</th>
                             <th scope="col" class="text-center text-uppercase">Time In</th>
-                            <th scope="col" class="text-center text-uppercase">Time Used</th>
                             <th scope="col" class="text-center text-uppercase">Last Updated</th>
+                            <th scope="col" class="text-center text-uppercase">Time Used</th>
                             <th scope="col" class="text-center text-uppercase">Status</th>
                             <th scope="col" class="text-center text-uppercase">Management</th>
                         </tr>
@@ -37,13 +39,13 @@
                             <td class="text-center" th:text="${candidate.id.username}">Username</td>
                             <td th:if="${exam.passwordRequired}" class="text-center" th:text="${candidate.password}">Password</td>
                             <td class="text-center" th:text="${candidate.timeIn == null ? 'N/A' : #dates.format(candidate.timeIn, 'h:mm:ss aa')}">Time In</td>
-                            <td class="text-center" th:text="${#numbers.formatInteger(candidate.timeUsed, 0)}">Time Used</td>
                             <td class="text-center" th:text="${candidate.lastUpdated == null ? 'N/A' : #dates.format(candidate.lastUpdated, 'h:mm:ss aa')}">Last Updated</td>
+                            <td class="text-center time" th:text="${#numbers.formatInteger(candidate.timeUsed, 0)}">Time Used</td>
                             <td class="text-center" th:text="${candidate.submitted ? 'Submitted' : candidate.loggedIn ? 'Logged In' : 'Not Logged In'}">Status</td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-around">
                                     <a th:href="@{/allow-reentry/{exam}(exam=${candidate.id.examId},username=${candidate.id.username})}" class="text-primary fw-bold">Logout</a>
-                                    <a th:href="@{/reset}" class="text-danger fw-bold" >Reset</a>
+                                    <a th:href="@{/reset/{exam}(exam=${candidate.id.examId},username=${candidate.id.username})}" class="text-danger fw-bold" >Reset</a>
                                 </div>
                             </td>
                         </tr>
@@ -73,5 +75,11 @@
         </div>
     </div>
     <th:block th:replace="~{components :: scripts}"></th:block>
+    <script type="text/javascript">
+        document.querySelectorAll('.time').forEach(elem => {
+            const seconds = parseInt(elem.innerHTML);
+            elem.innerHTML = timeWriter(seconds);
+        });
+    </script>
 </body>
 </html>
