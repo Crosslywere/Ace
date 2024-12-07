@@ -13,7 +13,7 @@
             <th:block th:replace="~{components :: dashboardNavbar}"></th:block>
             <main class="p-3">
                 <div class="container">
-                    <form action="#" th:action="@{/{route}(route=${currentRoute.name() == 'CREATE' ? 'create-f' : session.exam.state.name() == 'SCHEDULED' ? 'update-f/scheduled/__${session.exam.id}__' : 'update-f/ongoing/__${session.exam.id}__'})}" th:object="${exam}" method="post" enctype="multipart/form-data" class="border p-5 bg-white col-lg-10 col-12 mx-auto">
+                    <form action="#" th:action="@{/{route}(route=${currentRoute.name() == 'CREATE' ? 'create-f' : session.exam.state.name() == 'SCHEDULED' ? 'update-f/scheduled/__${session.exam.id}__' : 'update-f/ongoing/__${session.exam.id}__'})}" th:object="${exam}" method="post" enctype="multipart/form-data" class="border p-5 bg-white col-lg-10 mx-auto">
                         <h3 th:text="${currentRoute.name() == 'CREATE' ? 'Create Exam' : 'Modify ' + exam.title}"></h3>
                         <hr/>
                         <div class="mb-3 input-group">

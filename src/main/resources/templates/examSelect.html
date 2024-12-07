@@ -13,7 +13,7 @@
             <div class="container">
                 <form th:if="${!#lists.isEmpty(exams)}" action="#" th:action="@{/login}" method="post" class="col-lg-10 m-auto border p-5 bg-white">
                     <h2 class="text-center mb-5">Welcome</h2>
-                    <div class="mx-auto mb-5 col-lg-6">
+                    <div class="mx-auto mb-5 col-lg-6 col-md-10">
                         <label for="id" class="text-center mb-3">Please select the exam you wish to take</label>
                         <select name="id" id="id" class="form-select mb-3">
                             <option th:each="exam:${exams}" th:value="${exam.id}" th:text="${exam.title}"></option>

@@ -91,6 +91,8 @@
         <script th:src="@{/js/bootstrap.min.js}"></script>
         <script th:src="@{/js/script.js}"></script>
     </th:block>
-    <script th:src="@{/js/script.js}" th:fragment="candidateScripts"></script>
+    <th:block th:fragment="candidateScripts">
+        <script th:src="@{/js/script.js}" ></script>
+    </th:block>
 </body>
 </html>

@@ -8,23 +8,23 @@
 </head>
 <body>
     <div class="main">
-        <th:block th:replace="~{components :: errorNavbar}"></th:block>
+        <th:block th:replace="~{components :: logoNavbar}"></th:block>
         <main class="p-3">
             <div class="container">
                 <div class="col-lg-6 p-4 m-auto border bg-white">
                     <h2 class="text-center text-capitalize">An Error Occurred!</h2>
-                    <h3 class="text-center" th:text="|Error Code: ${status}|"></h3>
+                    <h3 class="text-center" th:text="${status}"></h3>
                     <th:block th:switch="${status}">
                         <p th:case="500" class="text-center">Internal server error occurred on '<th:block th:text="${path}"></th:block>'</p>
                         <p th:case="405" class="text-center">Unsupported method error occurred on '<th:block th:text="${path}"></th:block>'</p>
                         <p th:case="404" class="text-center">Resource does not exist on path: '<th:block th:text="${path}"></th:block>'</p>
-                        <p th:case="*" class="text-center">
-                            <th:block th:text="|Error on '${path}'|"></th:block>
-                            <br>
-                            <th:block th:text="${message}"></th:block>
-                        </p>
+                        <p th:case="*" class="text-center" th:text="|Error on '${path}'|"></p>
                     </th:block>
-
+                    <p class="text-center" th:text="|MESSAGE: ${message}|"></p>
+                    <div class="col-lg-8 mx-auto d-flex justify-content-between">
+                        <a href="#" onclick="history.back()" class="btn btn-primary fw-medium text-uppercase">Previous Page</a>
+                        <a th:href="@{/}" class="btn btn-outline-primary fw-medium text-uppercase">Home Page</a>
+                    </div>
                 </div>
             </div>
         </main>
