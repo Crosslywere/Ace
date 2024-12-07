@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <th:block th:replace="~{components :: header}"></th:block>
+    <title>Submitted</title>
+</head>
+<body>
+    <div class="main">
+        <th:block th:replace="~{components :: logoNavbar}"></th:block>
+        <main class="p-3">
+            <div class="container">
+                <div class="col-lg-6 p-5 border bg-white mx-auto">
+                    <h3 class="text-center">Congratulations</h3>
+                    <p class="fs-5 lh-lg mb-4 text-center">You have concluded the exam</p>
+                    <div th:if="${session.candidate.exam.showResults}">
+                        <p class="fs-5 lh-lg mb-3 text-center">Your score is:</p>
+                        <p class="fs-2 fw-bold lh-lg mb-3 text-center" th:text="|${session.candidate.getFormattedScore(true)}%|"></p>
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <a th:href="@{/exam}" class="btn btn-primary fw-medium text-uppercase">Reset</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <th:block th:replace="~{components :: candidateScripts}"></th:block>
+</body>
+</html>
