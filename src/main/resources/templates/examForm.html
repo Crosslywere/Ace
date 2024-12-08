@@ -99,7 +99,7 @@
                                 <label th:for="|usernameDesc|" class="fw-medium text-uppercase input-group-text">Username Description</label>
                                 <input type="text" th:field="*{usernameDesc}" class="form-control" required>
                             </div>
-                            <th:block th:if="*{passwordRequired}">
+                            <th:block th:if="*{passwordDesc != null}">
                                 <div class="mb-3 input-group">
                                     <label th:for="|passwordDesc|" class="fw-medium text-uppercase input-group-text">Password Description</label>
                                     <input type="text" th:field="*{passwordDesc}" class="form-control" required>
@@ -196,7 +196,7 @@
                             </div>
                             </details>
                         </th:block>
-                        <div th:if="*{#lists.isEmpty(candidates) && !#lists.isEmpty(papers) && __${session.exam.state.name() == 'SCHEDULED'}__}" class="mb-3 input-group">
+                        <div th:if="*{!#lists.isEmpty(papers) && __${session.exam.state.name() == 'SCHEDULED'}__}" class="mb-3 input-group">
                             <label for="candidates-document" class="input-group-text text-uppercase fw-medium">Candidate Document</label>
                             <input type="file" name="document" id="candidates-document" class="form-control" accept=".csv">
                             <button type="submit" th:formaction="@{/{route}(route=${currentRoute.name() == 'CREATE' ? 'create' : 'update/__${session.exam.id}__'})}" class="btn btn-primary">Upload Document</button>
