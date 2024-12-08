@@ -15,8 +15,6 @@ import com.exam_platform.ace.util.RequestValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.context.event.ApplicationStartedEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -28,10 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.sql.Date;
 import java.sql.Time;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -48,77 +43,6 @@ public class DashboardController {
 	private final ExamImporter examImporter;
 
 	private final int MAX_SIZE = 15;
-
-	@EventListener(ApplicationStartedEvent.class)
-	public void testRepository() {
-		var exam = Exam.builder()
-				.duration(10)
-				.title("Test Exam")
-				.showResults(true)
-				.scheduledDate(Date.valueOf(LocalDate.now()))
-				.openTime(Time.valueOf(LocalTime.now()))
-				.closeTime(Time.valueOf(LocalTime.now().plusMinutes(30)))
-				.usernameDesc("Registration Number")
-				.passwordRequired(false)
-				.build();
-		var paper = Paper.builder()
-				.id(Paper.Id.builder()
-						.name("Test Paper")
-						.build())
-				.mandatory(true)
-				.questionsPerCandidate(5)
-				.build();
-		var questionBuilder = Question.builder()
-				.options(List.of("30", "90", "1", "100", "39"));
-		paper.setQuestions(List.of(
-				questionBuilder
-						.id(Question.Id.builder()
-								.number(1)
-								.build())
-						.query("9 * 10 = ?")
-						.answerIndex((byte) 1)
-						.build(),
-				questionBuilder
-						.id(Question.Id.builder()
-								.number(2)
-								.build())
-						.query("? + ? = 60")
-						.answerIndex((byte) 0)
-						.build(),
-				questionBuilder
-						.id(Question.Id.builder()
-								.number(3)
-								.build())
-						.query("2 / ? = 2")
-						.answerIndex((byte) 2)
-						.build(),
-				questionBuilder
-						.id(Question.Id.builder()
-								.number(4)
-								.build())
-						.query("60 + ? = 99")
-						.answerIndex((byte) 4)
-						.build(),
-				questionBuilder
-						.id(Question.Id.builder()
-								.number(5)
-								.build())
-						.query("78 / 2 = ?")
-						.answerIndex((byte) 4)
-						.build()
-		));
-		exam.setPapers(List.of(paper));
-		exam.setCandidates(List.of(
-			Candidate.builder()
-					.id(Candidate.Id.builder()
-							.username("1234567890")
-							.build())
-					.papers(List.of("Test Paper"))
-					.build()
-		));
-		exam.prepForSave();
-		examService.createExam(exam);
-	}
 
 	@GetMapping
 	public String index(HttpServletRequest request) {
