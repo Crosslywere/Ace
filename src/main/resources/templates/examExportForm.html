@@ -13,11 +13,102 @@
             <th:block th:replace="~{components :: dashboardNavbar}"></th:block>
             <main class="p-3">
                 <div class="container">
-
+                    <form action="#" th:action="@{/configure/{id}(id=${exam.id})}" th:object="${config}" method="post" class="border p-5 bg-white col-lg-10 mx-auto">
+                        <h3 th:text="|Export ${exam.title}|"></h3>
+                        <hr/>
+                        <input type="number" name="exam" th:value="${exam.id}" class="visually-hidden">
+                        <div class="form-check form-switch mb-2">
+                            <input type="checkbox" id="useUsername" th:field="*{username}" th:checked="*{!registrationNumber}" role="switch" class="form-check-input">
+                            <label for="useUsername" class="form-check-label fw-medium text-uppercase">Use Username</label>
+                        </div>
+                        <div class="input-group mb-3">
+                            <label for="username" class="input-group-text fw-medium text-uppercase">Username Descriptor</label>
+                            <input type="text" th:field="*{usernameDesc}" id="username" class="form-control">
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input type="checkbox" th:field="*{registrationNumber}" id="useRegistrationNumber" class="form-check-input" role="switch">
+                            <label for="useRegistrationNumber" class="form-check-label fw-medium text-uppercase">Use Registration Number</label>
+                        </div>
+                        <div class="input-group mb-3">
+                            <label for="registrationNumber" class="input-group-text fw-medium text-uppercase">Registration Number Descriptor</label>
+                            <input type="text" th:field="*{registrationNumberDesc}" id="registrationNumber" class="form-control">
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input type="checkbox" th:field="*{lastname}" id="useLastname" class="form-check-input" role="switch">
+                            <label for="useLastname" class="form-check-label fw-medium text-uppercase">Use Lastname</label>
+                        </div>
+                        <div class="input-group mb-3">
+                            <label for="lastname" class="input-group-text fw-medium text-uppercase">Lastname Descriptor</label>
+                            <input type="text" th:field="*{lastnameDesc}" id="lastname" class="form-control">
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input type="checkbox" th:field="*{firstname}" id="useFirstname" class="form-check-input" role="switch">
+                            <label for="useFirstname" class="form-check-label fw-medium text-uppercase">Use Firstname</label>
+                        </div>
+                        <div class="input-group mb-3">
+                            <label for="firstname" class="input-group-text fw-medium text-uppercase">Firstname Descriptor</label>
+                            <input type="text" th:field="*{firstnameDesc}" id="firstname" class="form-control">
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input type="checkbox" th:field="*{otherNames}" id="useOtherNames" class="form-check-input" role="switch">
+                            <label for="useOtherNames" class="form-check-label fw-medium text-uppercase">Use Other Names</label>
+                        </div>
+                        <div class="input-group mb-3">
+                            <label for="otherNames" class="input-group-text fw-medium text-uppercase">Other Names Descriptor</label>
+                            <input type="text" th:field="*{otherNamesDesc}" id="otherNames" class="form-control">
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input type="checkbox" th:field="*{otherNames}" id="useEmail" class="form-check-input" role="switch">
+                            <label for="useEmail" class="form-check-label fw-medium text-uppercase">Use Email</label>
+                        </div>
+                        <div class="input-group mb-3">
+                            <label for="email" class="input-group-text fw-medium text-uppercase">Email Descriptor</label>
+                            <input type="text" th:field="*{emailDesc}" id="email" class="form-control">
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input type="checkbox" th:field="*{phoneNumber}" id="usePhoneNumber" class="form-check-input" role="switch">
+                            <label for="usePhoneNumber" class="form-check-label fw-medium text-uppercase">Use Phone Number</label>
+                        </div>
+                        <div class="input-group mb-3">
+                            <label for="phoneNumber" class="input-group-text fw-medium text-uppercase">Phone Number Descriptor</label>
+                            <input type="text" th:field="*{phoneNumberDesc}" id="phoneNumber" class="form-control">
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input type="checkbox" th:field="*{address}" id="useAddress" class="form-check-input" role="switch">
+                            <label for="useOtherNames" class="form-check-label fw-medium text-uppercase">Use Address</label>
+                        </div>
+                        <div class="input-group mb-3">
+                            <label for="address" class="input-group-text fw-medium text-uppercase">Address Descriptor</label>
+                            <input type="text" th:field="*{addressDesc}" id="address" class="form-control">
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input type="checkbox" th:field="*{state}" id="useState" class="form-check-input" role="switch">
+                            <label for="useState" class="form-check-label fw-medium text-uppercase">Use State</label>
+                        </div>
+                        <div class="input-group mb-3">
+                            <label for="address" class="input-group-text fw-medium text-uppercase">State Descriptor</label>
+                            <input type="text" th:field="*{stateDesc}" id="state" class="form-control">
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input type="checkbox" th:field="*{scoreAsPercentile}" id="scoreAsPercentile" class="form-check-input" role="switch">
+                            <label for="scoreAsPercentile" class="from-check-label fw-medium text-uppercase">Score As Percentile</label>
+                        </div>
+                        <div class="input-group mb-3">
+                            <label for="cutOff" class="input-group-text fw-medium text-uppercase">Cut Off</label>
+                            <input type="number" th:field="*{cutOffPercentile}" min="0" id="cutOff" class="form-control">
+                        </div>
+                        <div class="input-group mb-3">
+                            <label for="totalDesc" class="input-group-text fw-medium text-uppercase">Total Descriptor</label>
+                            <input type="text" th:field="*{totalDesc}" id="totalDesc" class="form-control">
+                        </div>
+                        <div class="d-flex justify-content-between flex-row-reverse">
+                            <a th:if="${session.config != null}" th:href="@{/download(id=${exam.id})}" th:download="|${exam.title}.csv|" class="btn btn-primary fw-medium text-uppercase">Download</a>
+                            <button type="submit" class="btn btn-primary fw-medium text-uppercase">Configure</button>
+                        </div>
+                    </form>
                 </div>
             </main>
         </div>
     </div>
-    <th:block th:replace="~{components :: scripts}"></th:block>
 </body>
 </html>

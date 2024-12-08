@@ -103,6 +103,20 @@ public class Candidate implements Comparable<Candidate> {
 		return answers.size();
 	}
 
+	public String getFormattedScore(String paperName, boolean percentile) {
+		if (percentile) {
+			return String.format("%.2f", (score(paperName) / (getMaxScore(paperName) * 1.0f)) * 100);
+		}
+		return score(paperName) + "/" + getMaxScore(paperName);
+	}
+
+	public String getFormattedScore(boolean percentile) {
+		if (percentile) {
+			return String.format("%.2f", (score() / (getMaxScore() * 1.0f)) * 100);
+		}
+		return String.valueOf(score());
+	}
+
 	@Override
 	public int compareTo(@NotNull Candidate o) {
 		return Integer.compare(score(), o.score());

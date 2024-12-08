@@ -9,6 +9,7 @@ import com.exam_platform.ace.service.CandidateService;
 import com.exam_platform.ace.service.ExamService;
 import com.exam_platform.ace.service.QuestionService;
 import com.exam_platform.ace.util.AttributeBuilder;
+import com.exam_platform.ace.util.ExamExporter;
 import com.exam_platform.ace.util.ExamImporter;
 import com.exam_platform.ace.util.RequestValidator;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,17 +17,17 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDate;
@@ -119,7 +120,7 @@ public class DashboardController {
 		examService.createExam(exam);
 	}
 
-	@GetMapping()
+	@GetMapping
 	public String index(HttpServletRequest request) {
 		if (RequestValidator.isNotLocalhost(request)) {
 			return "redirect:/exam";
@@ -145,6 +146,7 @@ public class DashboardController {
 		var session = request.getSession(false);
 		if (session != null) {
 			session.removeAttribute("exam");
+			session.removeAttribute("config");
 		}
 		var sorting = Sort.by("scheduledDate").ascending()
 				.and(Sort.by("openTime").ascending()
@@ -171,6 +173,7 @@ public class DashboardController {
 		var session = request.getSession(false);
 		if (session != null) {
 			session.removeAttribute("exam");
+			session.removeAttribute("config");
 		}
 		var sorting = Sort.by("closeTime").ascending();
 		var exams = examService.getExamsByState(Exam.State.ONGOING, PageRequest.of(pageNumber - 1, MAX_SIZE, sorting));
@@ -195,6 +198,7 @@ public class DashboardController {
 		var session = request.getSession(false);
 		if (session != null) {
 			session.removeAttribute("exam");
+			session.removeAttribute("config");
 		}
 		var sorting = Sort.by("closeTime").ascending();
 		var exams = examService.getExamsByState(Exam.State.RECORDED, PageRequest.of(pageNumber - 1, MAX_SIZE, sorting));
@@ -244,7 +248,7 @@ public class DashboardController {
 		Exam exam = examService.getExamById(examId);
 		if (exam != null && exam.getState() == Exam.State.ONGOING && !search.isBlank()) {
 			List<Candidate> candidates = candidateService.getCandidatesByExamAndUsername(exam, search);
-			model.addAllAttributes(AttributeBuilder.buildForTable("Search Results", PageRoute.SEARCH, exam, candidates, 0, 0));
+			model.addAllAttributes(AttributeBuilder.buildForTable("Search Results", PageRoute.ONGOING, exam, candidates, 0, 0));
 			return "candidateTable";
 		} else if (search.isBlank()) {
 			return "redirect:/manage/" + examId;
@@ -266,6 +270,7 @@ public class DashboardController {
 		if (exam == null) {
 			exam = new Exam();
 			session.setAttribute("exam", exam);
+			session.removeAttribute("config");
 		}
 		model.addAllAttributes(AttributeBuilder.buildForForm("Create Exam", PageRoute.CREATE, exam));
 		return "examForm";
@@ -306,6 +311,7 @@ public class DashboardController {
 		if (RequestValidator.isNotLocalhost(request)) {
 			return "redirect:/exam";
 		}
+		session.removeAttribute("config");
 		Exam exam = examService.getExamById(examId);
 		if (exam == null || exam.getState() == Exam.State.RECORDED) {
 			return "redirect:/recorded";
@@ -403,9 +409,9 @@ public class DashboardController {
 		return "redirect:/ongoing";
 	}
 	//endregion
-	//region TODO Export Exams
+	//region Export Exams
 	@GetMapping("/export/{id}")
-	public String exportExam(@PathVariable("id") Long examId, Model model, HttpServletRequest request) {
+	public String exportExam(@PathVariable("id") Long examId, Model model, HttpSession session, HttpServletRequest request) {
 		if (RequestValidator.isNotLocalhost(request)) {
 			return "redirect:/exam";
 		}
@@ -413,7 +419,48 @@ public class DashboardController {
 		if (exam == null || exam.getState() != Exam.State.RECORDED) {
 			return "redirect:/scheduled";
 		}
-		throw new UnsupportedOperationException("Not implemented '/export/{id}' yet");
+		var config = (ExamExporter.ExportConfig) session.getAttribute("config");
+		ExamExporter exporter = new ExamExporter(config);
+		if (exporter.getConfig() == null)
+			exporter.setConfig(exam);
+		model.addAttribute("config", exporter.getConfig());
+		model.addAttribute("exam", exam);
+		model.addAttribute("currentRoute", PageRoute.RECORDED);
+		return "examExportForm";
+	}
+	@PostMapping("/configure/{id}")
+	public String configure(@PathVariable("id") Long examId, ExamExporter.ExportConfig config, HttpSession session) {
+		session.setAttribute("config", config);
+		return "redirect:/export/" + examId;
+	}
+	@ResponseBody
+	@GetMapping("/download")
+	public FileSystemResource download(@RequestParam Long id, HttpServletRequest request, HttpSession session) {
+		if (RequestValidator.isNotLocalhost(request)) {
+			return null;
+		}
+		Exam exam = examService.getExamById(id);
+		var config = (ExamExporter.ExportConfig) session.getAttribute("config");
+		if (config == null || exam == null || exam.getState() != Exam.State.RECORDED) {
+			return null;
+		}
+		ExamExporter exporter = new ExamExporter(config);
+		String content = exporter.exportToCSV(exam);
+		File file = new File("result.csv");
+		try {
+			if (file.createNewFile()) {
+				file.deleteOnExit();
+			}
+			FileWriter fw = new FileWriter(file, false);
+			fw.write(content);
+			fw.close();
+			return new FileSystemResource(file);
+		} catch (Exception exception) {
+			//noinspection CallToPrintStackTrace
+			exception.printStackTrace();
+			System.out.println("File exception!");
+		}
+		return null;
 	}
 	//endregion
 //endregion
@@ -447,7 +494,7 @@ public class DashboardController {
 		return "redirect:/recorded";
 	}
 	//endregion
-	//region TODO Candidate Management (ie allow re-entry, reset, etc)
+	//region Candidate Management (ie allow re-entry, reset, etc)
 	@GetMapping("/allow-reentry/{id}")
 	public String allowReentryOfCandidate(@PathVariable("id") Long examId, @RequestParam String username, HttpServletRequest request) {
 		if (RequestValidator.isNotLocalhost(request)) {
