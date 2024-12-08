@@ -143,6 +143,7 @@ public class ExamImporter {
 		String line;
 		boolean header = true;
 		ConfigIndexer indexer = new ConfigIndexer(exam);
+		boolean hadCandidates = !exam.getCandidates().isEmpty();
 		int row = 1;
 		while (scanner.hasNextLine()) {
 			if (!header && indexer.getUsernameIndex() == -1) {
@@ -160,66 +161,82 @@ public class ExamImporter {
 			if (header) {
 				header = false;
 				List<String> columns = parseCSVLine(line);
-				if (columns.isEmpty()) {
-					header = true;
-					continue;
-				}
 				// Indexing the columns in the header
 				for (int i = 0; i < columns.size(); i++) {
 					String column = columns.get(i);
 					if (column.trim().toUpperCase().startsWith("#UN ")) {
 						indexer.setUsernameIndex(i);
 						column = column.substring(4).trim();
-						exam.setUsernameDesc(column);
+						if (!hadCandidates) {
+							exam.setUsernameDesc(column);
+						}
 					}
 					if (column.trim().toUpperCase().startsWith("#PW ")) {
 						indexer.setPasswordIndex(i);
 						column = column.substring(4).trim();
-						exam.setPasswordDesc(column);
-						exam.setPasswordRequired(true);
+						if (!hadCandidates) {
+							exam.setPasswordDesc(column);
+							exam.setPasswordRequired(true);
+						}
 					}
 					if (column.toLowerCase().contains("mail")) {
 						indexer.setEmailIndex(i);
-						indexer.setEmail(true);
-						indexer.setEmailDesc(column);
+						if (!hadCandidates) {
+							indexer.setEmail(true);
+							indexer.setEmailDesc(column);
+						}
 					} else
 					if (column.toLowerCase().contains("phone") || column.toLowerCase().contains("tel")) {
 						indexer.setPhoneIndex(i);
-						indexer.setPhoneNumber(true);
-						indexer.setPhoneNumberDesc(column);
+						if (!hadCandidates) {
+							indexer.setPhoneNumber(true);
+							indexer.setPhoneNumberDesc(column);
+						}
 					} else
 					if (column.toLowerCase().contains("address")) {
 						indexer.setAddressIndex(i);
-						indexer.setAddress(true);
-						indexer.setAddressDesc(column);
+						if (!hadCandidates) {
+							indexer.setAddress(true);
+							indexer.setAddressDesc(column);
+						}
 					} else
 					if (column.toLowerCase().contains("state")) {
 						indexer.setStateIndex(i);
-						indexer.setState(true);
-						indexer.setStateDesc(column);
+						if (!hadCandidates) {
+							indexer.setState(true);
+							indexer.setStateDesc(column);
+						}
 					} else
 					if (column.toLowerCase().contains("name")) {
 						if (column.toLowerCase().contains("first")) {
 							indexer.setFirstnameIndex(i);
-							indexer.setFirstname(true);
-							indexer.setFirstnameDesc(column);
+							if (!hadCandidates) {
+								indexer.setFirstname(true);
+								indexer.setFirstnameDesc(column);
+							}
 						} else if (column.toLowerCase().contains("last")) {
 							indexer.setLastnameIndex(i);
-							indexer.setLastname(true);
-							indexer.setLastnameDesc(column);
+							if (!hadCandidates) {
+								indexer.setLastname(true);
+								indexer.setLastnameDesc(column);
+							}
 						} else if (column.toLowerCase().contains("other")) {
 							indexer.setOtherNamesIndex(i);
-							indexer.setOtherNames(true);
-							indexer.setOtherNamesDesc(column);
+							if (!hadCandidates) {
+								indexer.setOtherNames(true);
+								indexer.setOtherNamesDesc(column);
+							}
+						}
+					} else
+					if (column.toLowerCase().contains("reg") || column.toLowerCase().contains("s/n") || column.toLowerCase().contains("serial")) {
+						indexer.setRegistrationNumberIndex(i);
+						if (!hadCandidates) {
+							indexer.setRegistrationNumber(true);
+							indexer.setRegistrationNumberDesc(column);
 						}
 					} else
 					if (column.toLowerCase().contains("paper")) {
 						indexer.setPapersIndex(i);
-					} else
-					if (column.toLowerCase().contains("reg")) {
-						indexer.setRegistrationNumberIndex(i);
-						indexer.setRegistrationNumber(true);
-						indexer.setRegistrationNumberDesc(column);
 					}
 				}
 			}
@@ -292,6 +309,10 @@ public class ExamImporter {
 				if (columns.size() > indexer.getOtherNamesIndex() && indexer.getOtherNamesIndex() >= 0) {
 					String otherNames = columns.get(indexer.getOtherNamesIndex());
 					candidate.setOtherNames(otherNames);
+				}
+				if (columns.size() > indexer.getRegistrationNumberIndex() && indexer.getRegistrationNumberIndex() >= 0) {
+					String registrationNumber = columns.get(indexer.getRegistrationNumberIndex());
+					candidate.setRegistrationNumber(registrationNumber);
 				}
 				exam.addCandidate(candidate);
 			}
