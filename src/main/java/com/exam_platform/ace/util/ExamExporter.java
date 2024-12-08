@@ -71,8 +71,11 @@ public class ExamExporter {
 		StringBuilder body = new StringBuilder();
 		var candidates = exam.getCandidates().stream()
 				.filter(candidate -> {
-					float percentile = Float.parseFloat(candidate.getFormattedScore(config.isScoreAsPercentile()));
-					return percentile >= ((float) config.getCutOffPercentile()) - 0.1f;
+					if (config.getCutOffPercentile() > 0) {
+						float percentile = Float.parseFloat(candidate.getFormattedScore(config.isScoreAsPercentile()));
+						return percentile >= ((float) config.getCutOffPercentile()) - 0.1f;
+					}
+					return true;
 				})
 				.sorted()
 				.toList();
