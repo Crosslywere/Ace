@@ -152,6 +152,10 @@
                                     <input type="checkbox" th:field="*{candidateConfig.otherNames}" class="visually-hidden">
                                 </div>
                             </details>
+                            <div th:if="*{candidateConfig.email}" class="form-check form-switch mb-3">
+                                <input type="checkbox" id="notify" th:field="*{notify}" role="switch" class="form-check-input">
+                                <label for="notify" class="form-check-label text-uppercase fw-medium">Notify Candidates Via Email</label>
+                            </div>
                             <details class="mb-3">
                                 <summary class="w-100 text-center mb-3 p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3" th:text="|Candidates (*{candidates.size()})|"></summary>
                                 <div class="overflow-auto" style="max-height:451px" th:if="${session.exam.state.name() == 'SCHEDULED'}">

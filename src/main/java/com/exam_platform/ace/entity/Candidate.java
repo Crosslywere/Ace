@@ -83,6 +83,10 @@ public class Candidate implements Comparable<Candidate> {
 	@Column(name = "PAPER_NAMES")
 	private List<String> papers = new ArrayList<>();
 
+	public boolean isNotNotified() {
+		return !notified;
+	}
+
 	public List<CandidateAnswer> getPaperAnswers(String paperName) {
 		return answers.stream().filter(answer -> answer.getId().getPaperName().equals(paperName)).sorted(Comparator.comparingInt(answer -> answer.getId().getNumber())).toList();
 	}

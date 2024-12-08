@@ -1,6 +1,8 @@
 package com.exam_platform.ace.configuration;
 
+import com.exam_platform.ace.entity.Candidate;
 import com.exam_platform.ace.entity.Exam;
+import com.exam_platform.ace.service.EmailSenderService;
 import com.exam_platform.ace.service.ExamService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +20,19 @@ import java.time.LocalTime;
 public class CronConfiguration {
 
 	private final ExamService examService;
+
+	private final EmailSenderService senderService;
+
+	@Scheduled(cron = "0 0/30 9-17 * * *")
+	public void notifyCandidates() {
+		examService.getExamsByState(Exam.State.SCHEDULED).stream().filter(Exam::isNotify).forEach(
+				exam -> exam.getCandidates().stream().filter(Candidate::isNotNotified).forEach(
+						candidate -> {
+							senderService.sendMail(candidate, exam);
+						}
+				)
+		);
+	}
 
 	// Updates the exam list every 5,000 milliseconds (5 seconds)
 	@Scheduled(fixedRate = 15_000)

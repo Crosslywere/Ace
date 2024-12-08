@@ -136,4 +136,8 @@ public class CandidateService {
 		candidate.setLastUpdated(Time.valueOf(LocalTime.now()));
 		candidateRepository.save(candidate);
 	}
+
+	public void cronUpdateCandidate(Candidate candidate) {
+		candidateRepository.save(candidate);
+	}
 }

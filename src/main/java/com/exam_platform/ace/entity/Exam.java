@@ -63,6 +63,10 @@ public class Exam {
 	private List<Candidate> candidates = new ArrayList<>();
 
 	@Builder.Default
+	@Column(name = "NOTIFY")
+	private boolean notify = false;
+
+	@Builder.Default
 	@Column(name = "STATE", nullable = false)
 	@Enumerated(EnumType.STRING)
 	private State state = State.SCHEDULED;
