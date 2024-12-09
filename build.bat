@@ -1,4 +1,8 @@
 @ECHO off
+ECHO Before running this read the instructions
+TIMEOUT /T 5
+START .\index.html
+PAUSE
 CALL .\mvnw.cmd -B package -DskipTests
 START .\run.bat
 ECHO "Waiting for the application to start..."

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>How to use Ace Exam Platform</title>
+    <style>
+        body {
+           color: black;
+           font-family: 'Roboto', sans-serif;
+        }
+    </style>
+</head>
+<body>
+<h1 id="ace-exam-app">Ace Exam App</h1>
+<p>Put in PostgreSQL link and Java 21 link</p>
+<p>A locally hosted web application (meant for the intranet) for creating, managing and recording exams.</p>
+<h2 id="dependencies">Dependencies</h2>
+<ol>
+    <li><p><a href="https://www.postgresql.org/download/">PostgreSQL</a></p>
+    </li>
+    <li><p><a href="https://www.oracle.com/ng/java/technologies/downloads/">Java</a></p>
+    </li>
+</ol>
+<h2 id="installation">Installation</h2>
+<p>Before installing the application ensure that the <a href="#dependencies">Dependencies</a> are installed and you have <a href="#configuration">Configured</a> the application</p>
+<p>To install this application simply click on the <code>build.bat</code> / <code>build</code> file.</p>
+<h3 id="configuration">Configuration</h3>
+<p>To configure the application without Docker open <code>src/main/resources/application.properties</code> in a text editor. Inside of this file the following properties should be used to configure the application.</p>
+<p><strong><code>spring.datasource.username</code></strong> - This is the username with administrator privileges on the PostgreSQL database.</p>
+<p><strong><code>spring.datasource.password</code></strong> - This is the password of the username in the <code>spring.datasource.username</code></p>
+<p><strong><code>spring.mail.username</code></strong> - This is the email address to be used to send notification emails to Candidates when creating exams.</p>
+<p><strong><code>spring.mail.password</code></strong> - This is the app password linked to the account can be gotten from <a href="https://myaccount.google.com/apppasswords">here</a></p>
+<h2 id="using-the-application">Using The Application</h2>
+<p>Once completing the <a href="#installation">installation</a> process, open a browser and go to this url <a href="http://localhost:8081">localhost:8081</a> which would bring you to the <code>/scheduled</code> page.</p>
+<p>The possible routes that can be visited are:</p>
+<ul>
+    <li><p><a href="#scheduled-exams"><code>/scheduled</code></a> - view and manage all scheduled exams</p>
+    </li>
+    <li><p><a href="#recorded-exams"><code>/recorded</code></a> - view and manage all recorded exams</p>
+    </li>
+    <li><p><a href="#ongoing-exams"><code>/ongoing</code></a> - view and manage all ongoing exams</p>
+    </li>
+    <li><p><a href="#creating-an-exam"><code>/create</code></a> - create new exams</p>
+    </li>
+    <li><p><a href="#taking-an-exam"><code>/exam</code> or <code>/exam/select</code></a> - take any ongoing exams</p>
+    </li>
+</ul>
+<h3 id="scheduled-exams">Scheduled Exams</h3>
+<p>A <strong>scheduled exam</strong> is any exam whose time is not yet now ie. the starting time is not passed and/or has no candidates attached yet.</p>
+<p>The scheduled exams page allows any scheduled exam to be modified or deleted.</p>
+<h4 id="modifying-scheduled-exams">Modifying Scheduled Exams</h4>
+<p>Modifying a scheduled exam allows you to update:</p>
+<ol>
+    <li><p>The title of the exam. Signifies the exam being held eg. JAMB, WAEC, etc.</p>
+    </li>
+    <li><p>The scheduled date (cannot be before the current date). When the exam is scheduled for.</p>
+    </li>
+    <li><p>The start time (should not be after the end time). When the exam should open to candidates.</p>
+    </li>
+    <li><p>The end time (should not be before the start time). When the exam should close to candidates.</p>
+    </li>
+    <li><p>The duration (in minutes). How long a candidate is allowed to spend taking the exam.</p>
+    </li>
+    <li><p>Weather to show the results to the candidate after they have concluded the exam or not.</p>
+    </li>
+    <li><p>Modify the papers in the exam. Please see <a href="#exam-document-formats">Exam Document Formats</a> for how to organize an exam paper for upload.</p>
+        <ul>
+            <li>Change the paper&#39;s name.</li>
+            <li>Change the questions per candidate.</li>
+            <li>Change whether the paper is mandatory or not.</li>
+            <li>Upload images to questions as needed.</li>
+        </ul>
+    </li>
+    <li><p>Modify the list of candidates for the exam by uploading <code>.csv</code> files. Please see <a href="#exam-document-formats">Exam Document Formats</a> for how to organize a candidate list for upload.</p>
+    </li>
+</ol>
+<h3 id="recorded-exams">Recorded Exams</h3>
+<p>Recorded exams are exams that have been concluded and can no longer be taken by any candidate. They can only either be exported or deleted from the system <strong>(which can not be recovered)</strong></p>
+<p>To export exams simply click on &quot;Export&quot; on the row of the exam you wish to export</p>
+<h4 id="exporting-recorded-exams">Exporting Recorded Exams</h4>
+<p>Exporting recorded exams requires the export to be configured. Once configured the exam can be downloaded as a .csv file</p>
+<h3 id="ongoing-exams">Ongoing Exams</h3>
+<p>An ongoing exam can be stopped forcefully by clicking on &quot;Stop&quot; or <a href="#modifying-ongoing-exams">modified</a> by clicking on &quot;Modify&quot;.</p>
+<h4 id="modifying-ongoing-exams">Modifying Ongoing Exams</h4>
+<p>Exams do not have much that can be modified about them when in an ongoing state. The only thing that can be modified about them is the time when they close to candidates and their title.
+    You can however <a href="#managing-candidates">manage candidates</a>.</p>
+<h4 id="managing-candidates">Managing Candidates</h4>
+<p>Managing candidates can be done through the &quot;MANAGEMENT&quot; column of the table. Logout <em>OR</em> Reset</p>
+<ul>
+    <li><strong>Logout</strong> This simply logs the candidate out on the server once the candidate login or performs any action they are set as logged in again.</li>
+    <li><strong>Reset</strong> This removes all the candidate&#39;s questions, and resets all their details. If the candidate is logged in this will force them back to the exam select page.</li>
+</ul>
+<h3 id="creating-an-exam">Creating an Exam</h3>
+<p>To create an exam there are 2 files that would be needed by the software:</p>
+<ol>
+    <li><p>The Exam Document - This can either be a <code>.docx</code>(Microsoft Word Document) or a <code>.txt</code>(Plain Text) file.</p>
+    </li>
+    <li><p>The Candidate List - This can only be a <code>.csv</code>(Comma Seperated Value) file. Which would contain the following candidates details:</p>
+    </li>
+</ol>
+<p>Please see <a href="#exam-document-formats">Exam Document Formats</a> for how to create these documents for the software.</p>
+<p>It is best to go step by step when creating an exam. From setting the exam&#39;s general details, to uploading the exams document and setting up the papers, to finally uploading the candidates document.
+    Because once there could be some error at a previous set causing the proceeding step to have errors.</p>
+<h4 id="exam-document-formats">Exam Document Formats</h4>
+<p>Exam documents are made up of 4 things</p>
+<ol>
+    <li>The paper indicator. This indicates where a paper starts from. Eg &quot;Paper:&quot;, &quot;Mathematics:&quot;, &quot;English Language:&quot; etc. The format is as follows: The name of the paper followed by a colon(:)</li>
+    <li>The question. Eg &quot;1. What is the cap...&quot;, &quot;300. There are 2 types of...&quot; etc. The format is as follows: The number of the question, a period(.), a space, and finally the text representing the question(not broken by a new line(Enter)).</li>
+    <li>The options. The options can be 2 to 5 in number. Eg &quot;a. Nigeria&quot;, &quot;b. Canada&quot;, &quot;c. Europe&quot;, &quot;d. India&quot;, &quot;e. China&quot; etc. The format is as follows: The index of the option ie. a-e as a small letters, a period(.), a space, and the text for the option.</li>
+    <li>The answer. The answer is optional. Eg. &quot;Ans: a&quot;, &quot;Ans: b&quot; etc. The format is as follows: The text &quot;Ans:&quot; the colon is necessary, a space, and finally the text for the option.</li>
+</ol>
+<p>For exams please open <a href="./Samples/Sample exam.txt">this</a> file for an example</p>
+<p>Candidate documents are made up of 11 things</p>
+<ol>
+    <li>The username of the candidate. This is any column in the .csv file marked with &quot;#UN&quot; followed by a space. This is required to identify the candidates for logging in.</li>
+    <li>The password of the candidate. This is any column in the .csv file marked with &quot;#PW&quot; followed by a space.</li>
+    <li>The papers of the candidate. This is any column containing the word &quot;paper&quot;. This is required to specify the candidate&#39;s papers. Is required but can be left blank if all papers are mandatory.</li>
+    <li>The candidate&#39;s registration number. This is any column containing the word &quot;reg&quot;, &quot;serial&quot;, or &quot;s/n&quot;.</li>
+    <li>The candidate&#39;s email. This is any column that contains the word &quot;mail&quot;. Is not necessary but is if the exam is to send a notification to candidates on the details.</li>
+    <li>The candidate&#39;s phone number. This is any column that contains the word &quot;phone&quot; or &quot;tel&quot;.</li>
+    <li>The candidate&#39;s address. This is any column that contains the word &quot;address&quot;.</li>
+    <li>The candidate&#39;s state. This is any column that contains the word &quot;state&quot;.</li>
+    <li>The candidate&#39;s firstname. This is any column that contains the words &quot;name&quot; and &quot;first&quot;</li>
+    <li>The candidate&#39;s lastname. This is any column that contains the words &quot;name&quot; and &quot;last&quot;</li>
+    <li>The candidate&#39;s other names. This is any column that contains the words &quot;name&quot; and &quot;other&quot;</li>
+</ol>
+<p>For candidate lists please open <a href="./Samples/Sample candidate.csv">this</a> file for an example</p>
+<h3 id="taking-an-exam">Taking an Exam</h3>
+<p>When taking an exam the candidate&#39;s will be greeted with the exam selection page. Once they have selected the exam, they will then proceed to the login page.
+    After the candidate provides the required username and/or password, they will then be greeted with the instructions page. After reading the instructions they may proceed to the exam proper.</p>
+<ul>
+    <li>The candidates have timer&#39;s on the top right side of the question. Once this time runs out the candidate if forced to submit their exam.</li>
+    <li>The candidates have the ability to select papers by clicking on the paper name on the top of the page.</li>
+    <li>The candidates can navigate through the question by using the left and right arrows.</li>
+    <li>The candidates can select options by pressing a,b,c,d, or e.</li>
+</ul>
+
+</body>
+</html>
