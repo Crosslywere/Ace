@@ -13,8 +13,7 @@
 </head>
 <body>
 <h1 id="ace-exam-app">Ace Exam App</h1>
-<p>Put in PostgreSQL link and Java 21 link</p>
-<p>A locally hosted web application (meant for the intranet) for creating, managing and recording exams.</p>
+<p>The Ace Exam Platform Application.</p>
 <h2 id="dependencies">Dependencies</h2>
 <ol>
     <li><p><a href="https://www.postgresql.org/download/">PostgreSQL</a></p>
@@ -22,15 +21,16 @@
     <li><p><a href="https://www.oracle.com/ng/java/technologies/downloads/">Java</a></p>
     </li>
 </ol>
-<h2 id="installation">Installation</h2>
-<p>Before installing the application ensure that the <a href="#dependencies">Dependencies</a> are installed and you have <a href="#configuration">Configured</a> the application</p>
-<p>To install this application simply click on the <code>build.bat</code> / <code>build</code> file.</p>
-<h3 id="configuration">Configuration</h3>
+<h2 id="configuration">Configuration</h2>
 <p>To configure the application without Docker open <code>src/main/resources/application.properties</code> in a text editor. Inside of this file the following properties should be used to configure the application.</p>
 <p><strong><code>spring.datasource.username</code></strong> - This is the username with administrator privileges on the PostgreSQL database.</p>
 <p><strong><code>spring.datasource.password</code></strong> - This is the password of the username in the <code>spring.datasource.username</code></p>
 <p><strong><code>spring.mail.username</code></strong> - This is the email address to be used to send notification emails to Candidates when creating exams.</p>
 <p><strong><code>spring.mail.password</code></strong> - This is the app password linked to the account can be gotten from <a href="https://myaccount.google.com/apppasswords">here</a></p>
+<h2 id="installation">Installation</h2>
+<p>Before installing the application ensure that the <a href="#dependencies">Dependencies</a> are installed and you have <a href="#configuration">Configured</a> the application.</p>
+<p>To install this application simply click on the <code>build.bat</code> / <code>build</code> file.</p>
+<p>Subsequent runs can be started by clicking on the <code>run.bat</code> / <code>run</code> file.</p>
 <h2 id="using-the-application">Using The Application</h2>
 <p>Once completing the <a href="#installation">installation</a> process, open a browser and go to this url <a href="http://localhost:8081">localhost:8081</a> which would bring you to the <code>/scheduled</code> page.</p>
 <p>The possible routes that can be visited are:</p>
@@ -130,11 +130,11 @@
 <p>When taking an exam the candidate&#39;s will be greeted with the exam selection page. Once they have selected the exam, they will then proceed to the login page.
     After the candidate provides the required username and/or password, they will then be greeted with the instructions page. After reading the instructions they may proceed to the exam proper.</p>
 <ul>
+    <li>Once the candidate logs in the candidate&#39;s questions are set.</li>
     <li>The candidates have timer&#39;s on the top right side of the question. Once this time runs out the candidate if forced to submit their exam.</li>
     <li>The candidates have the ability to select papers by clicking on the paper name on the top of the page.</li>
     <li>The candidates can navigate through the question by using the left and right arrows.</li>
     <li>The candidates can select options by pressing a,b,c,d, or e.</li>
 </ul>
-
 </body>
 </html>

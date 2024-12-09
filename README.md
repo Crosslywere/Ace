@@ -1,8 +1,6 @@
 # Ace Exam App
 
-Put in PostgreSQL link and Java 21 link
-
-A locally hosted web application (meant for the intranet) for creating, managing and recording exams.
+The Ace Exam Platform Application.
 
 ## Dependencies
 
@@ -10,13 +8,7 @@ A locally hosted web application (meant for the intranet) for creating, managing
 
 2. [Java](https://www.oracle.com/ng/java/technologies/downloads/)
 
-## Installation
-
-Before installing the application ensure that the [Dependencies](#dependencies) are installed and you have [Configured](#configuration) the application
-
-To install this application simply click on the `build.bat` / `build` file.
-
-### Configuration
+## Configuration
 
 To configure the application without Docker open `src/main/resources/application.properties` in a text editor. Inside of this file the following properties should be used to configure the application.
 
@@ -27,6 +19,14 @@ To configure the application without Docker open `src/main/resources/application
 **`spring.mail.username`** - This is the email address to be used to send notification emails to Candidates when creating exams.
 
 **`spring.mail.password`** - This is the app password linked to the account can be gotten from [here](https://myaccount.google.com/apppasswords)
+
+## Installation
+
+Before installing the application ensure that the [Dependencies](#dependencies) are installed and you have [Configured](#configuration) the application.
+
+To install this application simply click on the `build.bat` / `build` file.
+
+Subsequent runs can be started by clicking on the `run.bat` / `run` file.
 
 ## Using The Application
 
@@ -67,7 +67,7 @@ Modifying a scheduled exam allows you to update:
 6. Weather to show the results to the candidate after they have concluded the exam or not.
 
 7. Modify the papers in the exam. Please see [Exam Document Formats](#exam-document-formats) for how to organize an exam paper for upload.
-    
+
     * Change the paper's name.
     * Change the questions per candidate.
     * Change whether the paper is mandatory or not.
@@ -146,6 +146,7 @@ For candidate lists please open [this](./Samples/Sample candidate.csv) file for 
 When taking an exam the candidate's will be greeted with the exam selection page. Once they have selected the exam, they will then proceed to the login page.
 After the candidate provides the required username and/or password, they will then be greeted with the instructions page. After reading the instructions they may proceed to the exam proper.
 
+- Once the candidate logs in the candidate's questions are set.
 - The candidates have timer's on the top right side of the question. Once this time runs out the candidate if forced to submit their exam.
 - The candidates have the ability to select papers by clicking on the paper name on the top of the page.
 - The candidates can navigate through the question by using the left and right arrows.
