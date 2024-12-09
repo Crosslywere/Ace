@@ -17,9 +17,8 @@
                         <p class="lh-lg mb-3">Please read the following carefully.</p>
                         <p class="lh-lg mb-3">This is an official exam. Therefore, no cross talking, passing of stationary, or activity that may be seen as malpractice would be tolerated.</p>
                         <p class="lh-lg mb-3">You may start with any paper you wish, if you are taking multiple papers, by clicking on the paper at the top of the page.</p>
-                        <p class="lh-lg mb-3">Use <b>A</b>-<b>E</b> OR <b>1</b>-<b>5</b> to select options. The <b>Left Arrow</b> to go to the previous question, and <b>Right Arrow</b> to go to the next question.</p>
+                        <p class="lh-lg mb-3">Use <b>A</b>-<b>E</b> to select options. The <b>Left Arrow</b> to go to the previous question, and <b>Right Arrow</b> to go to the next question.</p>
                         <p class="lh-lg mb-3">The exam is timed. The timer is shown at the top right side of the screen as soon as you click <b class="text-uppercase">Begin</b>.</p>
-                        <p class="lh-lg mb-3"><b class="text-uppercase">DO NOT REFRESH ANY PAGE!</b> Attempting to refresh a page could potentially log you out of the system.</p>
                     </div>
                     <form method="post" class="d-flex justify-content-center">
                         <button th:formaction="@{/exam/{paper}/1(paper=${session.candidate.papers[0]})}" class="fw-medium btn btn-primary text-uppercase">Begin</button>

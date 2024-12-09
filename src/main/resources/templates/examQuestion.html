@@ -20,12 +20,13 @@
             <div class="container" style="height:100vh">
                 <form action="" id="questionForm" th:object="${candidateAnswer}" method="post" class="col-lg-10 m-auto border bg-white p-4 position-relative" th:with="question=${candidateAnswer.question}">
                     <div class="position-absolute fw-medium fs-5" style="top:1em;right:1em;" id="time">10</div>
-                    <h3 class="text-center mb-3" th:text="*{id.paperName}"></h3>
+                    <h3 class="text-center mb-3" th:text="|${session.candidate.exam.title} - *{id.paperName}|"></h3>
                     <p th:text="|*{id.number}. *{question.query}|"></p>
                     <div class="d-flex justify-content-center" th:if="*{question.hasImage}">
                         <img th:src="@{/db-images/{image}(image=*{question.id.createImageSaveName() + question.imageSuffix})}" height="250px" alt="image">
                     </div>
                     <div class="form-check" th:each="option,optionIterator:*{question.options}">
+                        <label th:for="|option${optionIterator.index}|" class="optionLabel"></label>
                         <input type="radio" th:field="*{answer}" th:value="${optionIterator.index}" th:id="|option${optionIterator.index}|" class="form-check-input">
                         <label th:for="|option${optionIterator.index}|" class="form-check-label" th:text="${option}"></label>
                     </div>
@@ -111,6 +112,11 @@
                     break;
             }
         }
+        document.querySelectorAll('.optionLabel').forEach(elem => {
+            var optIndex = parseInt(elem.getAttribute('for').substr(6));
+            var alphabets = "ABCDE";
+            elem.innerHTML = alphabets[optIndex] + '. ';
+        });
     </script>
 </body>
 </html>
