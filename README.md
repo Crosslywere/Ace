@@ -145,7 +145,7 @@ Exam documents are made up of 4 things
 3. The options. The options can be 2 to 5 in number. Eg "a. Nigeria", "b. Canada", "c. Europe", "d. India", "e. China" etc. The format is as follows: The index of the option ie. a-e as a small letters, a period(.), a space, and the text for the option.
 4. The answer. The answer is optional. Eg. "Ans: a", "Ans: b" etc. The format is as follows: The text "Ans:" the colon is necessary, a space, and finally the text for the option.
 
-For exams please open [this](./Samples/Sample exam.txt) file for an example
+For exams please open [this](Samples/Sample exam.txt) file for an example
 
 Candidate documents are made up of 11 things
 
@@ -161,7 +161,7 @@ Candidate documents are made up of 11 things
 10. The candidate's lastname. This is any column that contains the words "name" and "last"
 11. The candidate's other names. This is any column that contains the words "name" and "other"
 
-For candidate lists please open [this](./Samples/Sample candidate.csv) file for an example
+For candidate lists please open [this](Samples/Sample candidate.csv) file for an example
 
 ### Taking an Exam
 
