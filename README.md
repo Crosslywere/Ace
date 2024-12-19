@@ -32,12 +32,12 @@ Before attempting to configure the application ensure that you have a valid data
 - Next, on the left there would be a section for servers, right-click on the Servers and select Register -> Server.
 - You'll be greeted by the General tab where you would give the server a name, any name is fine.
 <center>
-   <img src="README/PG-General.png">
+   <img src="./README/PG-General.png">
 </center>
 
 - Finally, go to the Connection tab and give the database the Host name of `localhost`, set the Password and possibly change the username.
 <center>
-   <img src="README/PG-Connection.png">
+   <img src="./README/PG-Connection.png">
 </center>
 
 - Click `Save` to create the database.
