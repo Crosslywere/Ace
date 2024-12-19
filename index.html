@@ -14,6 +14,8 @@
 <body>
 <h1 id="ace-exam-app">Ace Exam App</h1>
 <p>The Ace Exam Platform Application.</p>
+<p>If this was opened when attempting to run the build script, <strong>NOTE</strong> the script is still running in the background waiting for your input to proceed.</p>
+<p>Things can be halted anytime by pressing <code>CTRL</code> + <code>C</code> in the host&#39;s terminal while the script / application is running. </p>
 <h2 id="dependencies">Dependencies</h2>
 <ol>
     <li><p><a href="https://www.postgresql.org/download/">PostgreSQL</a></p>
@@ -22,11 +24,29 @@
     </li>
 </ol>
 <h2 id="configuration">Configuration</h2>
-<p>To configure the application without Docker open <code>src/main/resources/application.properties</code> in a text editor. Inside of this file the following properties should be used to configure the application.</p>
+<p>To configure the application navigate to <code>src/main/resources/</code> and open <code>application.properties</code> in a text editor. Inside of this file the following properties should be used to configure the application.</p>
 <p><strong><code>spring.datasource.username</code></strong> - This is the username with administrator privileges on the PostgreSQL database.</p>
 <p><strong><code>spring.datasource.password</code></strong> - This is the password of the username in the <code>spring.datasource.username</code></p>
 <p><strong><code>spring.mail.username</code></strong> - This is the email address to be used to send notification emails to Candidates when creating exams.</p>
 <p><strong><code>spring.mail.password</code></strong> - This is the app password linked to the account can be gotten from <a href="https://myaccount.google.com/apppasswords">here</a></p>
+<h3 id="configure-postgresql">Configure PostgreSQL</h3>
+<p>Before attempting to configure the application ensure that you have a valid database setup to connect too.</p>
+<ul>
+    <li>Begin by opening the pgAdmin application that comes with the installation of <a href="https://www.postgresql.org/download/">Postgres</a></li>
+    <li>Next, on the left there would be a section for servers, right-click on the Servers and select Register -&gt; Server.</li>
+    <li><p>You&#39;ll be greeted by the General tab where you would give the server a name, any name is fine.</p>
+        <center>
+            <img src="README/PG-General.png">
+        </center>
+    </li>
+    <li><p>Finally, go to the Connection tab and give the database the Host name of <code>localhost</code>, set the Password and possibly change the username.</p>
+        <center>
+            <img src="README/PG-Connection.png">
+        </center>
+    </li>
+    <li><p>Click <code>Save</code> to create the database.</p>
+    </li>
+</ul>
 <h2 id="installation">Installation</h2>
 <p>Before installing the application ensure that the <a href="#dependencies">Dependencies</a> are installed and you have <a href="#configuration">Configured</a> the application.</p>
 <p>To install this application simply click on the <code>build.bat</code> / <code>build</code> file.</p>

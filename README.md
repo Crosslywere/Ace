@@ -2,6 +2,10 @@
 
 The Ace Exam Platform Application.
 
+If this was opened when attempting to run the build script, **NOTE** the script is still running in the background waiting for your input to proceed.
+
+Things can be halted anytime by pressing `CTRL` + `C` in the host's terminal while the script / application is running. 
+
 ## Dependencies
 
 1. [PostgreSQL](https://www.postgresql.org/download/)
@@ -10,7 +14,7 @@ The Ace Exam Platform Application.
 
 ## Configuration
 
-To configure the application without Docker open `src/main/resources/application.properties` in a text editor. Inside of this file the following properties should be used to configure the application.
+To configure the application navigate to `src/main/resources/` and open `application.properties` in a text editor. Inside of this file the following properties should be used to configure the application.
 
 **`spring.datasource.username`** - This is the username with administrator privileges on the PostgreSQL database.
 
@@ -19,6 +23,24 @@ To configure the application without Docker open `src/main/resources/application
 **`spring.mail.username`** - This is the email address to be used to send notification emails to Candidates when creating exams.
 
 **`spring.mail.password`** - This is the app password linked to the account can be gotten from [here](https://myaccount.google.com/apppasswords)
+
+### Configure PostgreSQL
+
+Before attempting to configure the application ensure that you have a valid database setup to connect too.
+
+- Begin by opening the pgAdmin application that comes with the installation of [Postgres](https://www.postgresql.org/download/)
+- Next, on the left there would be a section for servers, right-click on the Servers and select Register -> Server.
+- You'll be greeted by the General tab where you would give the server a name, any name is fine.
+<center>
+   <img src="README/PG-General.png">
+</center>
+
+- Finally, go to the Connection tab and give the database the Host name of `localhost`, set the Password and possibly change the username.
+<center>
+   <img src="README/PG-Connection.png">
+</center>
+
+- Click `Save` to create the database.
 
 ## Installation
 
