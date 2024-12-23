@@ -10,7 +10,7 @@ Things can be halted anytime by pressing `CTRL` + `C` in the host's terminal whi
 
 1. [PostgreSQL](https://www.postgresql.org/download/)
 
-2. [Java](https://www.oracle.com/ng/java/technologies/downloads/)
+2. [Java](https://www.oracle.com/ng/java/technologies/downloads/) (version 21 or later)
 
 ## Configuration
 
