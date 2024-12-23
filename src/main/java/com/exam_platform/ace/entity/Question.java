@@ -14,7 +14,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
-@Data
 @ToString(exclude = "paper")
 @Builder
 @NoArgsConstructor
@@ -53,6 +52,70 @@ public class Question implements Comparable<Question> {
 	@Transient
 	private MultipartFile imageDocument;
 
+	public Id getId() {
+		return id;
+	}
+
+	public void setId(Id id) {
+		this.id = id;
+	}
+
+	public Paper getPaper() {
+		return paper;
+	}
+
+	public void setPaper(Paper paper) {
+		this.paper = paper;
+	}
+
+	public String getImageSuffix() {
+		return imageSuffix;
+	}
+
+	public void setImageSuffix(String imageSuffix) {
+		this.imageSuffix = imageSuffix;
+	}
+
+	public boolean isHasImage() {
+		return hasImage;
+	}
+
+	public void setHasImage(boolean hasImage) {
+		this.hasImage = hasImage;
+	}
+
+	public String getQuery() {
+		return query;
+	}
+
+	public void setQuery(String query) {
+		this.query = query;
+	}
+
+	public List<String> getOptions() {
+		return options;
+	}
+
+	public void setOptions(List<String> options) {
+		this.options = options;
+	}
+
+	public Byte getAnswerIndex() {
+		return answerIndex;
+	}
+
+	public void setAnswerIndex(Byte answerIndex) {
+		this.answerIndex = answerIndex;
+	}
+
+	public MultipartFile getImageDocument() {
+		return imageDocument;
+	}
+
+	public void setImageDocument(MultipartFile imageDocument) {
+		this.imageDocument = imageDocument;
+	}
+
 	public void deleteImage() throws Exception {
 		if (hasImage) {
 			File file = new ClassPathResource("static" + File.separator + "db-images").getFile();
@@ -82,7 +145,6 @@ public class Question implements Comparable<Question> {
 		return Integer.compare(this.id.number, o.id.number);
 	}
 
-	@Data
 	@Builder
 	@NoArgsConstructor
 	@AllArgsConstructor
@@ -93,6 +155,22 @@ public class Question implements Comparable<Question> {
 
 		@Column(name = "QUESTION_NUMBER")
 		private Integer number;
+
+		public Paper.Id getPaperId() {
+			return paperId;
+		}
+
+		public void setPaperId(Paper.Id paperId) {
+			this.paperId = paperId;
+		}
+
+		public Integer getNumber() {
+			return number;
+		}
+
+		public void setNumber(Integer number) {
+			this.number = number;
+		}
 
 		public String createImageSaveName() {
 			return paperId.getExamId() +

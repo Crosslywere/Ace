@@ -3,7 +3,6 @@ package com.exam_platform.ace.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Formula;
@@ -15,7 +14,6 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -88,6 +86,135 @@ public class Exam {
 	@Embedded
 	private CandidateConfig candidateConfig = new CandidateConfig();
 //endregion
+
+	public Long getId() {
+		return id;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public int getDuration() {
+		return duration;
+	}
+
+	public Date getCreatedAt() {
+		return createdAt;
+	}
+
+	public Date getScheduledDate() {
+		return scheduledDate;
+	}
+
+	public Time getOpenTime() {
+		return openTime;
+	}
+
+	public Time getCloseTime() {
+		return closeTime;
+	}
+
+	public boolean isShowResults() {
+		return showResults;
+	}
+
+	public List<Paper> getPapers() {
+		return papers;
+	}
+
+	public List<Candidate> getCandidates() {
+		return candidates;
+	}
+
+	public boolean isNotify() {
+		return notify;
+	}
+
+	public State getState() {
+		return state;
+	}
+
+	public String getUsernameDesc() {
+		return usernameDesc;
+	}
+
+	public boolean isPasswordRequired() {
+		return passwordRequired;
+	}
+
+	public String getPasswordDesc() {
+		return passwordDesc;
+	}
+
+	public CandidateConfig getCandidateConfig() {
+		return candidateConfig;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public void setDuration(int duration) {
+		this.duration = duration;
+	}
+
+	public void setCreatedAt(Date createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public void setScheduledDate(Date scheduledDate) {
+		this.scheduledDate = scheduledDate;
+	}
+
+	public void setOpenTime(Time openTime) {
+		this.openTime = openTime;
+	}
+
+	public void setCloseTime(Time closeTime) {
+		this.closeTime = closeTime;
+	}
+
+	public void setShowResults(boolean showResults) {
+		this.showResults = showResults;
+	}
+
+	public void setPapers(List<Paper> papers) {
+		this.papers = papers;
+	}
+
+	public void setCandidates(List<Candidate> candidates) {
+		this.candidates = candidates;
+	}
+
+	public void setNotify(boolean notify) {
+		this.notify = notify;
+	}
+
+	public void setState(State state) {
+		this.state = state;
+	}
+
+	public void setUsernameDesc(String usernameDesc) {
+		this.usernameDesc = usernameDesc;
+	}
+
+	public void setPasswordRequired(boolean passwordRequired) {
+		this.passwordRequired = passwordRequired;
+	}
+
+	public void setPasswordDesc(String passwordDesc) {
+		this.passwordDesc = passwordDesc;
+	}
+
+	public void setCandidateConfig(CandidateConfig candidateConfig) {
+		this.candidateConfig = candidateConfig;
+	}
+
 	public void addPaper(Paper paper) {
 		if (this.papers == null) {
 			this.papers = new ArrayList<>();
@@ -147,7 +274,6 @@ public class Exam {
 		RECORDED;
 	}
 //region How candidates are exported
-	@Data
 	@SuperBuilder
 	@NoArgsConstructor
 	@AllArgsConstructor
@@ -193,6 +319,134 @@ public class Exam {
 		@Column(name = "HAS_REGISTRATION_NUMBER", nullable = false)
 		protected boolean registrationNumber = false;
 		protected String registrationNumberDesc;
+
+		public boolean isEmail() {
+			return email;
+		}
+
+		public String getEmailDesc() {
+			return emailDesc;
+		}
+
+		public boolean isPhoneNumber() {
+			return phoneNumber;
+		}
+
+		public String getPhoneNumberDesc() {
+			return phoneNumberDesc;
+		}
+
+		public boolean isAddress() {
+			return address;
+		}
+
+		public String getAddressDesc() {
+			return addressDesc;
+		}
+
+		public boolean isState() {
+			return state;
+		}
+
+		public String getStateDesc() {
+			return stateDesc;
+		}
+
+		public boolean isFirstname() {
+			return firstname;
+		}
+
+		public String getFirstnameDesc() {
+			return firstnameDesc;
+		}
+
+		public boolean isLastname() {
+			return lastname;
+		}
+
+		public String getLastnameDesc() {
+			return lastnameDesc;
+		}
+
+		public boolean isOtherNames() {
+			return otherNames;
+		}
+
+		public String getOtherNamesDesc() {
+			return otherNamesDesc;
+		}
+
+		public boolean isRegistrationNumber() {
+			return registrationNumber;
+		}
+
+		public String getRegistrationNumberDesc() {
+			return registrationNumberDesc;
+		}
+
+		public void setEmail(boolean email) {
+			this.email = email;
+		}
+
+		public void setEmailDesc(String emailDesc) {
+			this.emailDesc = emailDesc;
+		}
+
+		public void setPhoneNumber(boolean phoneNumber) {
+			this.phoneNumber = phoneNumber;
+		}
+
+		public void setPhoneNumberDesc(String phoneNumberDesc) {
+			this.phoneNumberDesc = phoneNumberDesc;
+		}
+
+		public void setAddress(boolean address) {
+			this.address = address;
+		}
+
+		public void setAddressDesc(String addressDesc) {
+			this.addressDesc = addressDesc;
+		}
+
+		public void setState(boolean state) {
+			this.state = state;
+		}
+
+		public void setStateDesc(String stateDesc) {
+			this.stateDesc = stateDesc;
+		}
+
+		public void setFirstname(boolean firstname) {
+			this.firstname = firstname;
+		}
+
+		public void setFirstnameDesc(String firstnameDesc) {
+			this.firstnameDesc = firstnameDesc;
+		}
+
+		public void setLastname(boolean lastname) {
+			this.lastname = lastname;
+		}
+
+		public void setLastnameDesc(String lastnameDesc) {
+			this.lastnameDesc = lastnameDesc;
+		}
+
+		public void setOtherNames(boolean otherNames) {
+			this.otherNames = otherNames;
+		}
+
+		public void setOtherNamesDesc(String otherNamesDesc) {
+			this.otherNamesDesc = otherNamesDesc;
+		}
+
+		public void setRegistrationNumber(boolean registrationNumber) {
+			this.registrationNumber = registrationNumber;
+		}
+
+		public void setRegistrationNumberDesc(String registrationNumberDesc) {
+			this.registrationNumberDesc = registrationNumberDesc;
+		}
 	}
 //endregion
 }

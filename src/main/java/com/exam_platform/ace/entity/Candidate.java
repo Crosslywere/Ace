@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-@Data
 @ToString(exclude = "exam")
 @Builder
 @NoArgsConstructor
@@ -83,6 +82,159 @@ public class Candidate implements Comparable<Candidate> {
 	@Column(name = "PAPER_NAMES")
 	private List<String> papers = new ArrayList<>();
 
+	public Id getId() {
+		return id;
+	}
+
+	public void setId(Id id) {
+		this.id = id;
+	}
+
+	public Exam getExam() {
+		return exam;
+	}
+
+	public void setExam(Exam exam) {
+		this.exam = exam;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public Time getLastUpdated() {
+		return lastUpdated;
+	}
+
+	public float getTimeUsed() {
+		return timeUsed;
+	}
+
+	public boolean isNotified() {
+		return notified;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public String getState() {
+		return state;
+	}
+
+	public String getFirstname() {
+		return firstname;
+	}
+
+	public String getLastname() {
+		return lastname;
+	}
+
+	public void setLastUpdated(Time lastUpdated) {
+		this.lastUpdated = lastUpdated;
+	}
+
+	public void setTimeUsed(float timeUsed) {
+		this.timeUsed = timeUsed;
+	}
+
+	public void setNotified(boolean notified) {
+		this.notified = notified;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public void setState(String state) {
+		this.state = state;
+	}
+
+	public void setFirstname(String firstname) {
+		this.firstname = firstname;
+	}
+
+	public void setLastname(String lastname) {
+		this.lastname = lastname;
+	}
+
+	public void setOtherNames(String otherNames) {
+		this.otherNames = otherNames;
+	}
+
+	public void setRegistrationNumber(String registrationNumber) {
+		this.registrationNumber = registrationNumber;
+	}
+
+	public void setLoggedIn(boolean loggedIn) {
+		this.loggedIn = loggedIn;
+	}
+
+	public void setSubmitted(boolean submitted) {
+		this.submitted = submitted;
+	}
+
+	public void setPapers(List<String> papers) {
+		this.papers = papers;
+	}
+
+	public String getOtherNames() {
+		return otherNames;
+	}
+
+	public String getRegistrationNumber() {
+		return registrationNumber;
+	}
+
+	public boolean isLoggedIn() {
+		return loggedIn;
+	}
+
+	public boolean isSubmitted() {
+		return submitted;
+	}
+
+	public List<String> getPapers() {
+		return papers;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public List<CandidateAnswer> getAnswers() {
+		return answers;
+	}
+
+	public void setAnswers(List<CandidateAnswer> answers) {
+		this.answers = answers;
+	}
+
+	public Time getTimeIn() {
+		return timeIn;
+	}
+
+	public void setTimeIn(Time timeIn) {
+		this.timeIn = timeIn;
+	}
+
+
 	public boolean isNotNotified() {
 		return !notified;
 	}
@@ -126,7 +278,6 @@ public class Candidate implements Comparable<Candidate> {
 		return Integer.compare(score(), o.score());
 	}
 
-	@Data
 	@Builder
 	@NoArgsConstructor
 	@AllArgsConstructor
@@ -137,5 +288,21 @@ public class Candidate implements Comparable<Candidate> {
 
 		@Column(name = "USERNAME")
 		private String username;
+
+		public Long getExamId() {
+			return examId;
+		}
+
+		public void setExamId(Long examId) {
+			this.examId = examId;
+		}
+
+		public String getUsername() {
+			return username;
+		}
+
+		public void setUsername(String username) {
+			this.username = username;
+		}
 	}
 }

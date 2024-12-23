@@ -3,12 +3,10 @@ package com.exam_platform.ace.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Objects;
 
-@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -38,7 +36,38 @@ public class CandidateAnswer {
 	@Column(name = "ANSWER")
 	private Byte answer;
 
-	@Data
+	public Id getId() {
+		return id;
+	}
+
+	public Candidate getCandidate() {
+		return candidate;
+	}
+
+	public Question getQuestion() {
+		return question;
+	}
+
+	public Byte getAnswer() {
+		return answer;
+	}
+
+	public void setId(Id id) {
+		this.id = id;
+	}
+
+	public void setCandidate(Candidate candidate) {
+		this.candidate = candidate;
+	}
+
+	public void setQuestion(Question question) {
+		this.question = question;
+	}
+
+	public void setAnswer(Byte answer) {
+		this.answer = answer;
+	}
+
 	@Builder
 	@NoArgsConstructor
 	@AllArgsConstructor
@@ -51,6 +80,30 @@ public class CandidateAnswer {
 
 		@Column(name = "CANDIDATE_QUESTION_NUMBER")
 		private int number;
+
+		public Candidate.Id getCandidateId() {
+			return candidateId;
+		}
+
+		public String getPaperName() {
+			return paperName;
+		}
+
+		public int getNumber() {
+			return number;
+		}
+
+		public void setCandidateId(Candidate.Id candidateId) {
+			this.candidateId = candidateId;
+		}
+
+		public void setPaperName(String paperName) {
+			this.paperName = paperName;
+		}
+
+		public void setNumber(int number) {
+			this.number = number;
+		}
 	}
 
 	public boolean isCorrect() {

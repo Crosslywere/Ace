@@ -1,12 +1,14 @@
 package com.exam_platform.ace.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
 @ToString(exclude = "exam")
 @Builder
 @NoArgsConstructor
@@ -69,7 +71,46 @@ public class Paper {
 		});
 	}
 
-	@Data
+	public Id getId() {
+		return id;
+	}
+
+	public Exam getExam() {
+		return exam;
+	}
+
+	public int getQuestionsPerCandidate() {
+		return questionsPerCandidate;
+	}
+
+	public boolean isMandatory() {
+		return mandatory;
+	}
+
+	public List<Question> getQuestions() {
+		return questions;
+	}
+
+	public void setId(Id id) {
+		this.id = id;
+	}
+
+	public void setExam(Exam exam) {
+		this.exam = exam;
+	}
+
+	public void setQuestionsPerCandidate(int questionsPerCandidate) {
+		this.questionsPerCandidate = questionsPerCandidate;
+	}
+
+	public void setMandatory(boolean mandatory) {
+		this.mandatory = mandatory;
+	}
+
+	public void setQuestions(List<Question> questions) {
+		this.questions = questions;
+	}
+
 	@Builder
 	@NoArgsConstructor
 	@AllArgsConstructor
@@ -81,5 +122,21 @@ public class Paper {
 
 		@Column(name = "PAPER_NAME")
 		private String name;
+
+		public Long getExamId() {
+			return examId;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setExamId(Long examId) {
+			this.examId = examId;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
 	}
 }

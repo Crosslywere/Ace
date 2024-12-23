@@ -3,18 +3,15 @@ package com.exam_platform.ace.util;
 import com.exam_platform.ace.entity.Candidate;
 import com.exam_platform.ace.entity.Exam;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
-@Data
 @Component
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExamExporter {
 
-	@Data
 	@EqualsAndHashCode(callSuper = false)
 	@NoArgsConstructor
 	public static class ExportConfig extends Exam.CandidateConfig {
@@ -58,9 +55,57 @@ public class ExamExporter {
 			sb.append(totalDesc).append("\n");
 			return sb.toString();
 		}
+
+		public boolean isUsername() {
+			return username;
+		}
+
+		public void setUsername(boolean username) {
+			this.username = username;
+		}
+
+		public String getUsernameDesc() {
+			return usernameDesc;
+		}
+
+		public void setUsernameDesc(String usernameDesc) {
+			this.usernameDesc = usernameDesc;
+		}
+
+		public boolean isScoreAsPercentile() {
+			return scoreAsPercentile;
+		}
+
+		public void setScoreAsPercentile(boolean scoreAsPercentile) {
+			this.scoreAsPercentile = scoreAsPercentile;
+		}
+
+		public String getTotalDesc() {
+			return totalDesc;
+		}
+
+		public void setTotalDesc(String totalDesc) {
+			this.totalDesc = totalDesc;
+		}
+
+		public int getCutOffPercentile() {
+			return cutOffPercentile;
+		}
+
+		public void setCutOffPercentile(int cutOffPercentile) {
+			this.cutOffPercentile = cutOffPercentile;
+		}
 	}
 
 	private ExportConfig config;
+
+	public ExportConfig getConfig() {
+		return config;
+	}
+
+	public void setConfig(ExportConfig config) {
+		this.config = config;
+	}
 
 	public void setConfig(Exam exam) {
 		config = new ExportConfig(exam.getCandidateConfig());
