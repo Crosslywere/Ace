@@ -2,24 +2,46 @@ package com.exam_platform.ace.util;
 
 import com.exam_platform.ace.entity.Candidate;
 import com.exam_platform.ace.entity.Exam;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
-@NoArgsConstructor
-@AllArgsConstructor
 public class ExamExporter {
 
-	@EqualsAndHashCode(callSuper = false)
-	@NoArgsConstructor
 	public static class ExportConfig extends Exam.CandidateConfig {
 		private boolean username = false;
 		private String usernameDesc;
 		private boolean scoreAsPercentile = true;
 		private String totalDesc = "Total";
 		private int cutOffPercentile = 0;
+
+		public ExportConfig() {
+			super();
+		}
+
+		public ExportConfig(boolean email, String emailDesc, boolean phoneNumber, String phoneNumberDesc, boolean address, String addressDesc, boolean state, String stateDesc, boolean firstname, String firstnameDesc, boolean lastname, String lastnameDesc, boolean otherNames, String otherNamesDesc, boolean registrationNumber, String registrationNumberDesc, boolean username, String usernameDesc, boolean scoreAsPercentile, String totalDesc, int cutOffPercentile) {
+			super.email = email;
+			super.emailDesc = emailDesc;
+			super.phoneNumber = phoneNumber;
+			super.phoneNumberDesc = phoneNumberDesc;
+			super.address = address;
+			super.addressDesc = addressDesc;
+			super.state = state;
+			super.stateDesc = stateDesc;
+			super.firstname = firstname;
+			super.firstnameDesc = firstnameDesc;
+			super.lastname = lastname;
+			super.lastnameDesc = lastnameDesc;
+			super.otherNames = otherNames;
+			super.otherNamesDesc = otherNamesDesc;
+			super.registrationNumber = registrationNumber;
+			super.registrationNumberDesc = registrationNumberDesc;
+			this.username = username;
+			this.usernameDesc = usernameDesc;
+			this.scoreAsPercentile = scoreAsPercentile;
+			this.totalDesc = totalDesc;
+			this.cutOffPercentile = cutOffPercentile;
+		}
+
 		public ExportConfig(Exam.CandidateConfig base) {
 			super(
 					base.isEmail(), base.getEmailDesc(),
@@ -95,9 +117,67 @@ public class ExamExporter {
 		public void setCutOffPercentile(int cutOffPercentile) {
 			this.cutOffPercentile = cutOffPercentile;
 		}
+
+		public static ExportConfigBuilder builder() {
+			return new ExportConfigBuilder();
+		}
+
+		public static class ExportConfigBuilder extends Exam.CandidateConfig.CandidateConfigBuilder {
+
+			private boolean username;
+			private String usernameDesc;
+			private boolean scoreAsPercentile;
+			private String totalDesc;
+			private int cutOffPercentile;
+
+			public ExportConfigBuilder() {
+				super();
+				ExportConfig config = new ExportConfig();
+				this.username = config.username;
+				this.usernameDesc = config.usernameDesc;
+				this.scoreAsPercentile = config.scoreAsPercentile;
+				this.cutOffPercentile = config.cutOffPercentile;
+			}
+
+			public ExportConfigBuilder username(boolean username) {
+				this.username = username;
+				return this;
+			}
+
+			public ExportConfigBuilder usernameDesc(String usernameDesc) {
+				this.usernameDesc = usernameDesc;
+				return this;
+			}
+
+			public ExportConfigBuilder scoreAsPercentile(boolean scoreAsPercentile) {
+				this.scoreAsPercentile = scoreAsPercentile;
+				return this;
+			}
+
+			public ExportConfigBuilder totalDesc(String totalDesc) {
+				this.totalDesc = totalDesc;
+				return this;
+			}
+
+			public ExportConfigBuilder cutOffPercentile(int cutOffPercentile) {
+				this.cutOffPercentile = cutOffPercentile;
+				return this;
+			}
+
+			public ExportConfig build() {
+				return new ExportConfig(email, emailDesc, phoneNumber, phoneNumberDesc, address, addressDesc, state, stateDesc, firstname, firstnameDesc, lastname, lastnameDesc, otherNames, otherNamesDesc, registrationNumber, registrationNumberDesc, username, usernameDesc, scoreAsPercentile, totalDesc, cutOffPercentile);
+			}
+		}
 	}
 
 	private ExportConfig config;
+
+	public ExamExporter() {
+	}
+
+	public ExamExporter(ExportConfig config) {
+		this.config = config;
+	}
 
 	public ExportConfig getConfig() {
 		return config;

@@ -2,8 +2,8 @@ package com.exam_platform.ace.service;
 
 import com.exam_platform.ace.entity.Exam;
 import com.exam_platform.ace.repository.ExamRepository;
-import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -13,10 +13,13 @@ import java.time.LocalTime;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class ExamService {
 
 	private final ExamRepository examRepository;
+
+	public ExamService(@Autowired ExamRepository examRepository) {
+		this.examRepository = examRepository;
+	}
 
 	public List<Exam> getExamsByState(Exam.State state, Pageable pageable) {
 		return examRepository.findByState(state, pageable);

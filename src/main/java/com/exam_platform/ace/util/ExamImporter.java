@@ -4,12 +4,6 @@ import com.exam_platform.ace.entity.Candidate;
 import com.exam_platform.ace.entity.Exam;
 import com.exam_platform.ace.entity.Paper;
 import com.exam_platform.ace.entity.Question;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 import org.apache.tika.detect.DefaultDetector;
 import org.apache.tika.detect.Detector;
 import org.apache.tika.metadata.Metadata;
@@ -342,33 +336,17 @@ public class ExamImporter {
 		return columns;
 	}
 
-	@Data
-	@EqualsAndHashCode(callSuper = false)
-	@SuperBuilder
-	@NoArgsConstructor
-	@AllArgsConstructor
 	public static class ConfigIndexer extends Exam.CandidateConfig {
-		@Builder.Default
 		private int usernameIndex = -1;
-		@Builder.Default
 		private int passwordIndex = -1;
-		@Builder.Default
 		private int emailIndex = -1;
-		@Builder.Default
 		private int phoneIndex = -1;
-		@Builder.Default
 		private int addressIndex = -1;
-		@Builder.Default
 		private int stateIndex = -1;
-		@Builder.Default
 		private int firstnameIndex = -1;
-		@Builder.Default
 		private int lastnameIndex = -1;
-		@Builder.Default
 		private int otherNamesIndex = -1;
-		@Builder.Default
 		private int papersIndex = -1;
-		@Builder.Default
 		private int registrationNumberIndex = -1;
 
 		public ConfigIndexer(Exam exam) {
@@ -382,6 +360,112 @@ public class ExamImporter {
 					exam.getCandidateConfig().isOtherNames(), exam.getCandidateConfig().getOtherNamesDesc(),
 					exam.getCandidateConfig().isRegistrationNumber(), exam.getCandidateConfig().getRegistrationNumberDesc()
 			);
+		}
+
+		public ConfigIndexer() {
+		}
+
+		public ConfigIndexer(boolean email, String emailDesc, boolean phoneNumber, String phoneNumberDesc, boolean address, String addressDesc, boolean state, String stateDesc, boolean firstname, String firstnameDesc, boolean lastname, String lastnameDesc, boolean otherNames, String otherNamesDesc, boolean registrationNumber, String registrationNumberDesc, int usernameIndex, int passwordIndex, int emailIndex, int phoneIndex, int addressIndex, int stateIndex, int firstnameIndex, int lastnameIndex, int otherNamesIndex, int papersIndex, int registrationNumberIndex) {
+			super(email, emailDesc, phoneNumber, phoneNumberDesc, address, addressDesc, state, stateDesc, firstname, firstnameDesc, lastname, lastnameDesc, otherNames, otherNamesDesc, registrationNumber, registrationNumberDesc);
+			this.usernameIndex = usernameIndex;
+			this.passwordIndex = passwordIndex;
+			this.emailIndex = emailIndex;
+			this.phoneIndex = phoneIndex;
+			this.addressIndex = addressIndex;
+			this.stateIndex = stateIndex;
+			this.firstnameIndex = firstnameIndex;
+			this.lastnameIndex = lastnameIndex;
+			this.otherNamesIndex = otherNamesIndex;
+			this.papersIndex = papersIndex;
+			this.registrationNumberIndex = registrationNumberIndex;
+		}
+
+		public int getUsernameIndex() {
+			return usernameIndex;
+		}
+
+		public void setUsernameIndex(int usernameIndex) {
+			this.usernameIndex = usernameIndex;
+		}
+
+		public int getPasswordIndex() {
+			return passwordIndex;
+		}
+
+		public void setPasswordIndex(int passwordIndex) {
+			this.passwordIndex = passwordIndex;
+		}
+
+		public int getEmailIndex() {
+			return emailIndex;
+		}
+
+		public void setEmailIndex(int emailIndex) {
+			this.emailIndex = emailIndex;
+		}
+
+		public int getPhoneIndex() {
+			return phoneIndex;
+		}
+
+		public void setPhoneIndex(int phoneIndex) {
+			this.phoneIndex = phoneIndex;
+		}
+
+		public int getAddressIndex() {
+			return addressIndex;
+		}
+
+		public void setAddressIndex(int addressIndex) {
+			this.addressIndex = addressIndex;
+		}
+
+		public int getStateIndex() {
+			return stateIndex;
+		}
+
+		public void setStateIndex(int stateIndex) {
+			this.stateIndex = stateIndex;
+		}
+
+		public int getFirstnameIndex() {
+			return firstnameIndex;
+		}
+
+		public void setFirstnameIndex(int firstnameIndex) {
+			this.firstnameIndex = firstnameIndex;
+		}
+
+		public int getLastnameIndex() {
+			return lastnameIndex;
+		}
+
+		public void setLastnameIndex(int lastnameIndex) {
+			this.lastnameIndex = lastnameIndex;
+		}
+
+		public int getOtherNamesIndex() {
+			return otherNamesIndex;
+		}
+
+		public void setOtherNamesIndex(int otherNamesIndex) {
+			this.otherNamesIndex = otherNamesIndex;
+		}
+
+		public int getPapersIndex() {
+			return papersIndex;
+		}
+
+		public void setPapersIndex(int papersIndex) {
+			this.papersIndex = papersIndex;
+		}
+
+		public int getRegistrationNumberIndex() {
+			return registrationNumberIndex;
+		}
+
+		public void setRegistrationNumberIndex(int registrationNumberIndex) {
+			this.registrationNumberIndex = registrationNumberIndex;
 		}
 	}
 

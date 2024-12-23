@@ -4,7 +4,7 @@ import com.exam_platform.ace.entity.Candidate;
 import com.exam_platform.ace.entity.Exam;
 import com.exam_platform.ace.service.EmailSenderService;
 import com.exam_platform.ace.service.ExamService;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -16,12 +16,16 @@ import java.time.LocalTime;
 
 @Configuration
 @EnableScheduling
-@RequiredArgsConstructor
 public class CronConfiguration {
 
 	private final ExamService examService;
 
 	private final EmailSenderService senderService;
+
+	public CronConfiguration(@Autowired ExamService examService, @Autowired EmailSenderService senderService) {
+		this.examService = examService;
+		this.senderService = senderService;
+	}
 
 	@Scheduled(cron = "0 0/30 9-17 * * *")
 	public void notifyCandidates() {

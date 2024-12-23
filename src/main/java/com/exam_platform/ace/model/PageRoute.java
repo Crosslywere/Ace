@@ -1,10 +1,5 @@
 package com.exam_platform.ace.model;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-@Getter
-@RequiredArgsConstructor
 public enum PageRoute {
 	SCHEDULED("scheduled"),
 	ONGOING("ongoing"),
@@ -13,4 +8,12 @@ public enum PageRoute {
 	SEARCH("search");
 
 	private final String page;
+
+	PageRoute(String page) {
+		this.page = page;
+	}
+
+	public String getPage() {
+		return page;
+	}
 }

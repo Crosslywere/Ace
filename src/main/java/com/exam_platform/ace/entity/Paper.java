@@ -1,18 +1,10 @@
 package com.exam_platform.ace.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@ToString(exclude = "exam")
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "PAPERS")
 public class Paper {
@@ -28,13 +20,22 @@ public class Paper {
 	@Column(name = "QUESTIONS_PER_CANDIDATE", nullable = false)
 	private int questionsPerCandidate;
 
-	@Builder.Default
 	@Column(name = "MANDATORY", nullable = false)
 	private boolean mandatory = false;
 
-	@Builder.Default
 	@OneToMany(mappedBy = "paper", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Question> questions = new ArrayList<>();
+
+	public Paper() {
+	}
+
+	public Paper(Id id, Exam exam, int questionsPerCandidate, boolean mandatory, List<Question> questions) {
+		this.id = id;
+		this.exam = exam;
+		this.questionsPerCandidate = questionsPerCandidate;
+		this.mandatory = mandatory;
+		this.questions = questions;
+	}
 
 	public void addQuestion(Question question) {
 		if (this.questions == null) {
@@ -111,9 +112,57 @@ public class Paper {
 		this.questions = questions;
 	}
 
-	@Builder
-	@NoArgsConstructor
-	@AllArgsConstructor
+	public static PaperBuilder builder() {
+		return new PaperBuilder();
+	}
+
+	public static class PaperBuilder {
+
+		private Id id;
+		private Exam exam;
+		private int questionsPerCandidate;
+		private boolean mandatory;
+		private List<Question> questions;
+
+		public PaperBuilder() {
+			Paper paper = new Paper();
+			this.id = paper.id;
+			this.exam = paper.exam;
+			this.questionsPerCandidate = paper.questionsPerCandidate;
+			this.mandatory = paper.mandatory;
+			this.questions = paper.questions;
+		}
+
+		public PaperBuilder id(Id id) {
+			this.id = id;
+			return this;
+		}
+
+		public PaperBuilder exam(Exam exam) {
+			this.exam = exam;
+			return this;
+		}
+
+		public PaperBuilder questionsPerCandidate(int questionsPerCandidate) {
+			this.questionsPerCandidate = questionsPerCandidate;
+			return this;
+		}
+
+		public PaperBuilder mandatory(boolean mandatory) {
+			this.mandatory = mandatory;
+			return this;
+		}
+
+		public PaperBuilder questions(List<Question> questions) {
+			this.questions = questions;
+			return this;
+		}
+
+		public Paper build() {
+			return new Paper(id, exam, questionsPerCandidate, mandatory, questions);
+		}
+	}
+
 	@Embeddable
 	public static class Id {
 
@@ -123,20 +172,58 @@ public class Paper {
 		@Column(name = "PAPER_NAME")
 		private String name;
 
-		public Long getExamId() {
-			return examId;
+		public Id() {
 		}
 
-		public String getName() {
-			return name;
+		public Id(Long examId, String name) {
+			this.examId = examId;
+			this.name = name;
+		}
+
+		public Long getExamId() {
+			return examId;
 		}
 
 		public void setExamId(Long examId) {
 			this.examId = examId;
 		}
 
+		public String getName() {
+			return name;
+		}
+
 		public void setName(String name) {
 			this.name = name;
+		}
+
+		public static IdBuilder builder() {
+			return new IdBuilder();
+		}
+
+		public static class IdBuilder {
+
+			private Long examId;
+			private String name;
+
+			public IdBuilder() {
+				Id id = new Id();
+				this.examId = id.examId;
+				this.name = id.name;
+			}
+
+			public IdBuilder examId(Long examId) {
+				this.examId = examId;
+				return this;
+			}
+
+			public IdBuilder name(String name) {
+				this.name = name;
+				return this;
+			}
+
+			public Id build() {
+				return new Id();
+			}
 		}
 	}
 }

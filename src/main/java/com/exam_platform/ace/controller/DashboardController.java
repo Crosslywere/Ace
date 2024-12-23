@@ -14,7 +14,7 @@ import com.exam_platform.ace.util.ExamImporter;
 import com.exam_platform.ace.util.RequestValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -31,7 +31,6 @@ import java.util.Collections;
 import java.util.List;
 
 @Controller
-@RequiredArgsConstructor
 public class DashboardController {
 
 	private final ExamService examService;
@@ -43,6 +42,13 @@ public class DashboardController {
 	private final ExamImporter examImporter;
 
 	private final int MAX_SIZE = 15;
+
+	public DashboardController(@Autowired ExamService examService, @Autowired QuestionService questionService, @Autowired CandidateService candidateService, @Autowired ExamImporter examImporter) {
+		this.examService = examService;
+		this.questionService = questionService;
+		this.candidateService = candidateService;
+		this.examImporter = examImporter;
+	}
 
 	@GetMapping
 	public String index(HttpServletRequest request) {

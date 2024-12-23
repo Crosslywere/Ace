@@ -1,15 +1,9 @@
 package com.exam_platform.ace.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
 
 import java.util.Objects;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "CANDIDATE_ANSWERS")
 public class CandidateAnswer {
@@ -35,6 +29,16 @@ public class CandidateAnswer {
 
 	@Column(name = "ANSWER")
 	private Byte answer;
+
+	public CandidateAnswer() {
+	}
+
+	public CandidateAnswer(Id id, Candidate candidate, Question question, Byte answer) {
+		this.id = id;
+		this.candidate = candidate;
+		this.question = question;
+		this.answer = answer;
+	}
 
 	public Id getId() {
 		return id;
@@ -68,9 +72,50 @@ public class CandidateAnswer {
 		this.answer = answer;
 	}
 
-	@Builder
-	@NoArgsConstructor
-	@AllArgsConstructor
+	public static CandidateAnswerBuilder builder() {
+		return new CandidateAnswerBuilder();
+	}
+
+	public static class CandidateAnswerBuilder {
+
+		private Id id;
+		private Candidate candidate;
+		private Question question;
+		private Byte answer;
+
+		public CandidateAnswerBuilder() {
+			CandidateAnswer answer = new CandidateAnswer();
+			this.id = answer.id;
+			this.candidate = answer.candidate;
+			this.question = answer.question;
+			this.answer = answer.answer;
+		}
+
+		public CandidateAnswerBuilder id(Id id) {
+			this.id = id;
+			return this;
+		}
+
+		public CandidateAnswerBuilder candidate(Candidate candidate) {
+			this.candidate = candidate;
+			return this;
+		}
+
+		public CandidateAnswerBuilder question(Question question) {
+			this.question = question;
+			return this;
+		}
+
+		public CandidateAnswerBuilder answer(Byte answer) {
+			this.answer = answer;
+			return this;
+		}
+
+		public CandidateAnswer build() {
+			return new CandidateAnswer(id, candidate, question, answer);
+		}
+	}
+
 	@Embeddable
 	public static class Id {
 		private Candidate.Id candidateId;
@@ -80,6 +125,15 @@ public class CandidateAnswer {
 
 		@Column(name = "CANDIDATE_QUESTION_NUMBER")
 		private int number;
+
+		public Id() {
+		}
+
+		public Id(Candidate.Id candidateId, String paperName, int number) {
+			this.candidateId = candidateId;
+			this.paperName = paperName;
+			this.number = number;
+		}
 
 		public Candidate.Id getCandidateId() {
 			return candidateId;
@@ -103,6 +157,43 @@ public class CandidateAnswer {
 
 		public void setNumber(int number) {
 			this.number = number;
+		}
+
+		public static IdBuilder builder() {
+			return new IdBuilder();
+		}
+
+		public static class IdBuilder {
+
+			private Candidate.Id candidateId;
+			private String paperName;
+			private int number;
+
+			public IdBuilder() {
+				Id id = new Id();
+				this.candidateId = id.candidateId;
+				this.paperName = id.paperName;
+				this.number = id.number;
+			}
+
+			public IdBuilder candidateId(Candidate.Id id) {
+				candidateId = id;
+				return this;
+			}
+
+			public IdBuilder paperName(String paperName) {
+				this.paperName = paperName;
+				return this;
+			}
+
+			public IdBuilder number(int number) {
+				this.number = number;
+				return this;
+			}
+
+			public Id build() {
+				return new Id(candidateId, paperName, number);
+			}
 		}
 	}
 

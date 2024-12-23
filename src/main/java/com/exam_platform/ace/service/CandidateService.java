@@ -7,7 +7,7 @@ import com.exam_platform.ace.entity.Paper;
 import com.exam_platform.ace.repository.CandidateRepository;
 import com.exam_platform.ace.repository.ExamRepository;
 import com.exam_platform.ace.repository.PaperRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Random;
 
 @Service
-@RequiredArgsConstructor
 public class CandidateService {
 
 	private final CandidateRepository candidateRepository;
@@ -26,6 +25,12 @@ public class CandidateService {
 	private final ExamRepository examRepository;
 
 	private final PaperRepository paperRepository;
+
+	public CandidateService(@Autowired CandidateRepository candidateRepository, @Autowired ExamRepository examRepository, @Autowired PaperRepository paperRepository) {
+		this.candidateRepository = candidateRepository;
+		this.examRepository = examRepository;
+		this.paperRepository = paperRepository;
+	}
 
 	public List<Candidate> getCandidatesByExam(Exam exam, Pageable pageable) {
 		return candidateRepository.findByExam(exam, pageable);

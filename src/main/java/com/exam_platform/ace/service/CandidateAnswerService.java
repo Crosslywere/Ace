@@ -2,14 +2,17 @@ package com.exam_platform.ace.service;
 
 import com.exam_platform.ace.entity.CandidateAnswer;
 import com.exam_platform.ace.repository.CandidateAnswerRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 public class CandidateAnswerService {
 
 	private final CandidateAnswerRepository answerRepository;
+
+	public CandidateAnswerService(@Autowired CandidateAnswerRepository answerRepository) {
+		this.answerRepository = answerRepository;
+	}
 
 	public void setAnswer(CandidateAnswer.Id answerId, Byte answer) {
 		var candidateAnswer = answerRepository.findById(answerId).orElse(null);

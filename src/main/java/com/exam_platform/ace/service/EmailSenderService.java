@@ -2,7 +2,7 @@ package com.exam_platform.ace.service;
 
 import com.exam_platform.ace.entity.Candidate;
 import com.exam_platform.ace.entity.Exam;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -13,7 +13,6 @@ import java.text.SimpleDateFormat;
 
 @Async
 @Service
-@RequiredArgsConstructor
 public class EmailSenderService {
 
 	private final JavaMailSender mailSender;
@@ -26,6 +25,11 @@ public class EmailSenderService {
 
 	@Value("${spring.mail.username}")
 	private String senderMail;
+
+	public EmailSenderService(@Autowired JavaMailSender mailSender, @Autowired CandidateService candidateService) {
+		this.mailSender = mailSender;
+		this.candidateService = candidateService;
+	}
 
 	public void sendMail(Candidate candidate, Exam exam) {
 		SimpleMailMessage message = new SimpleMailMessage();

@@ -9,7 +9,7 @@ import com.exam_platform.ace.service.CandidateService;
 import com.exam_platform.ace.service.ExamService;
 import com.exam_platform.ace.service.PaperService;
 import jakarta.servlet.http.HttpSession;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequiredArgsConstructor
 public class CandidateController {
 
 	private final ExamService examService;
@@ -31,6 +30,13 @@ public class CandidateController {
 	private final CandidateService candidateService;
 
 	private final CandidateAnswerService answerService;
+
+	public CandidateController(@Autowired ExamService examService, @Autowired PaperService paperService, @Autowired CandidateService candidateService, @Autowired CandidateAnswerService answerService) {
+		this.examService = examService;
+		this.paperService = paperService;
+		this.candidateService = candidateService;
+		this.answerService = answerService;
+	}
 
 	@GetMapping("/exam")
 	public String index() {

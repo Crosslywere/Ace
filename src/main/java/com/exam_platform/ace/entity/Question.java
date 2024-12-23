@@ -1,7 +1,6 @@
 package com.exam_platform.ace.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
 import org.hibernate.annotations.Formula;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.ClassPathResource;
@@ -14,10 +13,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
-@ToString(exclude = "paper")
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "QUESTIONS")
 public class Question implements Comparable<Question> {
@@ -51,6 +46,20 @@ public class Question implements Comparable<Question> {
 
 	@Transient
 	private MultipartFile imageDocument;
+
+	public Question() {
+	}
+
+	public Question(Id id, Paper paper, String imageSuffix, boolean hasImage, String query, List<String> options, Byte answerIndex, MultipartFile imageDocument) {
+		this.id = id;
+		this.paper = paper;
+		this.imageSuffix = imageSuffix;
+		this.hasImage = hasImage;
+		this.query = query;
+		this.options = options;
+		this.answerIndex = answerIndex;
+		this.imageDocument = imageDocument;
+	}
 
 	public Id getId() {
 		return id;
@@ -140,14 +149,81 @@ public class Question implements Comparable<Question> {
 		Files.copy(image.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
 	}
 
+	public static QuestionBuilder builder() {
+		return new QuestionBuilder();
+	}
+
+	public static class QuestionBuilder {
+
+		private Id id;
+		private Paper paper;
+		private String imageSuffix;
+		private boolean hasImage;
+		private String query;
+		private List<String> options;
+		private Byte answerIndex;
+		private MultipartFile imageDocument;
+
+		public QuestionBuilder() {
+			Question question = new Question();
+			this.id = question.id;
+			this.paper = question.paper;
+			this.imageSuffix = question.imageSuffix;
+			this.hasImage = question.hasImage;
+			this.query = question.query;
+			this.options = question.options;
+		}
+
+		public QuestionBuilder id(Id id) {
+			this.id = id;
+			return this;
+		}
+
+		public QuestionBuilder paper(Paper paper) {
+			this.paper = paper;
+			return this;
+		}
+
+		public QuestionBuilder imageSuffix(String imageSuffix) {
+			this.imageSuffix = imageSuffix;
+			return this;
+		}
+
+		public QuestionBuilder hasImage(boolean hasImage) {
+			this.hasImage = hasImage;
+			return this;
+		}
+
+		public QuestionBuilder query(String query) {
+			this.query = query;
+			return this;
+		}
+
+		public QuestionBuilder options(List<String> options) {
+			this.options = options;
+			return this;
+		}
+
+		public QuestionBuilder answerIndex(Byte answerIndex) {
+			this.answerIndex = answerIndex;
+			return this;
+		}
+
+		public QuestionBuilder imageDocument(MultipartFile imageDocument) {
+			this.imageDocument = imageDocument;
+			return this;
+		}
+
+		public Question build() {
+			return new Question(id, paper, imageSuffix, hasImage, query, options, answerIndex, imageDocument);
+		}
+	}
+
 	@Override
 	public int compareTo(@NotNull Question o) {
 		return Integer.compare(this.id.number, o.id.number);
 	}
 
-	@Builder
-	@NoArgsConstructor
-	@AllArgsConstructor
 	@Embeddable
 	public static class Id {
 
@@ -155,6 +231,14 @@ public class Question implements Comparable<Question> {
 
 		@Column(name = "QUESTION_NUMBER")
 		private Integer number;
+
+		public Id() {
+		}
+
+		public Id(Paper.Id paperId, Integer number) {
+			this.paperId = paperId;
+			this.number = number;
+		}
 
 		public Paper.Id getPaperId() {
 			return paperId;
@@ -176,6 +260,36 @@ public class Question implements Comparable<Question> {
 			return paperId.getExamId() +
 					paperId.getName() +
 					number;
+		}
+
+		public static IdBuilder builder() {
+			return new IdBuilder();
+		}
+
+		public static class IdBuilder {
+
+			private Paper.Id paperId;
+			private Integer number;
+
+			public IdBuilder() {
+				Id id = new Id();
+				this.paperId = id.paperId;
+				this.number = id.number;
+			}
+
+			public IdBuilder paperId(Paper.Id id) {
+				paperId = id;
+				return this;
+			}
+
+			public IdBuilder number(Integer number) {
+				this.number = number;
+				return this;
+			}
+
+			public Id build() {
+				return new Id(paperId, number);
+			}
 		}
 	}
 }
