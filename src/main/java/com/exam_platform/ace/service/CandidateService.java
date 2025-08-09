@@ -107,7 +107,7 @@ public class CandidateService {
 		}
 		// Add Paper's Shuffled Questions
 		for (var paperName : candidate.getPapers()) {
-			Paper paper = paperRepository.findById(Paper.Id.builder().examId(examId).name(paperName).build()).orElse(null);
+			Paper paper = paperRepository.findById_ExamIdAndId_Name(examId, paperName).orElse(null);
 			if (paper == null) {
 				candidate.getPapers().remove(paperName);
 				continue;
