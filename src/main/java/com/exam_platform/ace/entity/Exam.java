@@ -25,6 +25,9 @@ public class Exam {
 	@Column(name = "DURATION", nullable = false)
 	private int duration = 60;
 
+	@Column(name = "MIN_DURATION", nullable = false)
+	private int minDuration = 1;
+
 	@Column(name = "CREATED_AT", nullable = false, updatable = false)
 	private Date createdAt;
 
@@ -70,10 +73,11 @@ public class Exam {
 	public Exam() {
 	}
 
-	public Exam(Long id, String title, int duration, Date createdAt, Date scheduledDate, Time openTime, Time closeTime, boolean showResults, List<Paper> papers, List<Candidate> candidates, boolean notify, State state, String usernameDesc, boolean passwordRequired, String passwordDesc, CandidateConfig candidateConfig) {
+	public Exam(Long id, String title, int duration, int minDuration, Date createdAt, Date scheduledDate, Time openTime, Time closeTime, boolean showResults, List<Paper> papers, List<Candidate> candidates, boolean notify, State state, String usernameDesc, boolean passwordRequired, String passwordDesc, CandidateConfig candidateConfig) {
 		this.id = id;
 		this.title = title;
 		this.duration = duration;
+		this.minDuration = minDuration;
 		this.createdAt = createdAt;
 		this.scheduledDate = scheduledDate;
 		this.openTime = openTime;
@@ -111,6 +115,14 @@ public class Exam {
 
 	public void setDuration(int duration) {
 		this.duration = duration;
+	}
+
+	public int getMinDuration() {
+		return minDuration;
+	}
+
+	public void setMinDuration(int minDuration) {
+		this.minDuration = minDuration;
 	}
 
 	public Date getCreatedAt() {
@@ -286,6 +298,7 @@ public class Exam {
 		private Long id;
 		private String title;
 		private int duration;
+		private int minDuration;
 		private Date createdAt;
 		private Date scheduledDate;
 		private Time openTime;
@@ -305,6 +318,7 @@ public class Exam {
 			this.id = exam.id;
 			this.title = exam.title;
 			this.duration = exam.duration;
+			this.minDuration = exam.minDuration;
 			this.createdAt = exam.createdAt;
 			this.scheduledDate = exam.scheduledDate;
 			this.openTime = exam.openTime;
@@ -332,6 +346,11 @@ public class Exam {
 
 		public ExamBuilder duration(int duration) {
 			this.duration = duration;
+			return this;
+		}
+
+		public ExamBuilder minDuration(int minDuration) {
+			this.minDuration = minDuration;
 			return this;
 		}
 
@@ -401,7 +420,7 @@ public class Exam {
 		}
 
 		public Exam build() {
-			return new Exam(id, title, duration, createdAt, scheduledDate, openTime, closeTime, showResults, papers, candidates, notify, state, usernameDesc, passwordRequired, passwordDesc, candidateConfig);
+			return new Exam(id, title, duration, minDuration, createdAt, scheduledDate, openTime, closeTime, showResults, papers, candidates, notify, state, usernameDesc, passwordRequired, passwordDesc, candidateConfig);
 		}
 	}
 

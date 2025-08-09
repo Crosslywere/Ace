@@ -37,6 +37,11 @@
                             <input type="number" class="form-control" id="duration" th:field="*{duration}" min="1" required>
                             <span class="input-group-text">Minutes</span>
                         </div>
+                        <div class="mb-3 input-group">
+                            <label for="minDuration" class="input-group-text text-uppercase fw-medium">Minimum Duration</label>
+                            <input type="number" class="form-control" id="minDuration" th:field="*{minDuration}" min="0" required>
+                            <span class="input-group-text">Minutes</span>
+                        </div>
                         <div th:if="*{#lists.isEmpty(papers) && __${session.exam.state.name() == 'SCHEDULED'}__}" class="mb-3 input-group">
                             <label for="papers-document" class="input-group-text text-uppercase fw-medium">Exam Document</label>
                             <input type="file" name="document" id="papers-document" class="form-control" accept=".doc, .docx, .txt">
