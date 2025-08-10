@@ -54,7 +54,7 @@ public class CandidateService {
 	}
 
 	public Candidate loginCandidate(Candidate.Id candidateId, String password) {
-		var candidate = candidateRepository.findById(candidateId).orElse(null);
+		var candidate = candidateRepository.findById_ExamIdAndId_UsernameIgnoreCase(candidateId.getExamId(), candidateId.getUsername()).orElse(null);
 		if (candidate == null ||
 				candidate.getExam().getState() != Exam.State.ONGOING ||
 				(candidate.getExam().isPasswordRequired() && !candidate.getPassword().equals(password)) ||
@@ -62,8 +62,10 @@ public class CandidateService {
 			return null;
 		}
 		candidate.setLoggedIn(true);
-		candidate.setTimeIn(Time.valueOf(LocalTime.now()));
-		setCandidateQuestions(candidate);
+		if (candidate.getTimeIn() == null) {
+			candidate.setTimeIn(Time.valueOf(LocalTime.now()));
+			setCandidateQuestions(candidate);
+		}
 		return candidateRepository.save(candidate);
 	}
 
