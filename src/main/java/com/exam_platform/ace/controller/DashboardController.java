@@ -2,7 +2,6 @@ package com.exam_platform.ace.controller;
 
 import com.exam_platform.ace.entity.Candidate;
 import com.exam_platform.ace.entity.Exam;
-import com.exam_platform.ace.entity.Paper;
 import com.exam_platform.ace.entity.Question;
 import com.exam_platform.ace.model.PageRoute;
 import com.exam_platform.ace.service.CandidateService;
@@ -138,6 +137,13 @@ public class DashboardController {
 				exams, maxPages, pageNumber));
 		return "examTable";
 	}
+    @GetMapping("/stop-all")
+    public String stopAll(HttpServletRequest request) {
+        if (RequestValidator.isNotLocalhost(request))
+            return "redirect:/exam";
+        examService.getExamsByState(Exam.State.ONGOING).forEach(exam -> examService.stopExamById(exam.getId()));
+        return "redirect:/recorded";
+    }
 	//endregion
 	//region Exam Search Table
 	@GetMapping("/search")
@@ -214,8 +220,10 @@ public class DashboardController {
 		return "redirect:/create";
 	}
 	@PostMapping("/create")
-	public String create(@RequestParam String open, @RequestParam String close, @RequestParam MultipartFile document, Exam exam, Model model, HttpSession session) {
-		setTimesFromString(exam, open.trim(), close.trim());
+	public String create(@RequestParam String open, @RequestParam String close, @RequestParam MultipartFile document, Exam exam, Model model, HttpSession session, HttpServletRequest request) {
+        if (RequestValidator.isNotLocalhost(request))
+            return "redirect:/exam";
+        setTimesFromString(exam, open.trim(), close.trim());
 		if (exam.getPapers().isEmpty()) {
 			examImporter.extractPaperData(exam, document);
 		} else {
@@ -227,8 +235,10 @@ public class DashboardController {
 		return "examForm";
 	}
 	@PostMapping("/create-f")
-	public String create(@RequestParam String open, @RequestParam String close, Exam exam, HttpSession session) {
-		setTimesFromString(exam, open.trim(), close.trim());
+	public String create(@RequestParam String open, @RequestParam String close, Exam exam, HttpSession session, HttpServletRequest request) {
+        if (RequestValidator.isNotLocalhost(request))
+            return "redirect:/exam";
+        setTimesFromString(exam, open.trim(), close.trim());
 		session.removeAttribute("exam");
 		exam.prepForSave();
 		examService.createExam(exam);
@@ -253,8 +263,10 @@ public class DashboardController {
 		return "examForm";
 	}
 	@PostMapping("/update/{id}")
-	public String updateWithDocument(@PathVariable("id") Long examId, @RequestParam String open, @RequestParam String close, @RequestParam MultipartFile document, Exam exam, Model model, HttpSession session) {
-		setTimesFromString(exam, open.trim(), close.trim());
+	public String updateWithDocument(@PathVariable("id") Long examId, @RequestParam String open, @RequestParam String close, @RequestParam MultipartFile document, Exam exam, Model model, HttpSession session, HttpServletRequest request) {
+        if (RequestValidator.isNotLocalhost(request))
+            return "redirect:/exam";
+        setTimesFromString(exam, open.trim(), close.trim());
 		if (exam.getPapers().isEmpty()) {
 			examImporter.extractPaperData(exam, document);
 		} else {
@@ -272,8 +284,10 @@ public class DashboardController {
 		return "examForm";
 	}
 	@PostMapping("/update/{id}/{paper}/{number}")
-	public String updateQuestionImage(@PathVariable("id") Long examId, @PathVariable("paper") String paper, @PathVariable("number") Integer number, @RequestParam String open, @RequestParam String close, Exam exam, HttpSession session) {
-		setTimesFromString(exam, open.trim(), close.trim());
+	public String updateQuestionImage(@PathVariable("id") Long examId, @PathVariable("paper") String paper, @PathVariable("number") Integer number, @RequestParam String open, @RequestParam String close, Exam exam, HttpSession session, HttpServletRequest request) {
+        if (RequestValidator.isNotLocalhost(request))
+            return "redirect:/exam";
+        setTimesFromString(exam, open.trim(), close.trim());
 		exam.setId(examId);
 		exam.prepForUpdate();
 		examService.updateExam(exam);
@@ -286,17 +300,21 @@ public class DashboardController {
 		if (document == null || document.isEmpty()) {
 			return "redirect:/update/" + examId;
 		}
-		questionService.addImageToQuestionById(Question.Id.builder().paperId(Paper.Id.builder().examId(examId).name(paper).build()).number(number).build(), document);
-		return "redirect:/update/" + examId;
+        questionService.addImageToQuestionById(examId, paper, number, document);
+        return "redirect:/update/" + examId;
 	}
 	@PostMapping("/delete/{id}/{paper}/{number}")
-	public String deleteImageInQuestion(@PathVariable("id") Long examId, @PathVariable("paper") String paper, @PathVariable("number") Integer number) {
-		questionService.deleteImageInQuestionById(Question.Id.builder().paperId(Paper.Id.builder().examId(examId).name(paper).build()).number(number).build());
+	public String deleteImageInQuestion(@PathVariable("id") Long examId, @PathVariable("paper") String paper, @PathVariable("number") Integer number, HttpServletRequest request) {
+        if (RequestValidator.isNotLocalhost(request))
+            return "redirect:/exam";
+        questionService.deleteImageInQuestionById(examId, paper, number);
 		return "redirect:/update/" + examId;
 	}
 	@PostMapping("/remove/{id}")
-	public String deletePart(@RequestParam String open, @RequestParam String close, @PathVariable("id") Long examId, Exam exam) {
-		setTimesFromString(exam, open.trim(), close.trim());
+	public String deletePart(@RequestParam String open, @RequestParam String close, @PathVariable("id") Long examId, Exam exam, HttpServletRequest request) {
+        if (RequestValidator.isNotLocalhost(request))
+            return "redirect:/exam";
+        setTimesFromString(exam, open.trim(), close.trim());
 		exam.setId(examId);
 		exam.prepForUpdate();
 		if (!exam.getCandidates().isEmpty()) {

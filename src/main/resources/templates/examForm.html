@@ -56,7 +56,7 @@
                                 <summary class="w-100 text-center mb-3 p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3" th:text="|${paper.id.name} Paper|"></summary>
                                 <div class="mb-3 input-group">
                                     <label th:for="|papers${paperIterator.index}.id.name|" class="input-group-text text-uppercase fw-medium">Name</label>
-                                    <input type="text" class="form-control" th:field="*{papers[__${paperIterator.index}__].id.name}">
+                                    <input type="text" class="form-control" th:field="*{papers[__${paperIterator.index}__].id.name}" required>
                                 </div>
                                 <div class="mb-3 input-group">
                                     <label th:for="|papers${paperIterator.index}.questionsPerCandidate|" class="input-group-text text-uppercase fw-medium">Questions Per Candidate</label>
@@ -76,11 +76,11 @@
                                         <li th:each="question, questionIterator:*{papers[__${paperIterator.index}__].questions}" th:id="${#strings.replace(paper.id.name, ' ', '_') + '-__${question.id.number}__'}" th:class="|mb-3 ${#strings.replace(paper.id.name, ' ', '_')}-item ${#strings.replace(paper.id.name, ' ', '_')}-pg-${question.id.number / 11}|">
                                             <input type="number" th:field="*{papers[__${paperIterator.index}__].questions[__${questionIterator.index}__].id.number}" class="visually-hidden">
                                             <textarea th:field="*{papers[__${paperIterator.index}__].questions[__${questionIterator.index}__].query}" class="w-100 mb-3 form-control" rows="4"></textarea>
-                                            <th:block th:if="${currentRoute.name() != 'CREATE'}">
+                                            <th:block th:if="${currentRoute.name() != 'CREATE'}"><!-- Only when the exam is on the database can the image be saved, and create exam doesn't have exams on the database yet! -->
                                                 <div class="mx-auto position-relative" style="width:fit-content" th:if="${question.hasImage}">
                                                     <input type="checkbox" th:field="*{papers[__${paperIterator.index}__].questions[__${questionIterator.index}__].hasImage}" class="visually-hidden">
-                                                    <input type="text" th:field="*{papers[__${paperIterator.index}__].questions[__${questionIterator.index}__].imageSuffix}" class="visually-hidden">
-                                                    <img th:src="@{/db-images/{image}(image=${question.id.createImageSaveName() + question.imageSuffix})}" height="350px" alt="image">
+                                                    <input type="text" th:field="*{papers[__${paperIterator.index}__].questions[__${questionIterator.index}__].imageData}" class="visually-hidden">
+                                                    <th:block th:replace="~{components :: image(${session.exam.id},${paper.id.name},${question.id.number})}"></th:block>
                                                     <button type="submit" th:formaction="@{/delete/{id}/{paper}/{number}(id=${session.exam.id},paper=${paper.id.name},number=${question.id.number})}" onclick="return confirm('Delete image?')" class="btn btn-danger position-absolute bottom-0 end-0">Delete</button>
                                                 </div>
                                                 <div th:if="${!question.hasImage}" class="mb-3 input-group">

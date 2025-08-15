@@ -13,6 +13,9 @@
             <th:block th:replace="~{components :: dashboardNavbar}"></th:block>
             <main class="p-3">
                 <div class="container overflow-x-auto">
+                    <div class="d-flex justify-content-end mb-3" th:if="${currentRoute.name() == 'ONGOING' && exams.size() != 0}">
+                        <a th:href="@{/stop-all}" onclick="return confirm('This will stop all ongoing exams! Are you sure?');" class="btn btn-danger">Stop All</a>
+                    </div>
                     <table class="table table-bordered">
                         <thead>
                         <tr>

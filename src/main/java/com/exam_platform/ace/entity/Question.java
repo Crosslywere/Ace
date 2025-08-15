@@ -1,16 +1,9 @@
 package com.exam_platform.ace.entity;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.Formula;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 @Entity
@@ -28,10 +21,6 @@ public class Question implements Comparable<Question> {
 	})
 	private Paper paper;
 
-	@Column(name = "IMAGE_SUFFIX", length = 5)
-	private String imageSuffix;
-
-	@Formula("imageSuffix != null")
 	@Column(name = "HAS_IMAGE")
 	private boolean hasImage;
 
@@ -44,20 +33,23 @@ public class Question implements Comparable<Question> {
 	@Column(name = "ANSWER_INDEX", length = 6)
 	private Byte answerIndex;
 
+	@Column(name = "IMAGE_DATA")
+	private byte[] imageData = null;
+
 	@Transient
 	private MultipartFile imageDocument;
 
 	public Question() {
 	}
 
-	public Question(Id id, Paper paper, String imageSuffix, boolean hasImage, String query, List<String> options, Byte answerIndex, MultipartFile imageDocument) {
+	public Question(Id id, Paper paper, boolean hasImage, String query, List<String> options, Byte answerIndex, byte[] imageData, MultipartFile imageDocument) {
 		this.id = id;
 		this.paper = paper;
-		this.imageSuffix = imageSuffix;
 		this.hasImage = hasImage;
 		this.query = query;
 		this.options = options;
 		this.answerIndex = answerIndex;
+		this.imageData = imageData;
 		this.imageDocument = imageDocument;
 	}
 
@@ -75,14 +67,6 @@ public class Question implements Comparable<Question> {
 
 	public void setPaper(Paper paper) {
 		this.paper = paper;
-	}
-
-	public String getImageSuffix() {
-		return imageSuffix;
-	}
-
-	public void setImageSuffix(String imageSuffix) {
-		this.imageSuffix = imageSuffix;
 	}
 
 	public boolean isHasImage() {
@@ -117,6 +101,14 @@ public class Question implements Comparable<Question> {
 		this.answerIndex = answerIndex;
 	}
 
+	public byte[] getImageData() {
+		return imageData;
+	}
+
+	public void setImageData(byte[] imageData) {
+		this.imageData = imageData;
+	}
+
 	public MultipartFile getImageDocument() {
 		return imageDocument;
 	}
@@ -126,27 +118,15 @@ public class Question implements Comparable<Question> {
 	}
 
 	public void deleteImage() throws Exception {
-		if (hasImage) {
-			File file = new ClassPathResource("static" + File.separator + "db-images").getFile();
-			Path path = Paths.get(file.getCanonicalPath() + File.separator + id.createImageSaveName() + imageSuffix);
-			System.out.println(path);
-			if (Files.deleteIfExists(path)) {
-				hasImage = false;
-				imageSuffix = null;
-			}
-		}
+		imageData = null;
+        hasImage = false;
 	}
 
 	public void saveImage(MultipartFile image) throws Exception {
-		String filename = image.getOriginalFilename();
-		if (filename == null) {
-			return;
+		if (!image.isEmpty()) {
+			imageData = image.getBytes();
+			hasImage = true;
 		}
-		imageSuffix = filename.substring(filename.lastIndexOf('.'));
-		hasImage = true;
-		File file = new ClassPathResource("static" + File.separator + "db-images").getFile();
-		Path path = Paths.get(file.getCanonicalPath() + File.separator + id.createImageSaveName() + imageSuffix);
-		Files.copy(image.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
 	}
 
 	public static QuestionBuilder builder() {
@@ -157,18 +137,17 @@ public class Question implements Comparable<Question> {
 
 		private Id id;
 		private Paper paper;
-		private String imageSuffix;
 		private boolean hasImage;
 		private String query;
 		private List<String> options;
 		private Byte answerIndex;
+		private byte[] imageData;
 		private MultipartFile imageDocument;
 
 		public QuestionBuilder() {
 			Question question = new Question();
 			this.id = question.id;
 			this.paper = question.paper;
-			this.imageSuffix = question.imageSuffix;
 			this.hasImage = question.hasImage;
 			this.query = question.query;
 			this.options = question.options;
@@ -181,11 +160,6 @@ public class Question implements Comparable<Question> {
 
 		public QuestionBuilder paper(Paper paper) {
 			this.paper = paper;
-			return this;
-		}
-
-		public QuestionBuilder imageSuffix(String imageSuffix) {
-			this.imageSuffix = imageSuffix;
 			return this;
 		}
 
@@ -209,13 +183,18 @@ public class Question implements Comparable<Question> {
 			return this;
 		}
 
+		public QuestionBuilder imageData(byte[] imageData) {
+			this.imageData = imageData;
+			return this;
+		}
+
 		public QuestionBuilder imageDocument(MultipartFile imageDocument) {
 			this.imageDocument = imageDocument;
 			return this;
 		}
 
 		public Question build() {
-			return new Question(id, paper, imageSuffix, hasImage, query, options, answerIndex, imageDocument);
+			return new Question(id, paper, hasImage, query, options, answerIndex, imageData, imageDocument);
 		}
 	}
 
@@ -254,12 +233,6 @@ public class Question implements Comparable<Question> {
 
 		public void setNumber(Integer number) {
 			this.number = number;
-		}
-
-		public String createImageSaveName() {
-			return paperId.getExamId() +
-					paperId.getName() +
-					number;
 		}
 
 		public static IdBuilder builder() {

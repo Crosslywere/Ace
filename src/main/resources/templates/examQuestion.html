@@ -13,17 +13,17 @@
             <div class="mb-3 container">
                 <div class="d-flex justify-content-center">
                     <button form="questionForm" type="submit" class="btn btn-outline-primary mx-3 mb-1" th:each="paper:${session.candidate.papers}" th:formaction="@{/exam/{paperName}/1(paperName=${paper})}" th:text="${paper}"></button>
-                    <button form="questionForm" type="submit" onclick="return confirm('Are you sure you are through? You can cross check your work for any mistakes...')" class="btn btn-outline-danger mx-3 mb-1" th:formaction="@{/submit}">Submit</button>
+                    <button form="questionForm" type="submit" onclick="return confirm('Are you sure you are through? You can cross check your work for any mistakes...')" class="btn btn-outline-danger mx-3 mb-1 visually-hidden" disabled id="submit" th:formaction="@{/submit}">Submit</button>
                 </div>
                 <button type="submit" th:formaction="@{/submit}" id="timeUp" class="visually-hidden" form="questionForm"></button>
             </div>
-            <div class="container" style="height:100vh">
+            <div class="container">
                 <form action="" id="questionForm" th:object="${candidateAnswer}" method="post" class="col-lg-10 m-auto border bg-white p-4 position-relative" th:with="question=${candidateAnswer.question}">
                     <div class="position-absolute fw-medium fs-5" style="top:1em;right:1em;" id="time">10</div>
                     <h3 class="text-center mb-3" th:text="|${session.candidate.exam.title} - *{id.paperName}|"></h3>
                     <p th:text="|*{id.number}. *{question.query}|"></p>
-                    <div class="d-flex justify-content-center" th:if="*{question.hasImage}">
-                        <img th:src="@{/db-images/{image}(image=*{question.id.createImageSaveName() + question.imageSuffix})}" height="250px" alt="image">
+                    <div class="d-flex justify-content-center p-3" th:if="*{question.hasImage}">
+                        <th:block th:replace="~{components :: image(*{question.id.paperId.examId},*{id.paperName},*{question.id.number})}"></th:block>
                     </div>
                     <div class="form-check" th:each="option,optionIterator:*{question.options}">
                         <label th:for="|option${optionIterator.index}|" class="optionLabel"></label>
@@ -45,18 +45,24 @@
     <script th:inline="javascript" type="text/javascript">
         // Timer
         const timeSlot = document.getElementById('time');
+        const submitBtn = document.getElementById('submit');
         function timer() {
             const candidateExamDuration = [[${session.candidate.exam.duration * 60}]];
             var candidateTimeUsed = [[${session.candidate.timeUsed}]];
+            var minSubmitTime = [[${session.candidate.exam.minDuration}]];
             timeSlot.innerHTML = timeWriter(candidateExamDuration - candidateTimeUsed);
-            var interval = setInterval(() => {
+            const interval = setInterval(() => {
                 candidateTimeUsed += 0.1;
-                timeSlot.innerHTML  = timeWriter(candidateExamDuration - candidateTimeUsed);
+                timeSlot.innerHTML = timeWriter(candidateExamDuration - candidateTimeUsed);
                 if (candidateExamDuration - candidateTimeUsed <= 300) {
                     timeSlot.classList.add('text-danger');
                 }
                 if (candidateExamDuration - candidateTimeUsed <= 0) {
                     document.getElementById("timeUp").click();
+                }
+                if (submitBtn.disabled && (candidateTimeUsed >= (minSubmitTime * 60))) {
+                    submitBtn.classList.remove('visually-hidden');
+                    submitBtn.disabled = false;
                 }
             }, 100);
         }

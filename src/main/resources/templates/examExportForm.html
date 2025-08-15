@@ -95,7 +95,8 @@
                         </div>
                         <div class="input-group mb-3">
                             <label for="cutOff" class="input-group-text fw-medium text-uppercase">Cut Off</label>
-                            <input type="number" th:field="*{cutOffPercentile}" min="0" id="cutOff" class="form-control">
+                            <input type="number" th:field="*{cutOffPercentile}" min="0" max="100" id="cutOff" class="form-control">
+                            <span class="input-group-text">Percentile</span>
                         </div>
                         <div class="input-group mb-3">
                             <label for="totalDesc" class="input-group-text fw-medium text-uppercase">Total Descriptor</label>
@@ -110,5 +111,6 @@
             </main>
         </div>
     </div>
+    <th:block th:replace="~{components :: scripts}"></th:block>
 </body>
 </html>

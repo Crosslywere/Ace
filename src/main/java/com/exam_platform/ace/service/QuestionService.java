@@ -15,19 +15,22 @@ public class QuestionService {
 		this.questionRepository = questionRepository;
 	}
 
-	public void addImageToQuestionById(Question.Id questionId, MultipartFile image) {
-		var question = questionRepository.findById(questionId).orElse(null);
-		if (question == null) {
-			return;
-		}
-		try {
-			question.saveImage(image);
-		} catch (Exception e) {
-			//noinspection CallToPrintStackTrace
-			e.printStackTrace();
-		}
-		questionRepository.save(question);
+	public Question fetchQuestionById(Long examId, String paper, Integer number) {
+		return questionRepository.findById_PaperId_ExamIdAndId_PaperId_NameAndId_Number(examId, paper, number).orElse(null);
 	}
+
+    public void addImageToQuestionById(Long examId, String paperName, Integer number, MultipartFile image) {
+        var question = questionRepository.findById_PaperId_ExamIdAndId_PaperId_NameAndId_Number(examId, paperName, number).orElse(null);
+        if (question == null) {
+            return;
+        }
+        try {
+            question.saveImage(image);
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
+        }
+        questionRepository.save(question);
+    }
 
 	public void deleteImageInQuestionById(Question.Id questionId) {
 		var question = questionRepository.findById(questionId).orElse(null);
@@ -37,9 +40,21 @@ public class QuestionService {
 		try {
 			question.deleteImage();
 		} catch (Exception e) {
-			//noinspection CallToPrintStackTrace
-			e.printStackTrace();
+			e.printStackTrace(System.err);
 		}
 		questionRepository.save(question);
 	}
+
+    public void deleteImageInQuestionById(Long examId, String paperName, Integer number) {
+        var question = questionRepository.findById_PaperId_ExamIdAndId_PaperId_NameAndId_Number(examId, paperName, number).orElse(null);
+        if (question == null)
+            return;
+
+        try {
+            question.deleteImage();
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
+        }
+        questionRepository.save(question);
+    }
 }
