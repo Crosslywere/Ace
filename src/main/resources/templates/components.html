@@ -87,6 +87,7 @@
             </div>
         </form>
     </th:block>
+    <img th:fragment="image(id,paper,number)" th:src="@{/image/{id}/{paper}/{number}(id=${id},paper=${paper},number=${number})}" height="250px" alt="image">
     <th:block th:fragment="scripts">
         <script th:src="@{/js/bootstrap.min.js}"></script>
         <script th:src="@{/js/script.js}"></script>
