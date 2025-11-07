@@ -222,7 +222,7 @@ public class Paper {
 			}
 
 			public Id build() {
-				return new Id();
+				return new Id(examId, name);
 			}
 		}
 	}
